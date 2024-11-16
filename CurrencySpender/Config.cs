@@ -1,11 +1,10 @@
-﻿using Dalamud.Configuration;
-using Dalamud.Plugin;
+using ECommons.Configuration;
 using System;
 
-namespace SamplePlugin;
+namespace CurrencySpender;
 
 [Serializable]
-public class Configuration : IPluginConfiguration
+internal unsafe class Config : IEzConfig
 {
     public int Version { get; set; } = 0;
 
