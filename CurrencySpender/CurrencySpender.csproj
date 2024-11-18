@@ -1,30 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="Dalamud.Plugin.Bootstrap.targets" />
-
+<Project Sdk="Dalamud.NET.Sdk/11.0.0">
   <PropertyGroup>
     <Authors>Blackcatz1911</Authors>
     <Version>0.0.1.0</Version>
     <Description>Figure out what to do with all the ingame currency.</Description>
     <PackageProjectUrl>https://github.com/Blackcatz1911/CurrencySpender</PackageProjectUrl>
     <RepoUrl>https://github.com/Blackcatz1911/CurrencySpender</RepoUrl>
-    <IconUrl>https://raw.githubusercontent.com/Blackcatz1911/CurrencySpender/refs/heads/master/Data/logo.png</IconUrl>
     <PackageLicenseExpression>AGPL-3.0-or-later</PackageLicenseExpression>
     <IsPackable>false</IsPackable>
+    <Platforms>x64</Platforms>
   </PropertyGroup>
-
-  <ItemGroup>
-    <Content Include="..\Data\goat.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <Visible>false</Visible>
-    </Content>
-  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\ECommons\ECommons\ECommons.csproj" />
   </ItemGroup>
-
-    <ItemGroup>
-        <PackageReference Update="DalamudPackager" Version="11.0.0" />
-    </ItemGroup>
 </Project>
