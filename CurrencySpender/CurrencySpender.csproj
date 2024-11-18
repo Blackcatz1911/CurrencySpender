@@ -3,8 +3,9 @@
   <Import Project="Dalamud.Plugin.Bootstrap.targets" />
 
   <PropertyGroup>
+    <Authors>Blackcatz1911</Authors>
     <Version>0.0.0.1</Version>
-    <Description>A sample plugin.</Description>
+    <Description>Figure out what to do with all the ingame currency.</Description>
     <PackageProjectUrl>https://github.com/Blackcatz1911/CurrencySpender</PackageProjectUrl>
     <PackageLicenseExpression>AGPL-3.0-or-later</PackageLicenseExpression>
     <IsPackable>false</IsPackable>
@@ -17,7 +18,10 @@
     </Content>
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Configuration\" />
-  </ItemGroup>
+    <ItemGroup>
+        <PackageReference Update="DalamudPackager" Version="11.0.0" />
+    </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\ECommons\ECommons\ECommons.csproj" />
+    </ItemGroup>
 </Project>

@@ -5,7 +5,7 @@ using Dalamud.Game.Text.SeStringHandling;
 using Dalamud.Interface.Textures;
 using Dalamud.Interface.Textures.TextureWraps;
 using FFXIVClientStructs.FFXIV.Client.Game;
-using Lumina.Excel.GeneratedSheets;
+using Lumina.Excel.Sheets;
 
 namespace CurrencySpender.Classes;
 
@@ -26,11 +26,11 @@ public unsafe class TrackedCurrency
 
     public required CurrencyType Type { get; init; }
 
-    [JsonIgnore]
-    public IDalamudTextureWrap Icon => Service.TextureProvider.GetFromGameIcon(new GameIconLookup
-    {
-        HiRes = true, ItemHq = Type is CurrencyType.HighQualityItem, IconId = IconId,
-    }).GetWrapOrEmpty();
+    //[JsonIgnore]
+    //public IDalamudTextureWrap Icon => Service.TextureProvider.GetFromGameIcon(new GameIconLookup
+    //{
+    //    HiRes = true, ItemHq = Type is CurrencyType.HighQualityItem, IconId = IconId,
+    //}).GetWrapOrEmpty();
 
     public uint ItemId
     {
@@ -43,7 +43,8 @@ public unsafe class TrackedCurrency
     [JsonIgnore]
     public uint IconId
     {
-        get => iconId ??= Service.DataManager.GetExcelSheet<Item>()!.GetRow(ItemId)?.Icon ?? 0;
+        get => Service.DataManager.GetExcelSheet<Item>().GetRow(ItemId).Icon;
+        //get => iconId ??= Service.DataManager.GetExcelSheet<Item>().GetRow(ItemId)?.Icon ?? 0;
         set => iconId = value;
     }
 
@@ -61,7 +62,7 @@ public unsafe class TrackedCurrency
 
     public SeString OverlayWarningText = "Above Threshold";
 
-    [JsonIgnore] public string Name => label ??= Service.DataManager.GetExcelSheet<Item>()!.GetRow(ItemId)?.Name ?? "Unable to read name";
+    [JsonIgnore] public string Name => label ??= Service.DataManager.GetExcelSheet<Item>()!.GetRow(ItemId).Name.ExtractText() ?? "Unable to read name";
 
     [JsonIgnore] public bool CanRemove => Type is not (CurrencyType.LimitedTomestone or CurrencyType.NonLimitedTomestone);
 
@@ -76,8 +77,8 @@ public unsafe class TrackedCurrency
         {
             itemId = Type switch
             {
-                CurrencyType.NonLimitedTomestone => Service.DataManager.GetExcelSheet<TomestonesItem>()!.First(item => item.Tomestones.Row is 2).Item.Row,
-                CurrencyType.LimitedTomestone => Service.DataManager.GetExcelSheet<TomestonesItem>()!.FirstOrDefault(item => item.Tomestones.Row is 3)?.Item.Row ?? 0,
+                CurrencyType.NonLimitedTomestone => Service.DataManager.GetExcelSheet<TomestonesItem>()!.First(item => item.Tomestones.RowId is 2).Item.RowId,
+                CurrencyType.LimitedTomestone => Service.DataManager.GetExcelSheet<TomestonesItem>()!.First(item => item.Tomestones.RowId is 3).Item.RowId,
                 _ => throw new Exception($"ItemId not initialized for type: {Type}"),
             };
         }

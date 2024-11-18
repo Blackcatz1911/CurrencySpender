@@ -9,6 +9,11 @@ using CurrencySpender.Windows;
 using CurrencySpender.Classes;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using System.Collections.Generic;
+using CurrencySpender.Configuration;
+using Dalamud.Game.ClientState.Objects.SubKinds;
+using Dalamud.Game.Addon.Lifecycle;
+using CurrencySpender.Helpers;
+
 namespace CurrencySpender;
 
 public class Plugin : IDalamudPlugin
@@ -19,25 +24,45 @@ public class Plugin : IDalamudPlugin
 
     private const string CommandName = "/currency";
 
-    public config Configuration { get; init; }
+    public Config config { get; init; }
+
+    public String homeWorld;
 
     public readonly WindowSystem WindowSystem = new("CurrencySpender");
     private ConfigWindow ConfigWindow { get; init; }
     private MainWindow MainWindow { get; init; }
+    private SpendingWindow SpendingWindow { get; init; }
 
     public Plugin(IDalamudPluginInterface pluginInterface)
     {
         pluginInterface.Create<Service>();
-        Configuration = PluginInterface.GetPluginConfig() as config ?? new config();
+        config = PluginInterface.GetPluginConfig() as Config ?? new Config();
+        ECommonsMain.Init(pluginInterface, this);
+
+        if (config is { Currencies.Count: 0 } or { Currencies: null } or { Version: not 7 })
+        {
+            //Service.Log.Verbose("Generating Initial Currency List.");
+
+            config.Currencies = DataHelper.GenerateCurrencyList();
+            config.Save();
+        }
+        if (config is { Items.Count: 0 } or { Items: null } or { Version: not 7 })
+        {
+            //Service.Log.Verbose("Generating Initial Currency List.");
+
+            config.Items = DataHelper.GenerateItemList();
+            config.Save();
+        }
 
         // you might normally want to embed resources and load them from the manifest stream
         //var goatImagePath = Path.Combine(PluginInterface.AssemblyLocation.Directory?.FullName!, "goat.png");
 
         ConfigWindow = new ConfigWindow(this);
         MainWindow = new MainWindow(this);
-
+        SpendingWindow = new SpendingWindow(this);
         WindowSystem.AddWindow(ConfigWindow);
         WindowSystem.AddWindow(MainWindow);
+        WindowSystem.AddWindow(SpendingWindow);
 
         CommandManager.AddHandler(CommandName, new CommandInfo(OnCommand)
         {
@@ -54,6 +79,10 @@ public class Plugin : IDalamudPlugin
 
         // Adds another button that is doing the same but for the main ui of the plugin
         PluginInterface.UiBuilder.OpenMainUi += ToggleMainUI;
+
+        Service.Log.Verbose("Item Unlocked - Should be True"+ItemHelper.CheckUnlockStatus(15814).ToString()); //unlocked
+        Service.Log.Verbose("Item Unlocked - Should be False" + ItemHelper.CheckUnlockStatus(38457).ToString());
+        //ItemHelper.CheckUnlockStatus(38457); //not unlocked
     }
 
     public void Dispose()
@@ -75,43 +104,57 @@ public class Plugin : IDalamudPlugin
     private void DrawUI() => WindowSystem.Draw();
 
     public void ToggleConfigUI() => ConfigWindow.Toggle();
+    public void ToggleSpendingUI(uint CurrencyId, String name, List<BuyableItem> cItems)
+    {
+        SpendingWindow.collectableItems = cItems;
+        SpendingWindow.CurrencyId = CurrencyId;
+        SpendingWindow.CurrencyName = name;
+        SpendingWindow.IsOpen = true;
+    }
     public void ToggleMainUI() => MainWindow.Toggle();
+
+    private void OnLogin()
+    {
+        homeWorld = GetHomeWorld();
+        //Service.Log.Verbose("homeworld: " + homeWorld);
+    }
 
     private void OnFrameworkUpdate(IFramework framework)
     {
         if (!Service.ClientState.IsLoggedIn) return;
 
-        System.OverlayController.Update();
+        //System.OverlayController.Update();
     }
 
     private void OnZoneChange(ushort e)
     {
-        if (System.Config is { ChatWarning: false }) return;
+        //if (System.Config is { ChatWarning: false }) return;
 
-        foreach (var currency in System.Config.Currencies.Where(currency => currency is { HasWarning: true, ChatWarning: true, Enabled: true }))
-        {
-            Service.ChatGui.Print($"{currency.Name} is {(currency.Invert ? "below" : "above")} threshold.", "CurrencyAlert", 43);
-        }
+        //foreach (var currency in System.Config.Currencies.Where(currency => currency is { HasWarning: true, ChatWarning: true, Enabled: true }))
+        //{
+        //    Service.ChatGui.Print($"{currency.Name} is {(currency.Invert ? "below" : "above")} threshold.", "CurrencyAlert", 43);
+        //}
     }
 
-    private static List<TrackedCurrency> GenerateInitialList() => [
-        new TrackedCurrency { Type = CurrencyType.Item, ItemId = 20, Threshold = 75000, Enabled = true, }, // StormSeal
-        new TrackedCurrency { Type = CurrencyType.Item, ItemId = 21, Threshold = 75000, Enabled = true, }, // SerpentSeal
-        new TrackedCurrency { Type = CurrencyType.Item, ItemId = 22, Threshold = 75000, Enabled = true, }, // FlameSeal
-
-        new TrackedCurrency { Type = CurrencyType.Item, ItemId = 25, Threshold = 18000, Enabled = true, }, // WolfMarks
-        new TrackedCurrency { Type = CurrencyType.Item, ItemId = 36656, Threshold = 18000, Enabled = true, }, // TrophyCrystals
-
-        new TrackedCurrency { Type = CurrencyType.Item, ItemId = 27, Threshold = 3500, Enabled = true, }, // AlliedSeals
-        new TrackedCurrency { Type = CurrencyType.Item, ItemId = 10307, Threshold = 3500, Enabled = true, }, // CenturioSeals
-        new TrackedCurrency { Type = CurrencyType.Item, ItemId = 26533, Threshold = 3500, Enabled = true, }, // SackOfNuts
-
-        new TrackedCurrency { Type = CurrencyType.Item, ItemId = 26807, Threshold = 800, Enabled = true, }, // BicolorGemstones
-
-        new TrackedCurrency { Type = CurrencyType.Item, ItemId = 28, Threshold = 1400, Enabled = true, }, // Poetics
-        new TrackedCurrency { Type = CurrencyType.NonLimitedTomestone, Threshold = 1400, Enabled = true, }, // NonLimitedTomestone
-        new TrackedCurrency { Type = CurrencyType.LimitedTomestone, Threshold = 1400, Enabled = true, }, // LimitedTomestone
-
-        new TrackedCurrency { Type = CurrencyType.Item, ItemId = 28063, Threshold = 7500, Enabled = true, }, // Skybuilders scripts
-    ];
+    public String GetHomeWorld()
+    {
+        // Ensure the LocalPlayer is not null (logged-in state)
+        var localPlayer = Service.ClientState.LocalPlayer;
+        if (localPlayer != null)
+        {
+            var homeWorld = Service.DataManager.Excel.GetSheet<Lumina.Excel.Sheets.World>().GetRow(localPlayer.CurrentWorld.RowId).Name.ExtractText();
+            if (homeWorld != null)
+            {
+                return homeWorld;
+            }
+            else
+            {
+                return "Unknown";
+            }
+        }
+        else
+        {
+            return "Unknown";
+        }
+    }
 }

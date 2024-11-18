@@ -1,5 +1,6 @@
 using System;
 using System.Numerics;
+using CurrencySpender.Configuration;
 using Dalamud.Interface.Windowing;
 using ImGuiNET;
 
@@ -7,7 +8,7 @@ namespace CurrencySpender.Windows;
 
 public class ConfigWindow : Window, IDisposable
 {
-    private config configuration;
+    private Config configuration;
 
     // We give this window a constant ID using ###
     // This allows for labels being dynamic, like "{FPS Counter}fps###XYZ counter window",
@@ -20,7 +21,7 @@ public class ConfigWindow : Window, IDisposable
         Size = new Vector2(232, 90);
         SizeCondition = ImGuiCond.Always;
 
-        configuration = plugin.Configuration;
+        configuration = plugin.config;
     }
 
     public void Dispose() { }
