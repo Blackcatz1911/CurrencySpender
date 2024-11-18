@@ -4,9 +4,11 @@
 
   <PropertyGroup>
     <Authors>Blackcatz1911</Authors>
-    <Version>0.0.0.1</Version>
+    <Version>0.0.1.0</Version>
     <Description>Figure out what to do with all the ingame currency.</Description>
     <PackageProjectUrl>https://github.com/Blackcatz1911/CurrencySpender</PackageProjectUrl>
+    <RepoUrl>https://github.com/Blackcatz1911/CurrencySpender</RepoUrl>
+    <IconUrl>https://raw.githubusercontent.com/Blackcatz1911/CurrencySpender/refs/heads/master/Data/logo.png</IconUrl>
     <PackageLicenseExpression>AGPL-3.0-or-later</PackageLicenseExpression>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
@@ -18,10 +20,11 @@
     </Content>
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\ECommons\ECommons\ECommons.csproj" />
+  </ItemGroup>
+
     <ItemGroup>
         <PackageReference Update="DalamudPackager" Version="11.0.0" />
-    </ItemGroup>
-    <ItemGroup>
-        <ProjectReference Include="..\ECommons\ECommons\ECommons.csproj" />
     </ItemGroup>
 </Project>

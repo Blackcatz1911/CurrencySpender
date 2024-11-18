@@ -2,7 +2,7 @@
   "Author": "Blackcatz1911",
   "Name": "Currency Spender",
   "Punchline": "Figure out what to do with all the ingame currency.",
-  "Description": "'What the heck do I do with that?' will be a question for the past. Get notifications and/or toasts, when your ingame currencies exceed a certain thresshold. Get the current prices from universalis and see what you can do with those Poetics.\n/currency",
+  "Description": "'What the heck do I do with that?' will be a question for the past. Get the current prices from universalis, missing collectables from that currency and see what you can do with those currencies...",
   "ApplicableVersion": "any",
   "Tags": [
     "currency",

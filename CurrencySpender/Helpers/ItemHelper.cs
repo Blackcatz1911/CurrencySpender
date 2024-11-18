@@ -1,10 +1,5 @@
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using Lumina.Excel.Sheets;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CurrencySpender.Helpers
 {
@@ -25,6 +20,7 @@ namespace CurrencySpender.Helpers
             var additionalData = item.AdditionalData.RowId;
             var instance = UIState.Instance();
             if (instance->PlayerState.IsOrchestrionRollUnlocked(additionalData)) return true;
+            //if (instance->PlayerState.Is
             Service.Log.Verbose("IsOrchestrionRollUnlocked: " + instance->PlayerState.IsOrchestrionRollUnlocked(additionalData).ToString());
             return action.Type switch
             {

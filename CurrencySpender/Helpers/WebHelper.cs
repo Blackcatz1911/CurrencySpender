@@ -1,43 +1,23 @@
-using Dalamud.Plugin.Services;
 using Newtonsoft.Json;
-using System.Collections.Generic;
-using System;
 using System.Net.Http;
-using System.Net.Http.Json;
-using System.Threading.Tasks;
-using System.Runtime.InteropServices.Marshalling;
-using Serilog;
-using System.Text.Json.Nodes;
-using System.Text;
-using System.Linq;
 using CurrencySpender.Classes;
-using System;
-using System.Collections.Generic;
-using System.Numerics;
-using System.Threading.Tasks;
-using CurrencySpender.Classes;
-using CurrencySpender.Configuration;
-using CurrencySpender.Helpers;
-using Dalamud.Interface.Internal;
-using Dalamud.Interface.Utility;
-using Dalamud.Interface.Windowing;
-using Dalamud.Plugin.Services;
+
 
 namespace CurrencySpender.Helpers
 {
     internal class WebHelper
     {
-        public record class WhitelistUser(
-            string? Name = null
-        );
-        internal static async Task<Boolean> CheckPrices(List<uint> ItemIds, Plugin p)
+        public static async void CheckPrices()
         {
-            if (Service.ClientState.LocalPlayer == null || ItemIds.Count == 0)
+            List<uint> lookup = new List<uint>();
+            foreach(var item in C.Items)
             {
-                return false;
+                if((item.LastChecked == 0 || IsTimestampOlderThan(item.LastChecked, 10)) && !lookup.Contains(item.ItemId) && lookup.Count < 99)
+                {
+                    lookup.Add(item.ItemId);
+                }
             }
-
-            var url = string.Join(",", ItemIds.ToArray());
+            var url = string.Join(",", lookup.ToArray());
             //Service.Log.Verbose(url);
             HttpClient client = new HttpClient();
             HttpResponseMessage response = await client.GetAsync("https://universalis.app/api/v2/aggregated/Odin/"+url);
@@ -54,11 +34,7 @@ namespace CurrencySpender.Helpers
                 );
 
             // Log or use the extracted prices
-            foreach (var obj_ in itemPrices)
-            {
-                //Service.Log.Info($"World Price: {obj_.Value}");
-            }
-            foreach (var item in p.config.Items)
+            foreach (var item in C.Items)
             {
                 if (itemPrices.TryGetValue(item.ItemId, out uint newPrice))
                 {
@@ -66,15 +42,15 @@ namespace CurrencySpender.Helpers
                     item.GetType()
                         .GetProperty(nameof(BuyableItem.CurrentPrice))!
                         .SetValue(item, newPrice);
+                    item.LastChecked = (uint)DateTimeOffset.UtcNow.ToUnixTimeSeconds();
                 }
             }
-            //Service.Log.Verbose(json.ToString());
-            //HttpClient client = new HttpClient();
-            //var prices = await GetJsonHttpClient("https://universalis.app/api/v2/aggregated/Odin/19935", client);
-            //Log.Verbose(prices.ToString());
-            return true;
 
-
+        }
+        public static bool IsTimestampOlderThan(uint unixTimestamp, int minutes)
+        {
+            DateTime savedTime = DateTimeOffset.FromUnixTimeSeconds(unixTimestamp).UtcDateTime;
+            return (DateTime.UtcNow - savedTime).TotalMinutes > minutes;
         }
         public class WorldPrice
         {
@@ -102,30 +78,5 @@ namespace CurrencySpender.Helpers
             public List<Result> Results { get; set; }
             public List<object> FailedItems { get; set; }
         }
-
-        //public static async void PostStuff()
-        //{
-        //    HttpClient client = new HttpClient();
-        //    var values = new Dictionary<string, string> { { "index", "selling" }, { "value", "1" } };
-        //    string url = "https://universail.z0x.org/api/items/reset";
-        //    var data = new FormUrlEncodedContent(values);
-        //    var response = await client.PostAsync(url, data);
-        //    PluginLog.Debug("Reset: " + response);
-        //    var length = C.MarketConfigs.Count;
-        //    var items = new List<uint>();
-        //    foreach (var marketConfig in C.MarketConfigs)
-        //    {
-        //        if (!items.Exists(x => x == marketConfig.item_id) && marketConfig.item_id != 0)
-        //        {
-        //            items.Add(marketConfig.item_id);
-        //        }
-        //    }
-        //    PluginLog.Debug("Items: " + string.Join(",", items));
-        //    values = new Dictionary<string, string> { { "items", string.Join(",", items) } };
-        //    url = "https://universail.z0x.org/api/items/selling";
-        //    data = new FormUrlEncodedContent(values);
-        //    response = await client.PostAsync(url, data);
-        //    PluginLog.Debug("Items Response: " + response);
-        //}
     }
 }

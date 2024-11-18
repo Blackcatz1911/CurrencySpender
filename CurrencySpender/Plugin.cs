@@ -13,105 +13,126 @@ using CurrencySpender.Configuration;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.Addon.Lifecycle;
 using CurrencySpender.Helpers;
+using ECommons;
+using ECommons.Configuration;
+using ECommons.Schedulers;
+using ECommons.SimpleGui;
+using CurrencySpender.Windows;
+using ECommons.DalamudServices;
+using ECommons.Logging;
+using ECommons.Automation.NeoTaskManager;
 
 namespace CurrencySpender;
 
-public class Plugin : IDalamudPlugin
+public sealed class Plugin : IDalamudPlugin
 {
+    public string Name => "Currency Spender";
     [PluginService] internal static IDalamudPluginInterface PluginInterface { get; private set; } = null!;
     [PluginService] internal static ITextureProvider TextureProvider { get; private set; } = null!;
     [PluginService] internal static ICommandManager CommandManager { get; private set; } = null!;
 
-    private const string CommandName = "/currency";
+    internal static Plugin P;
+    internal static Config C => P.config;
 
-    public Config config { get; init; }
+    public Config config;
 
-    public String homeWorld;
+    public String homeWorld = "";
 
     public readonly WindowSystem WindowSystem = new("CurrencySpender");
-    private ConfigWindow ConfigWindow { get; init; }
-    private MainWindow MainWindow { get; init; }
-    private SpendingWindow SpendingWindow { get; init; }
+
+    internal WindowSystem ws;
+    internal MainTabWindow mainTabWindow;
+    internal ConfigTabWindow configTabWindow;
+    internal SpendingWindow spendingWindow;
+
+    internal TaskManager TaskManager;
+    //private SpendingWindow SpendingWindow { get; init; }
 
     public Plugin(IDalamudPluginInterface pluginInterface)
     {
         pluginInterface.Create<Service>();
-        config = PluginInterface.GetPluginConfig() as Config ?? new Config();
+        //config = PluginInterface.GetPluginConfig() as Config ?? new Config();
         ECommonsMain.Init(pluginInterface, this);
-
-        if (config is { Currencies.Count: 0 } or { Currencies: null } or { Version: not 7 })
+        P = this;
+        new TickScheduler(delegate
         {
-            //Service.Log.Verbose("Generating Initial Currency List.");
-
-            config.Currencies = DataHelper.GenerateCurrencyList();
-            config.Save();
-        }
-        if (config is { Items.Count: 0 } or { Items: null } or { Version: not 7 })
-        {
-            //Service.Log.Verbose("Generating Initial Currency List.");
-
-            config.Items = DataHelper.GenerateItemList();
-            config.Save();
-        }
+            EzConfig.Migrate<Config>();
+            config = EzConfig.Init<Config>();
+            ws = new();
+            spendingWindow = new();
+            ws.AddWindow(spendingWindow);
+            mainTabWindow = new();
+            configTabWindow = new();
+            PluginInterface.UiBuilder.Draw += ws.Draw;
+            PluginInterface.UiBuilder.OpenConfigUi += delegate { configTabWindow.IsOpen = true; };
+            PluginInterface.UiBuilder.OpenMainUi += delegate { mainTabWindow.IsOpen = true; };
+            TaskManager = new() { };
+            DataHelper.GenerateCurrencyList();
+            DataHelper.GenerateItemList();
+            EzCmd.Add("/cur", CommandHandler, "Open plugin interface");
+            TaskManager.Enqueue(() => WebHelper.CheckPrices());
+        });
 
         // you might normally want to embed resources and load them from the manifest stream
         //var goatImagePath = Path.Combine(PluginInterface.AssemblyLocation.Directory?.FullName!, "goat.png");
 
-        ConfigWindow = new ConfigWindow(this);
-        MainWindow = new MainWindow(this);
-        SpendingWindow = new SpendingWindow(this);
-        WindowSystem.AddWindow(ConfigWindow);
-        WindowSystem.AddWindow(MainWindow);
-        WindowSystem.AddWindow(SpendingWindow);
+        //ConfigWindow = new Windows.ConfigWindow(this);
+        //MainWindow = new MainWindow(this);
+        //SpendingWindow = new SpendingWindow(this);
+        //WindowSystem.AddWindow(ConfigWindow);
+        ////WindowSystem.AddWindow(MainWindow);
+        //ws.AddWindow(SpendingWindow);
 
-        CommandManager.AddHandler(CommandName, new CommandInfo(OnCommand)
-        {
-            HelpMessage = "A useful message to display in /xlhelp"
-        });
-
-        PluginInterface.UiBuilder.Draw += DrawUI;
+        //PluginInterface.UiBuilder.Draw += DrawUI;
 
         //var text = Dalamud.Game.ClientState.Objects.Enums.ObjectKind.
 
         // This adds a button to the plugin installer entry of this plugin which allows
         // to toggle the display status of the configuration ui
-        PluginInterface.UiBuilder.OpenConfigUi += ToggleConfigUI;
+        //PluginInterface.UiBuilder.OpenConfigUi += ToggleConfigUI;
 
         // Adds another button that is doing the same but for the main ui of the plugin
-        PluginInterface.UiBuilder.OpenMainUi += ToggleMainUI;
 
         Service.Log.Verbose("Item Unlocked - Should be True"+ItemHelper.CheckUnlockStatus(15814).ToString()); //unlocked
         Service.Log.Verbose("Item Unlocked - Should be False" + ItemHelper.CheckUnlockStatus(38457).ToString());
         //ItemHelper.CheckUnlockStatus(38457); //not unlocked
     }
 
+    private void CommandHandler(string command, string arguments)
+    {
+        if (arguments.EqualsIgnoreCase("test"))
+        {
+            spendingWindow.IsOpen = true;
+        }
+        else
+        {
+            mainTabWindow.IsOpen = !mainTabWindow.IsOpen;
+        }
+    }
+
     public void Dispose()
     {
-        WindowSystem.RemoveAllWindows();
-
-        ConfigWindow.Dispose();
-        MainWindow.Dispose();
-
-        CommandManager.RemoveHandler(CommandName);
+        PluginInterface.UiBuilder.Draw -= ws.Draw;
+        ECommonsMain.Dispose();
     }
 
     private void OnCommand(string command, string args)
     {
-        // in response to the slash command, just toggle the display status of our main ui
-        ToggleMainUI();
+        mainTabWindow.IsOpen = true;
     }
 
-    private void DrawUI() => WindowSystem.Draw();
 
-    public void ToggleConfigUI() => ConfigWindow.Toggle();
+    //public void ToggleConfigUI() => ConfigWindow.Toggle();
     public void ToggleSpendingUI(uint CurrencyId, String name, List<BuyableItem> cItems)
     {
-        SpendingWindow.collectableItems = cItems;
-        SpendingWindow.CurrencyId = CurrencyId;
-        SpendingWindow.CurrencyName = name;
-        SpendingWindow.IsOpen = true;
+        TaskManager.Enqueue(() => WebHelper.CheckPrices());
+        spendingWindow.collectableItems = cItems;
+        spendingWindow.CurrencyId = CurrencyId;
+        spendingWindow.CurrencyName = name;
+        spendingWindow.IsOpen = true;
+        //SpendingWindow.AllowPinning = true;
     }
-    public void ToggleMainUI() => MainWindow.Toggle();
+    //public void ToggleMainUI() => MainWindow.Toggle();
 
     private void OnLogin()
     {

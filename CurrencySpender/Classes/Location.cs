@@ -1,11 +1,3 @@
-using FFXIVClientStructs.FFXIV.Client.UI;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace CurrencySpender.Classes
 {
     public class Location
@@ -25,6 +17,8 @@ namespace CurrencySpender.Classes
             new Location { Id = 3, MapId = 13, TerritoryId = 130, Postion = (8.3f, 9.0f), Name = "Flame Quartermaster" },
             new Location { Id = 4, MapId = 257, TerritoryId = 478, Postion = (5.7f, 5.3f), Name = "Hismena" },
             new Location { Id = 5, MapId = 366, TerritoryId = 635, Postion = (13.9f, 11.6f), Name = "Enna" },
+            new Location { Id = 6, MapId = 51, TerritoryId = 250, Postion = (4.5f, 6.0f), Name = "Mark Quartermaster" },
+            new Location { Id = 7, MapId = 856, TerritoryId = 1186, Postion = (8.6f, 13.5f), Name = "Zircon" },
         ];
     }
 }

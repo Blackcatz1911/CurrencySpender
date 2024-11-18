@@ -1,13 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Numerics;
 using System.Text.Json.Serialization;
-using Dalamud.Game.Text.SeStringHandling;
-using Dalamud.Interface.Textures;
-using Dalamud.Interface.Textures.TextureWraps;
-using FFXIVClientStructs.FFXIV.Client.Game;
 using Lumina.Excel.Sheets;
 
 namespace CurrencySpender.Classes;
@@ -21,8 +12,6 @@ public enum ItemType
 
 public unsafe class BuyableItem
 {
-    private String? whereToBuy;
-
     public required ItemType Type { get; init; }
 
     public uint ItemId { get; init; }
@@ -31,6 +20,7 @@ public unsafe class BuyableItem
 
     [JsonIgnore] public string Name => Service.DataManager.GetExcelSheet<Item>()!.GetRow(ItemId).Name.ExtractText() ?? "Unable to read name";
     [JsonIgnore] public uint CurrentPrice { get; set; }
+    [JsonIgnore] public uint LastChecked { get; set; }
     [JsonIgnore] public uint AmountCanBuy { get; set; }
     [JsonIgnore] public uint Profit { get; set; }
     [JsonIgnore] public uint HasSoldWeek { get; set; }

@@ -17,54 +17,37 @@ using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using Dalamud.Game.Text.SeStringHandling.Payloads;
 
 namespace CurrencySpender.Windows;
-internal class SpendingWindow : Window, IDisposable
+internal class SpendingWindow : Window
 {
     public uint CurrencyId;
     public String CurrencyName;
-    
-    private Plugin plugin;
     public List<BuyableItem> collectableItems;
-
-    // We give this window a hidden ID using ##
-    // So that the user will see "My Amazing Window" as window title,
-    // but for ImGui the ID is "My Amazing Window##With a hidden ID"
-    public SpendingWindow(Plugin plugin)
-        : base("Spending Guide")
+    public SpendingWindow() : base("SpendingWindow")
     {
-        SizeConstraints = new WindowSizeConstraints
+        this.SizeConstraints = new()
         {
-            MinimumSize = new Vector2(375, 330),
-            MaximumSize = new Vector2(float.MaxValue, float.MaxValue)
+            MinimumSize = new(500, 200),
+            MaximumSize = new(float.MaxValue, float.MaxValue)
         };
-
-        //GoatImagePath = goatImagePath;
-        this.plugin = plugin;
     }
-
-    public void Dispose() { }
-
     public unsafe override void Draw()
     {
-        //this.WindowName = "SpendingGuide: " + this.CurrencyName;
-        ImGui.Text($"'" + CurrencyName + "' What to do with that:");
+        //WindowName = "SpendingGuide: " + this.CurrencyName;
+        ImGui.Text($"'" + CurrencyName + "'... What to do with that:");
+        if(C.debug) ImGui.Text($"DEBUG: CurrencyId: {CurrencyId}");
         ImGui.Separator();
         try
         {
             if (collectableItems.Count > 0)
             {
-                ImGui.Text($"Collectables not yet registred:");
+                ImGui.Text($"Collectables not yet registered:");
                 if (ImGui.BeginTable("##collectables", 4, ImGuiTableFlags.Borders | ImGuiTableFlags.SizingFixedFit))
                 {
-                    //Service.Log.Verbose("Starting ImGui TableSetupColumn rendering...");
                     ImGui.TableSetupColumn("ID");
                     ImGui.TableSetupColumn("Name", ImGuiTableColumnFlags.WidthStretch);
                     ImGui.TableSetupColumn("Price");
                     ImGui.TableSetupColumn("");
-                    //Service.Log.Verbose("Starting ImGui TableHeadersRow rendering...");
                     ImGui.TableHeadersRow();
-                    //Service.Log.Verbose("Starting ImGui TableNextColumn rendering...");
-                    //if (collectableItems.Count > 0)
-                    //{
                     foreach (BuyableItem item in collectableItems)
                     {
                         ImGui.TableNextColumn();
@@ -90,20 +73,8 @@ internal class SpendingWindow : Window, IDisposable
                 }
                 ImGui.Separator();
             }
-       
-            ImGui.Text($"Sellable on the marketboard:");
 
-            //foreach (BuyableItem item in plugin.config.Items)
-            //{
-            //    if (ImGui.Button(item.Name))
-            //    {
-            //        //plugin.ToggleSpendingUI(currency.ItemId, currency.Name);
-            //        //Service.Log.Verbose("test2: " + item.Name);
-            //    }
-            //    ImGui.Text($"You can sell '"+ item.Name+"' for ");
-            //}
-            //UiHelper.CreateTable("##markettable", ["Test", "Price", "Qty", "Sells for", "Total", "Action"], ImGuiTableFlags.Borders | ImGuiTableFlags.ScrollY);
-            //Service.Log.Verbose("Starting ImGui Table rendering...");
+            ImGui.Text($"Sellable items on the marketboard:");
 
             if (ImGui.BeginTable("##markettable", 6, ImGuiTableFlags.Borders | ImGuiTableFlags.SizingFixedFit | ImGuiTableFlags.Sortable))
             {
@@ -118,7 +89,7 @@ internal class SpendingWindow : Window, IDisposable
 
                 // Get sorting specs
                 ImGuiTableSortSpecsPtr sortSpecs = ImGui.TableGetSortSpecs();
-                List<BuyableItem> filteredItems = plugin.config.Items
+                List<BuyableItem> filteredItems = C.Items
                     .Where(item => item.C_ID == CurrencyId && item.Type == ItemType.Sellable)
                     .ToList();
 
@@ -171,13 +142,18 @@ internal class SpendingWindow : Window, IDisposable
                 foreach (BuyableItem item in filteredItems)
                 {
                     ImGui.TableNextColumn();
-                    ImGui.Text(item.Name);
+                    if (ImGui.Selectable(item.Name)) // Make the name clickable
+                    {
+                        ImGui.SetClipboardText(item.Name); // Copy the name to the clipboard
+                        Notify.Success("Name copied to clipboard");
+                        Service.Log.Verbose($"Copied '{item.Name}' to clipboard."); // Optional: Log for debugging
+                    }
                     ImGui.TableNextColumn();
                     UiHelper.Rightalign(item.Price.ToString(), true);
                     ImGui.TableNextColumn();
                     UiHelper.Rightalign(item.AmountCanBuy.ToString(), true);
                     ImGui.TableNextColumn();
-                    UiHelper.Rightalign(item.CurrentPrice == 0?"-":item.CurrentPrice.ToString(), true);
+                    UiHelper.Rightalign(item.CurrentPrice == 0 ? "-" : item.CurrentPrice.ToString(), true);
                     ImGui.TableNextColumn();
                     UiHelper.Rightalign(item.Profit == 0 ? "-" : item.Profit.ToString(), true);
                     ImGui.TableNextColumn();
@@ -200,7 +176,7 @@ internal class SpendingWindow : Window, IDisposable
         }
         catch (Exception e)
         {
-            //Service.Log.Error(e, "ImGuiTable");
+            Service.Log.Error(e, "ImGuiTable");
         }
     }
 }
