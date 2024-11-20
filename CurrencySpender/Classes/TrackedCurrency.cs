@@ -52,6 +52,8 @@ public unsafe class TrackedCurrency
 
     [JsonIgnore] public int CurrentCount => InventoryManager.Instance()->GetInventoryItemCount(ItemId, Type is CurrencyType.HighQualityItem, false, false);
 
+    public int MaxCount;
+
     [JsonIgnore] public bool HasWarning => Invert ? CurrentCount < Threshold : CurrentCount > Threshold;
 
     private uint GetItemId()

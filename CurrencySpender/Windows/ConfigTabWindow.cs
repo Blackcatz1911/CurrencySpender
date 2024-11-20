@@ -6,7 +6,7 @@ unsafe internal class ConfigTabWindow : Window
     {
         this.SizeConstraints = new()
         {
-            MinimumSize = new(250, 100),
+            MinimumSize = new(350, 100),
             MaximumSize = new(9999, 9999)
         };
         P.ws.AddWindow(this);
@@ -21,6 +21,8 @@ unsafe internal class ConfigTabWindow : Window
     {
         ImGuiEx.EzTabBar("tabbar", [
             ("Main Settings", ConfigTab.Draw, null, true),
+            ("Todo list", TodoTab.Draw, null, true),
+            ("Changelog", ChangelogTab.Draw, null, true),
             (C.debug?"Debug":null, DebugTab.Draw, null, true),
          ]);
     }

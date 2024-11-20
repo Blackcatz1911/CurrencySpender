@@ -1,20 +1,6 @@
-using Dalamud.Interface.Windowing;
-using System;
-using System.Numerics;
 using CurrencySpender.Classes;
-using CurrencySpender.Configuration;
-using Dalamud.Interface.Internal;
-using Dalamud.Interface.Utility;
-using Dalamud.Plugin.Services;
-using ImGuiNET;
-using System.Threading.Tasks;
-using CurrencySpender.Helpers;
-using System.Collections.Generic;
-using System.Linq;
-using Lumina.Excel.Sheets;
-using FFXIVClientStructs.FFXIV.Client.UI.Agent;
-using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using Dalamud.Game.Text.SeStringHandling.Payloads;
+using Dalamud.Interface;
 
 namespace CurrencySpender.Windows;
 internal class SpendingWindow : Window
@@ -26,9 +12,24 @@ internal class SpendingWindow : Window
     {
         this.SizeConstraints = new()
         {
-            MinimumSize = new(500, 200),
+            MinimumSize = new(600, 200),
             MaximumSize = new(float.MaxValue, float.MaxValue)
         };
+        if (C.debug)
+        {
+            TitleBarButtons.Add(new()
+            {
+                Click = (m) =>
+                { if (m == ImGuiMouseButton.Left) {
+                        P.TaskManager.Enqueue(() => WebHelper.CheckPrices(true));
+                        P.TaskManager.Enqueue(() => WebHelper.CheckPrices(true));
+                    }
+                },
+                Icon = FontAwesomeIcon.Sync,
+                IconOffset = new(2, 2),
+                ShowTooltip = () => ImGui.SetTooltip("Force refresh Universalis"),
+            });
+        }
     }
     public unsafe override void Draw()
     {
@@ -76,10 +77,11 @@ internal class SpendingWindow : Window
 
             ImGui.Text($"Sellable items on the marketboard:");
 
-            if (ImGui.BeginTable("##markettable", 6, ImGuiTableFlags.Borders | ImGuiTableFlags.SizingFixedFit | ImGuiTableFlags.Sortable))
+            if (ImGui.BeginTable("##markettable", 7, ImGuiTableFlags.Borders | ImGuiTableFlags.SizingFixedFit | ImGuiTableFlags.Sortable))
             {
                 // Set up columns
                 ImGui.TableSetupColumn("Name", ImGuiTableColumnFlags.WidthStretch);
+                ImGui.TableSetupColumn("Sales", ImGuiTableColumnFlags.None);
                 ImGui.TableSetupColumn("Price", ImGuiTableColumnFlags.None);
                 ImGui.TableSetupColumn("Qty", ImGuiTableColumnFlags.None);
                 ImGui.TableSetupColumn("Sells for", ImGuiTableColumnFlags.None);
@@ -108,26 +110,32 @@ internal class SpendingWindow : Window
                                 ? filteredItems.OrderBy(item => item.Name).ToList()
                                 : filteredItems.OrderByDescending(item => item.Name).ToList();
                             break;
+                        
+                        case 1: // Sales
+                            filteredItems = ascending
+                                ? filteredItems.OrderBy(item => item.HasSoldWeek).ToList()
+                                : filteredItems.OrderByDescending(item => item.HasSoldWeek).ToList();
+                            break;
 
-                        case 1: // Price
+                        case 2: // Price
                             filteredItems = ascending
                                 ? filteredItems.OrderBy(item => item.Price).ToList()
                                 : filteredItems.OrderByDescending(item => item.Price).ToList();
                             break;
 
-                        case 2: // Qty
+                        case 3: // Qty
                             filteredItems = ascending
                                 ? filteredItems.OrderBy(item => item.AmountCanBuy).ToList()
                                 : filteredItems.OrderByDescending(item => item.AmountCanBuy).ToList();
                             break;
 
-                        case 3: // Sells for
+                        case 4: // Sells for
                             filteredItems = ascending
                                 ? filteredItems.OrderBy(item => item.CurrentPrice).ToList()
                                 : filteredItems.OrderByDescending(item => item.CurrentPrice).ToList();
                             break;
 
-                        case 4: // Total
+                        case 5: // Total
                             filteredItems = ascending
                                 ? filteredItems.OrderBy(item => item.Profit).ToList()
                                 : filteredItems.OrderByDescending(item => item.Profit).ToList();
@@ -146,8 +154,17 @@ internal class SpendingWindow : Window
                     {
                         ImGui.SetClipboardText(item.Name); // Copy the name to the clipboard
                         Notify.Success("Name copied to clipboard");
-                        Service.Log.Verbose($"Copied '{item.Name}' to clipboard."); // Optional: Log for debugging
+                        Service.Log.Verbose($"Copied '{item.Name}' to clipboard.");
                     }
+                    if (ImGui.IsItemHovered() && C.debug)
+                    {
+                        // Display a tooltip or additional info
+                        ImGui.BeginTooltip();
+                        ImGui.Text($"Additional Info:\nID: {item.ItemId}\nName: {item.Name}");
+                        ImGui.EndTooltip();
+                    }
+                    ImGui.TableNextColumn();
+                    UiHelper.Rightalign(item.HasSoldWeek.ToString(), true);
                     ImGui.TableNextColumn();
                     UiHelper.Rightalign(item.Price.ToString(), true);
                     ImGui.TableNextColumn();

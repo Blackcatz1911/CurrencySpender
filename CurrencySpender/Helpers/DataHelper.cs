@@ -9,12 +9,12 @@ namespace CurrencySpender.Helpers
             if(C.Currencies.Count == 0 || C.Version != Svc.PluginInterface.Manifest.AssemblyVersion.ToString() || C.debug)
             {
                 List<TrackedCurrency> currencies = [
-                    new TrackedCurrency { Type = CurrencyType.Item, ItemId = 20, Threshold = 75000, Enabled = true, }, // StormSeal
-                    new TrackedCurrency { Type = CurrencyType.Item, ItemId = 21, Threshold = 75000, Enabled = true, }, // SerpentSeal
-                    new TrackedCurrency { Type = CurrencyType.Item, ItemId = 22, Threshold = 75000, Enabled = true, }, // FlameSeal
+                    new TrackedCurrency { Type = CurrencyType.Item, ItemId = 20, Threshold = 75000, MaxCount = 90000, Enabled = true, }, // StormSeal
+                    new TrackedCurrency { Type = CurrencyType.Item, ItemId = 21, Threshold = 75000, MaxCount = 90000, Enabled = true, }, // SerpentSeal
+                    new TrackedCurrency { Type = CurrencyType.Item, ItemId = 22, Threshold = 75000, MaxCount = 90000, Enabled = true, }, // FlameSeal
 
-                    new TrackedCurrency { Type = CurrencyType.Item, ItemId = 25, Threshold = 18000, Enabled = true, }, // WolfMarks
-                    new TrackedCurrency { Type = CurrencyType.Item, ItemId = 36656, Threshold = 18000, Enabled = false, }, // TrophyCrystals
+                    new TrackedCurrency { Type = CurrencyType.Item, ItemId = 25, Threshold = 18000, MaxCount = 20000, Enabled = true, }, // WolfMarks
+                    new TrackedCurrency { Type = CurrencyType.Item, ItemId = 36656, Threshold = 18000, MaxCount = 20000, Enabled = false, }, // TrophyCrystals
 
                     new TrackedCurrency { Type = CurrencyType.Item, ItemId = 27, Threshold = 3500, Enabled = false, }, // AlliedSeals
                     new TrackedCurrency { Type = CurrencyType.Item, ItemId = 10307, Threshold = 3500, Enabled = false, }, // CenturioSeals
@@ -22,11 +22,11 @@ namespace CurrencySpender.Helpers
 
                     new TrackedCurrency { Type = CurrencyType.Item, ItemId = 26807, Threshold = 800, Enabled = false, }, // BicolorGemstones
 
-                    new TrackedCurrency { Type = CurrencyType.Item, ItemId = 28, Threshold = 1400, Enabled = true, }, // Poetics
-                    new TrackedCurrency { Type = CurrencyType.NonLimitedTomestone, Threshold = 1400, Enabled = true, }, // NonLimitedTomestone
-                    new TrackedCurrency { Type = CurrencyType.LimitedTomestone, Threshold = 1400, Enabled = false, }, // LimitedTomestone
+                    new TrackedCurrency { Type = CurrencyType.Item, ItemId = 28, Threshold = 1400, MaxCount = 2000, Enabled = true, }, // Poetics
+                    new TrackedCurrency { Type = CurrencyType.NonLimitedTomestone, Threshold = 1400, MaxCount = 2000, Enabled = true, }, // NonLimitedTomestone
+                    new TrackedCurrency { Type = CurrencyType.LimitedTomestone, Threshold = 1400, MaxCount = 2000, Enabled = false, }, // LimitedTomestone
 
-                    new TrackedCurrency { Type = CurrencyType.Item, ItemId = 28063, Threshold = 7500, Enabled = false, }, // Skybuilders scripts
+                    new TrackedCurrency { Type = CurrencyType.Item, ItemId = 28063, Threshold = 7500, MaxCount = 10000, Enabled = false, }, // Skybuilders scripts
                 ];
                 C.Currencies = currencies;
             }
@@ -85,7 +85,7 @@ namespace CurrencySpender.Helpers
                 List<(uint, uint, Boolean)> marks_collectable = [
                     (23367, 15000, false), (25002, 15000, false), (23370, 18000, false), (24234, 18000, false), (15442, 15000, false),
                     (23034, 15000, false), (24636, 15000, false), (23986, 20000, false), (39367, 1000, false),
-                    (21277, 10000, true), (22473, 10000, true), (28890, 10000, true), (28890, 10000, true), (14273, 5000, true), (14274, 10000, true)
+                    (21277, 10000, true), (22473, 10000, true), (28890, 10000, true), (14273, 5000, true), (14274, 10000, true)
                 ];
                 foreach (var item in marks_collectable)
                 {
@@ -95,11 +95,9 @@ namespace CurrencySpender.Helpers
                 }
 
                 List<(uint, uint)> marks_sellable = [
-                    (14273, 5000), (14274, 10000),
                     (5594, 100), (5595, 100), (5596, 100), (5597, 100), (5598, 100), (10386, 100), (17837, 100), (33916, 100), // Dark Matter
                     (6954, 20), (6955, 20),
                     //Materia
-
                 ];
                 foreach (var item in marks_sellable)
                 {

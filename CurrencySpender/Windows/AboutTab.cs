@@ -7,11 +7,6 @@ namespace CurrencySpender.Windows;
 
 internal class AboutTab
 {
-    private static string GetImageURL()
-    {
-        return Svc.PluginInterface.Manifest.IconUrl ?? "";
-    }
-
     internal static void Draw()
     {
         ImGuiEx.LineCentered("About0", delegate
@@ -34,17 +29,8 @@ internal class AboutTab
         {
             ImGuiEx.TextWrapped("by Blackcatz1911");
         });
-
-        ImGuiHelpers.ScaledDummy(10f);
-        ImGuiEx.LineCentered("About2", delegate
-        {
-            if (ThreadLoadImageHandler.TryGetTextureWrap(GetImageURL(), out var texture))
-            {
-                ImGui.Image(texture.ImGuiHandle, new(200f, 200f));
-            }
-        });
-        ImGuiHelpers.ScaledDummy(10f);
-        List<String> thanks = ["The Dalamud Team", "Taurenkey", "Limiana", "MidoriKami"];
+        ImGui.Separator();
+        List<String> thanks = ["The Dalamud Team", "Yuki", "Taurenkey", "Limiana", "MidoriKami", "CriticalImpact"];
         ImGuiEx.LineCentered("About3", delegate
         {
             ImGui.TextWrapped("Special thanks to:");
@@ -53,7 +39,7 @@ internal class AboutTab
         {
             ImGuiEx.LineCentered("Thanks-"+thank, delegate
             {
-                ImGui.TextWrapped("- "+ thank);
+                ImGui.TextWrapped("- " + thank + " -");
             });
         }
         ImGui.Separator();

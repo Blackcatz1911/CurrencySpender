@@ -1,7 +1,3 @@
-using Dalamud.Interface.Components;
-using ECommons.Configuration;
-using Dalamud.Game.ClientState.Objects.SubKinds;
-using Dalamud.Interface.Colors;
 using Dalamud.Interface;
 
 namespace CurrencySpender.Windows;
@@ -34,7 +30,7 @@ internal class MainTabWindow : Window
     {
         ImGuiEx.EzTabBar("tabbar", [
             ("Main", MainTab.Draw, null, true),
-            ("Todo list", TodoTab.Draw, null, true),
+            //("Todo list", TodoTab.Draw, null, true),
             ("About", AboutTab.Draw, null, true),
          ]);
 

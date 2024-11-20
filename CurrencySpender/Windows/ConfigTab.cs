@@ -1,4 +1,3 @@
-
 namespace CurrencySpender.Windows;
 
 internal class ConfigTab

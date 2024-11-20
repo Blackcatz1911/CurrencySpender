@@ -1,25 +1,9 @@
-using System;
-using Dalamud.Game.Command;
 using Dalamud.IoC;
-using Dalamud.Plugin;
-using System.IO;
-using Dalamud.Interface.Windowing;
 using Dalamud.Plugin.Services;
 using CurrencySpender.Windows;
 using CurrencySpender.Classes;
-using FFXIVClientStructs.FFXIV.Client.Game;
-using System.Collections.Generic;
-using CurrencySpender.Configuration;
-using Dalamud.Game.ClientState.Objects.SubKinds;
-using Dalamud.Game.Addon.Lifecycle;
-using CurrencySpender.Helpers;
-using ECommons;
 using ECommons.Configuration;
 using ECommons.Schedulers;
-using ECommons.SimpleGui;
-using CurrencySpender.Windows;
-using ECommons.DalamudServices;
-using ECommons.Logging;
 using ECommons.Automation.NeoTaskManager;
 
 namespace CurrencySpender;
@@ -36,14 +20,13 @@ public sealed class Plugin : IDalamudPlugin
 
     public Config config;
 
-    public String homeWorld = "";
-
     public readonly WindowSystem WindowSystem = new("CurrencySpender");
 
     internal WindowSystem ws;
     internal MainTabWindow mainTabWindow;
     internal ConfigTabWindow configTabWindow;
     internal SpendingWindow spendingWindow;
+    internal DebugTabWindow debugTabWindow;
 
     internal TaskManager TaskManager;
     //private SpendingWindow SpendingWindow { get; init; }
@@ -54,12 +37,13 @@ public sealed class Plugin : IDalamudPlugin
         //config = PluginInterface.GetPluginConfig() as Config ?? new Config();
         ECommonsMain.Init(pluginInterface, this);
         P = this;
-        new TickScheduler(delegate
+        _ = new TickScheduler(delegate
         {
             EzConfig.Migrate<Config>();
             config = EzConfig.Init<Config>();
             ws = new();
             spendingWindow = new();
+            debugTabWindow = new();
             ws.AddWindow(spendingWindow);
             mainTabWindow = new();
             configTabWindow = new();
@@ -71,6 +55,8 @@ public sealed class Plugin : IDalamudPlugin
             DataHelper.GenerateItemList();
             EzCmd.Add("/cur", CommandHandler, "Open plugin interface");
             TaskManager.Enqueue(() => WebHelper.CheckPrices());
+            TaskManager.Enqueue(() => WebHelper.CheckSales());
+            ItemHelper.initHairStyles();
         });
 
         // you might normally want to embed resources and load them from the manifest stream
@@ -93,16 +79,16 @@ public sealed class Plugin : IDalamudPlugin
 
         // Adds another button that is doing the same but for the main ui of the plugin
 
-        Service.Log.Verbose("Item Unlocked - Should be True"+ItemHelper.CheckUnlockStatus(15814).ToString()); //unlocked
-        Service.Log.Verbose("Item Unlocked - Should be False" + ItemHelper.CheckUnlockStatus(38457).ToString());
+        //Service.Log.Verbose("Item Unlocked - Should be True"+ItemHelper.CheckUnlockStatus(15814).ToString()); //unlocked
+        //Service.Log.Verbose("Item Unlocked - Should be False" + ItemHelper.CheckUnlockStatus(38457).ToString());
         //ItemHelper.CheckUnlockStatus(38457); //not unlocked
     }
 
     private void CommandHandler(string command, string arguments)
     {
-        if (arguments.EqualsIgnoreCase("test"))
+        if (arguments.EqualsIgnoreCase("debug"))
         {
-            spendingWindow.IsOpen = true;
+            debugTabWindow.IsOpen = true;
         }
         else
         {
@@ -126,6 +112,7 @@ public sealed class Plugin : IDalamudPlugin
     public void ToggleSpendingUI(uint CurrencyId, String name, List<BuyableItem> cItems)
     {
         TaskManager.Enqueue(() => WebHelper.CheckPrices());
+        TaskManager.Enqueue(() => WebHelper.CheckSales());
         spendingWindow.collectableItems = cItems;
         spendingWindow.CurrencyId = CurrencyId;
         spendingWindow.CurrencyName = name;
@@ -136,8 +123,7 @@ public sealed class Plugin : IDalamudPlugin
 
     private void OnLogin()
     {
-        homeWorld = GetHomeWorld();
-        //Service.Log.Verbose("homeworld: " + homeWorld);
+
     }
 
     private void OnFrameworkUpdate(IFramework framework)
@@ -155,27 +141,5 @@ public sealed class Plugin : IDalamudPlugin
         //{
         //    Service.ChatGui.Print($"{currency.Name} is {(currency.Invert ? "below" : "above")} threshold.", "CurrencyAlert", 43);
         //}
-    }
-
-    public String GetHomeWorld()
-    {
-        // Ensure the LocalPlayer is not null (logged-in state)
-        var localPlayer = Service.ClientState.LocalPlayer;
-        if (localPlayer != null)
-        {
-            var homeWorld = Service.DataManager.Excel.GetSheet<Lumina.Excel.Sheets.World>().GetRow(localPlayer.CurrentWorld.RowId).Name.ExtractText();
-            if (homeWorld != null)
-            {
-                return homeWorld;
-            }
-            else
-            {
-                return "Unknown";
-            }
-        }
-        else
-        {
-            return "Unknown";
-        }
     }
 }

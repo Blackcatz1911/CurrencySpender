@@ -1,82 +1,147 @@
 using Newtonsoft.Json;
 using System.Net.Http;
-using CurrencySpender.Classes;
+using Newtonsoft.Json.Linq;
 
 
 namespace CurrencySpender.Helpers
 {
     internal class WebHelper
     {
-        public static async void CheckPrices()
+        public static String homeWorld = "";
+        public static List<uint> lookup = new List<uint>();
+        public static async void CheckPrices(Boolean forced = false)
         {
-            List<uint> lookup = new List<uint>();
-            foreach(var item in C.Items)
+            if (!preCheck()) return;
+            generateLookup(forced);
+            try
             {
-                if((item.LastChecked == 0 || IsTimestampOlderThan(item.LastChecked, 10)) && !lookup.Contains(item.ItemId) && lookup.Count < 99)
+                var url = string.Join(",", lookup.ToArray());
+                //Service.Log.Verbose(url);
+                HttpClient client = new HttpClient();
+                HttpResponseMessage response = await client.GetAsync("https://universalis.app/api/v2/aggregated/" + homeWorld + "/" + url);
+                string responseBody = await response.Content.ReadAsStringAsync();
+                var json = JsonConvert.DeserializeObject<JObject>(responseBody);
+
+                var itemPrices = new List<(uint ItemId, uint WorldPrice)>();
+
+                // Parse the "results" array
+                var results = json["results"];
+                if (results != null)
                 {
-                    lookup.Add(item.ItemId);
+                    foreach (var result in results)
+                    {
+                        // Extract the itemId
+                        uint itemId = result["itemId"]?.Value<uint>() ?? 0;
+
+                        // Extract the world price from "minListing" -> "world"
+                        uint worldPrice = result["nq"]?["minListing"]?["world"]?["price"]?.Value<uint>() ?? 0;
+
+                        // Add it to the list
+                        itemPrices.Add((itemId, worldPrice));
+                    }
+                }
+                // Iterate through C.Items and update BuyableItem properties
+                foreach (var item in C.Items)
+                {
+                    // Find a matching entry in itemPrices for the current item's ItemId
+                    var priceInfo = itemPrices.FirstOrDefault(p => p.ItemId == item.ItemId);
+
+                    if (priceInfo != default)
+                    {
+                        item.CurrentPrice = priceInfo.WorldPrice;
+                        item.LastChecked = (uint)DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+                    }
                 }
             }
-            var url = string.Join(",", lookup.ToArray());
-            //Service.Log.Verbose(url);
-            HttpClient client = new HttpClient();
-            HttpResponseMessage response = await client.GetAsync("https://universalis.app/api/v2/aggregated/Odin/"+url);
-            response.EnsureSuccessStatusCode();
-            string responseBody = await response.Content.ReadAsStringAsync();
-            var apiResponse = JsonConvert.DeserializeObject<ApiResponse>(responseBody);
-
-            // Extract prices from `minListing.world`
-            var itemPrices = apiResponse.Results
-                .Where(result => result.Nq?.MinListing?.World?.Price.HasValue == true) // Filter out null prices
-                .ToDictionary(
-                    result => (uint)result.ItemId,                                   // Use itemId as the key
-                    result => (uint)result.Nq.MinListing.World.Price.Value    // Cast price to uint as the value
-                );
-
-            // Log or use the extracted prices
-            foreach (var item in C.Items)
+            catch(Exception e) { Service.Log.Error(e.ToString()); }
+        }
+        public static async void CheckSales(Boolean forced = false)
+        {
+            if (!preCheck()) return;
+            generateLookup(forced);
+            try
             {
-                if (itemPrices.TryGetValue(item.ItemId, out uint newPrice))
+                var url = string.Join(",", lookup.ToArray());
+                //Service.Log.Verbose(url);
+                HttpClient client = new HttpClient();
+                HttpResponseMessage response = await client.GetAsync("https://universalis.app/api/v2/history/" + homeWorld + "/" + url);
+                string responseBody = await response.Content.ReadAsStringAsync();
+                var json = JsonConvert.DeserializeObject<JObject>(responseBody);
+
+                var itemSales = new List<(uint ItemId, uint Sales)>();
+
+                // Access the "items" object in the JSON
+                var items = json["items"] as JObject; // "items" is a JSON object
+                if (items != null)
                 {
-                    // Assuming you want to update the CurrentPrice (not Price, as Price is `init`)
-                    item.GetType()
-                        .GetProperty(nameof(BuyableItem.CurrentPrice))!
-                        .SetValue(item, newPrice);
-                    item.LastChecked = (uint)DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+                    foreach (var item in items.Properties()) // Iterate over the properties of the JObject
+                    {
+                        // Extract the itemId from the property name
+                        uint itemId = uint.Parse(item.Name);
+
+                        // Extract the sales count from "stackSizeHistogram" -> "1"
+                        uint sales = item.Value["regularSaleVelocity"]?.Value<uint>() ?? 0;
+
+                        // Add it to the list
+                        itemSales.Add((itemId, sales));
+                    }
+                }
+
+                // Iterate through C.Items and update BuyableItem properties
+                foreach (var item in C.Items)
+                {
+                    // Find a matching entry in itemPrices for the current item's ItemId
+                    var priceInfo = itemSales.FirstOrDefault(p => p.ItemId == item.ItemId);
+
+                    if (priceInfo != default)
+                    {
+                        item.HasSoldWeek = priceInfo.Sales;
+                    }
                 }
             }
-
+            catch (Exception e) { Service.Log.Error(e.ToString()); }
         }
         public static bool IsTimestampOlderThan(uint unixTimestamp, int minutes)
         {
             DateTime savedTime = DateTimeOffset.FromUnixTimeSeconds(unixTimestamp).UtcDateTime;
             return (DateTime.UtcNow - savedTime).TotalMinutes > minutes;
         }
-        public class WorldPrice
-        {
-            public int? Price { get; set; }
-        }
 
-        public class MinListing
+        public static Boolean preCheck()
         {
-            public WorldPrice World { get; set; }
+            if (Service.ClientState.LocalPlayer == null)
+            {
+                Service.Log.Verbose("WebHelper early return");
+                Service.Log.Verbose("LocalPlayer: " + (Service.ClientState.LocalPlayer == null));
+                return false;
+            }
+            if (Service.ClientState.LocalPlayer != null)
+            {
+                homeWorld = Service.DataManager.Excel.GetSheet<Lumina.Excel.Sheets.World>().GetRow(
+                    Service.ClientState.LocalPlayer.CurrentWorld.RowId).Name.ExtractText();
+                if (homeWorld == "")
+                {
+                    Service.Log.Verbose("WebHelper early return");
+                    Service.Log.Verbose("P.homeWorld: " + homeWorld);
+                    return false;
+                }
+                else
+                {
+                    return true;
+                }
+            }
+            return false;
         }
-
-        public class Nq
+        public static void generateLookup(Boolean forced = false)
         {
-            public MinListing MinListing { get; set; }
-        }
-
-        public class Result
-        {
-            public int ItemId { get; set; }
-            public Nq Nq { get; set; }
-        }
-
-        public class ApiResponse
-        {
-            public List<Result> Results { get; set; }
-            public List<object> FailedItems { get; set; }
+            lookup = [];
+            foreach (var item in C.Items)
+            {
+                if ((item.LastChecked == 0 || IsTimestampOlderThan(item.LastChecked, 10) || forced) && !lookup.Contains(item.ItemId) && lookup.Count < 99)
+                {
+                    lookup.Add(item.ItemId);
+                }
+            }
         }
     }
 }
