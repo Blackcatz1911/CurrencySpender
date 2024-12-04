@@ -1,9 +1,6 @@
 using Lumina.Excel.Sheets;
 using Lumina.Excel;
 using CurrencySpender.Classes;
-using System.Collections.Generic;
-using System.Collections;
-using Serilog;
 
 namespace CurrencySpender.Data
 {

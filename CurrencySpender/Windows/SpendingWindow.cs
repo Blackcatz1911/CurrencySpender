@@ -1,5 +1,4 @@
 using CurrencySpender.Classes;
-using CurrencySpender.Data;
 using Dalamud.Interface;
 
 namespace CurrencySpender.Windows;
@@ -21,7 +20,7 @@ internal class SpendingWindow : Window
             TitleBarButtons.Add(new()
             {
                 Click = (m) =>
-                { if (m == ImGuiMouseButton.Left) {
+                { if (m == ImGuiMouseButton.Left && Currency != null) {
                         P.TaskManager.Enqueue(() => WebHelper.CheckAll(Currency.ItemId, true));
                     }
                 },

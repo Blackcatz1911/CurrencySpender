@@ -49,20 +49,12 @@ internal class AboutTab
         {
             if (ImGui.Button("GitHub Repo"))
             {
-                Process.Start(new ProcessStartInfo()
-                {
-                    FileName = "https://github.com/Blackcatz1911/CurrencySpender",
-                    UseShellExecute = true
-                });
+                GenericHelpers.ShellStart("https://github.com/Blackcatz1911/CurrencySpender");
             }
             ImGui.SameLine();
-            if (ImGui.Button("KoFi"))
+            if (ImGui.Button("Ko-fi"))
             {
-                Process.Start(new ProcessStartInfo()
-                {
-                    FileName = "https://ko-fi.com/Blackcatz1911",
-                    UseShellExecute = true
-                });
+                GenericHelpers.ShellStart("https://ko-fi.com/Blackcatz1911");
             }
         });
     }

@@ -13,7 +13,7 @@ internal class InstructionsTab
         ImGuiEx.TextWrapped($"2. Collectables, Ventures and sellable items will be displayed");
         ImGuiEx.TextWrapped($"3. Ventures can be toggled in the settings");
         ImGui.Separator();
-        ImGuiEx.TextWrapped($"If there are any problems or something needed you will see another tab called 'Problems'");
+        ImGuiEx.TextWrapped($"If your current shared FATE rank cant be retrieved a warning will be shown in the main tab");
 
     }
 }

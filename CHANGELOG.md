@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.1
+- Fixing lib dependencies
+- Code cleanup
+
 ## 1.0.0
 - Lumina utilization for data gathering
 - Added teleportation Button

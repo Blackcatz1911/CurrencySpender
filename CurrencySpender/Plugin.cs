@@ -9,12 +9,6 @@ using CurrencySpender.Data;
 using System.IO;
 using Dalamud.Game.Command;
 using InteropGenerator.Runtime;
-using System;
-using System.Runtime.InteropServices;
-using InteropGenerator.Runtime.Attributes;
-using static FFXIVClientStructs.Interop.SpanExtensions;
-using FFXIVClientStructs.FFXIV.Client.Game.UI;
-using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 
 namespace CurrencySpender;
 

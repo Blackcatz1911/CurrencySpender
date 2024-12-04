@@ -1,10 +1,4 @@
-using Dalamud.Interface.GameFonts;
-using Dalamud.Interface;
 using System.IO;
-using Dalamud.Interface.ManagedFontAtlas;
-using Dalamud.Interface.Utility.Raii;
-using CurrencySpender.Helpers;
-using ImGuiScene;
 
 namespace CurrencySpender.Windows;
 

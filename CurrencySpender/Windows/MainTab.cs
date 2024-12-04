@@ -1,5 +1,4 @@
 using CurrencySpender.Classes;
-using CurrencySpender.Data;
 
 namespace CurrencySpender.Windows;
 

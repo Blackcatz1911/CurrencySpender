@@ -1,16 +1,13 @@
 using CurrencySpender.Classes;
 using Dalamud.Interface;
-using ECommons.Funding;
 
 namespace CurrencySpender.Windows;
 
 internal class MainTabWindow : Window
 {
-    private TitleBarButton LockButton;
     public MainTabWindow() : base($"")
     {
-        PatreonBanner.IsOfficialPlugin = () => true;
-        this.SizeConstraints = new()
+        SizeConstraints = new()
         {
             MinimumSize = new(250, 100),
             MaximumSize = new(9999, 9999)

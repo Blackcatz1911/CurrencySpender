@@ -1,5 +1,4 @@
 using Dalamud.Interface;
-using Dalamud.Interface.ManagedFontAtlas;
 
 namespace CurrencySpender.Helpers;
 

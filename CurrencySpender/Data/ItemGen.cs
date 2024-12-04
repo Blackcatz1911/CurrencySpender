@@ -1,7 +1,5 @@
 using CurrencySpender.Classes;
 using Lumina.Excel.Sheets;
-using System.Linq;
-using System.Runtime.ConstrainedExecution;
 
 namespace CurrencySpender.Data
 {
