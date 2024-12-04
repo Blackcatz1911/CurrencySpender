@@ -1,7 +1,5 @@
-using System.Reflection.Emit;
-using System.Text.Json.Serialization;
-using Lumina.Excel;
 using Lumina.Excel.Sheets;
+using System.Reflection;
 
 namespace CurrencySpender.Classes;
 
@@ -10,61 +8,53 @@ public enum ShopType
     FccShop,
     GCShop,
     GilShop,
-    SpecialShop
+    SpecialShop,
+    FateShop,
+    EmptyShop
 }
 
 public unsafe class Shop
 {
     public required ShopType Type { get; set; }
-
-    private static readonly Dictionary<ShopType, Func<IExcelSheet>> ShopSheetResolvers = new()
-    {
-        { ShopType.FccShop, () => Service.DataManager.GetExcelSheet<FccShop>() },
-        { ShopType.GCShop, () => Service.DataManager.GetExcelSheet<GCShop>() },
-        { ShopType.GilShop, () => Service.DataManager.GetExcelSheet<GilShop>() },
-        { ShopType.SpecialShop, () => Service.DataManager.GetExcelSheet<SpecialShop>() }
-    };
-
-        // Dynamically resolve and store the sheet
-    public IExcelSheet Sheet { get; private set; }
-
-    public void SetSheet(ShopType type)
-    {
-        if (ShopSheetResolvers.TryGetValue(type, out var resolver))
-        {
-            Sheet = resolver.Invoke();
-        }
-        else
-        {
-            throw new InvalidOperationException("Invalid shop type");
-        }
-    }
     public uint ShopId { get; set; }
-    [JsonIgnore]
-    public string ShopName
+    public uint NpcId { get; set; }
+    public string NpcName
     {
         get
         {
-            switch (Type)
+            string name = "";
+            try
             {
-                case ShopType.FccShop:
-                    return Service.DataManager.GetExcelSheet<FccShop>()!.GetRow(ShopId).Name.ExtractText() ?? "Unable to read name";
-
-                case ShopType.GCShop:
-                    return "GCShop";
-
-                case ShopType.GilShop:
-                    return Service.DataManager.GetExcelSheet<GilShop>()!.GetRow(ShopId).Name.ExtractText() ?? "Unable to read name";
-
-                case ShopType.SpecialShop:
-                    return Service.DataManager.GetExcelSheet<SpecialShop>()!.GetRow(ShopId).Name.ExtractText() ?? "Unable to read name";
-
-                default:
-                    return "Unable to read name";
+                name = Service.DataManager.GetExcelSheet<ENpcResident>().GetRow(NpcId).Singular.ExtractText();
             }
+            catch
+            {
+                name = "Unknown";
+            }
+            return name;
         }
+    }// => Service.DataManager.GetExcelSheet<ENpcResident>().GetRow(NpcId).Singular.ExtractText() ?? "Unknown";
+    public required Location Location { get; init; }
+
+    public uint Currency;
+    public uint? GC;
+    public uint? RequiredLevel;
+    public uint? CurrentLevel;
+    public bool Disabled = false;
+    public List<ShopItem> Items = new List<ShopItem>();
+    public int ItemCount => Items.Count;
+    public override string ToString()
+    {
+        var properties = GetType()
+            .GetProperties(BindingFlags.Instance | BindingFlags.Public)
+            .Select(prop => $"{prop.Name}={prop.GetValue(this)}");
+
+        var fields = GetType()
+            .GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+            .Where(field => !field.Name.StartsWith("<")) // Exclude backing fields
+            .Select(field => $"{field.Name}={field.GetValue(this)}");
+
+        return $"{GetType().Name}: {string.Join(", ", properties.Concat(fields))}";
     }
-    public uint NpcId { get; set; }
-    [JsonIgnore] public string NpcName => Service.DataManager.GetExcelSheet<ENpcResident>()!.GetRow(NpcId).Singular.ExtractText() ?? "Unable to read name";
 }
 

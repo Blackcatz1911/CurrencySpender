@@ -1,13 +1,14 @@
 using CurrencySpender.Classes;
-using Dalamud.Game.Text.SeStringHandling.Payloads;
+using CurrencySpender.Data;
 using Dalamud.Interface;
 
 namespace CurrencySpender.Windows;
 internal class SpendingWindow : Window
 {
-    public uint CurrencyId;
-    public String CurrencyName;
-    public List<BuyableItem> collectableItems;
+    public TrackedCurrency? Currency;
+    public List<ShopItem>? CollectableItems;
+    public List<ShopItem>? Ventures;
+    public bool VentureBuyable;
     public SpendingWindow() : base("SpendingWindow")
     {
         this.SizeConstraints = new()
@@ -15,14 +16,13 @@ internal class SpendingWindow : Window
             MinimumSize = new(600, 200),
             MaximumSize = new(float.MaxValue, float.MaxValue)
         };
-        if (C.debug)
+        if (C.Debug)
         {
             TitleBarButtons.Add(new()
             {
                 Click = (m) =>
                 { if (m == ImGuiMouseButton.Left) {
-                        P.TaskManager.Enqueue(() => WebHelper.CheckPrices(true));
-                        P.TaskManager.Enqueue(() => WebHelper.CheckPrices(true));
+                        P.TaskManager.Enqueue(() => WebHelper.CheckAll(Currency.ItemId, true));
                     }
                 },
                 Icon = FontAwesomeIcon.Sync,
@@ -33,43 +33,135 @@ internal class SpendingWindow : Window
     }
     public unsafe override void Draw()
     {
+        if(Currency == null || CollectableItems == null) return;
         //WindowName = "SpendingGuide: " + this.CurrencyName;
-        ImGui.Text($"'" + CurrencyName + "'... What to do with that:");
-        if(C.debug) ImGui.Text($"DEBUG: CurrencyId: {CurrencyId}");
+        ImGui.Image(Currency.Icon.ImGuiHandle, new Vector2(21, 21));
+        ImGui.SameLine();
+        ImGui.Text($"{Currency.Name}? And {Currency.CurrentCount} of them? What to do with that:");
+        if (C.Debug)
+        {
+            ImGui.Text($"DEBUG: CurrencyId: {Currency.ItemId}");
+        }
+        List<uint> ids = [20, 21, 22];
+        if (ids.Contains(Currency.ItemId)) {
+            if (PlayerHelper.GCRanks[Currency.ItemId - 19] < 10)
+            {
+                UiHelper.WarningText("Some items cannot be purchased yet due to GC rankings... So they will not be displayed here.");
+            }
+        }
+        if (Currency.ItemId == 26807)
+        {
+            UiHelper.WarningText("Some items cannot be purchased yet due to GC rankings... So they will not be displayed here.");
+        }
+
         ImGui.Separator();
         try
         {
-            if (collectableItems.Count > 0)
+            if (CollectableItems.Count > 0)
             {
                 ImGui.Text($"Collectables not yet registered:");
                 if (ImGui.BeginTable("##collectables", 4, ImGuiTableFlags.Borders | ImGuiTableFlags.SizingFixedFit))
                 {
-                    ImGui.TableSetupColumn("ID");
+                    //ImGui.TableSetupColumn("ID");
                     ImGui.TableSetupColumn("Name", ImGuiTableColumnFlags.WidthStretch);
                     ImGui.TableSetupColumn("Price");
-                    ImGui.TableSetupColumn("");
+                    ImGui.TableSetupColumn("Zone");
+                    ImGui.TableSetupColumn("Actions");
                     ImGui.TableHeadersRow();
-                    foreach (BuyableItem item in collectableItems)
+                    foreach (var item in CollectableItems)
                     {
+                        //ImGui.TableNextColumn();
+                        //ImGui.Text(item.Id.ToString());
                         ImGui.TableNextColumn();
-                        ImGui.Text(item.ItemId.ToString());
-                        ImGui.TableNextColumn();
-                        //Service.Log.Verbose("Starting ImGui item.Name rendering...");
+                        //PluginLog.Verbose("Starting ImGui item.Name rendering...");
                         ImGui.Text(item.Name);
-                        ImGui.TableNextColumn();
-                        //Service.Log.Verbose("Starting ImGui item.Price rendering...");
-                        UiHelper.Rightalign(item.Price.ToString(), true);
-                        ImGui.TableNextColumn();
-                        //Service.Log.Verbose("Starting ImGui Flag Marker rendering...");
-                        if (ImGui.Button("Flag Marker##collectable" + item.ItemId))
+                        if (ImGui.IsItemHovered() && C.Debug)
                         {
-                            Location loc = Location.retrieve(item.Loc);
-                            Service.GameGui.OpenMapWithMapLink(new MapLinkPayload(loc.TerritoryId, loc.MapId, loc.Postion.Item1, loc.Postion.Item2));
+                            // Display a tooltip or additional info
+                            ImGui.BeginTooltip();
+                            ImGui.Text($"ID: {item.Id}\nCat: {item.Category}\nShopId: {item.Shop.ShopId}\nNPCName: {item.Shop.NpcName}\nNPCID: {item.Shop.NpcId}");
+                            ImGui.EndTooltip();
                         }
-                        //Service.Log.Verbose("Ending ImGui Flag Marker rendering...");
+                        ImGui.TableNextColumn();
+                        //PluginLog.Verbose("Starting ImGui item.Price rendering...");
+                        UiHelper.Rightalign(item.Price.ToString(), true);
+                        //ImGui.Text(item.Price.ToString());
+                        ImGui.TableNextColumn();
+                        ImGui.Text(item.Shop.Location!=null?item.Shop.Location.Zone:"");
+                        ImGui.TableNextColumn();
+                        //PluginLog.Verbose("Starting ImGui Flag rendering...");
+                        if (item.Shop.Location != null && item.Shop.Location != Location.locations[0])
+                        {
+                            if (ImGui.Button("Flag##collectable" + item.Id+"-"+item.ShopId))
+                            {
+                                Service.GameGui.OpenMapWithMapLink(item.Shop.Location.GetMapMarker());
+                            }
+                            ImGui.SameLine();
+                            if (ImGui.Button("TP##collectable" + item.Id + "-" + item.ShopId))
+                            {
+                                item.Shop.Location.Teleport();
+                                Service.GameGui.OpenMapWithMapLink(item.Shop.Location.GetMapMarker());
+                            }
+                        }
+                        //PluginLog.Verbose("Ending ImGui Flag rendering...");
                     }
                     //}
-                    //Service.Log.Verbose("Starting ImGui EndTable rendering...");
+                    //PluginLog.Verbose("Starting ImGui EndTable rendering...");
+                    ImGui.EndTable();
+                }
+                ImGui.Separator();
+            }
+
+            if (VentureBuyable && C.ShowVentures && Ventures != null)
+            {
+                ImGui.Text($"Can buy Ventures:");
+                if (ImGui.BeginTable("##collectables", 4, ImGuiTableFlags.Borders | ImGuiTableFlags.SizingFixedFit))
+                {
+                    //ImGui.TableSetupColumn("ID");
+                    ImGui.TableSetupColumn("Name", ImGuiTableColumnFlags.WidthStretch);
+                    ImGui.TableSetupColumn("Price");
+                    ImGui.TableSetupColumn("Zone");
+                    ImGui.TableSetupColumn("Actions");
+                    ImGui.TableHeadersRow();
+                    foreach (var item in Ventures)
+                    {
+                        //ImGui.TableNextColumn();
+                        //ImGui.Text(item.Id.ToString());
+                        ImGui.TableNextColumn();
+                        //PluginLog.Verbose("Starting ImGui item.Name rendering...");
+                        ImGui.Text(item.Name);
+                        if (ImGui.IsItemHovered() && C.Debug)
+                        {
+                            // Display a tooltip or additional info
+                            ImGui.BeginTooltip();
+                            ImGui.Text($"ID: {item.Id}\nCat: {item.Category}\nShopId: {item.Shop.ShopId}\nNPCName: {item.Shop.NpcName}\nNPCID: {item.Shop.NpcId}");
+                            ImGui.EndTooltip();
+                        }
+                        ImGui.TableNextColumn();
+                        //PluginLog.Verbose("Starting ImGui item.Price rendering...");
+                        UiHelper.Rightalign(item.Price.ToString(), true);
+                        //ImGui.Text(item.Price.ToString());
+                        ImGui.TableNextColumn();
+                        ImGui.Text(item.Shop.Location != null ? item.Shop.Location.Zone : "");
+                        ImGui.TableNextColumn();
+                        //PluginLog.Verbose("Starting ImGui Flag rendering...");
+                        if (item.Shop.Location != null && item.Shop.Location != Location.locations[0])
+                        {
+                            if (ImGui.Button("Flag##collectable" + item.Id + "-" + item.ShopId))
+                            {
+                                Service.GameGui.OpenMapWithMapLink(item.Shop.Location.GetMapMarker());
+                            }
+                            ImGui.SameLine();
+                            if (ImGui.Button("TP##collectable" + item.Id + "-" + item.ShopId))
+                            {
+                                item.Shop.Location.Teleport();
+                                Service.GameGui.OpenMapWithMapLink(item.Shop.Location.GetMapMarker());
+                            }
+                        }
+                        //PluginLog.Verbose("Ending ImGui Flag rendering...");
+                    }
+                    //}
+                    //PluginLog.Verbose("Starting ImGui EndTable rendering...");
                     ImGui.EndTable();
                 }
                 ImGui.Separator();
@@ -77,7 +169,7 @@ internal class SpendingWindow : Window
 
             ImGui.Text($"Sellable items on the marketboard:");
 
-            if (ImGui.BeginTable("##markettable", 7, ImGuiTableFlags.Borders | ImGuiTableFlags.SizingFixedFit | ImGuiTableFlags.Sortable))
+            if (ImGui.BeginTable("##markettable", 8, ImGuiTableFlags.Borders | ImGuiTableFlags.SizingFixedFit | ImGuiTableFlags.Sortable))
             {
                 // Set up columns
                 ImGui.TableSetupColumn("Name", ImGuiTableColumnFlags.WidthStretch);
@@ -86,14 +178,13 @@ internal class SpendingWindow : Window
                 ImGui.TableSetupColumn("Qty", ImGuiTableColumnFlags.None);
                 ImGui.TableSetupColumn("Sells for", ImGuiTableColumnFlags.None);
                 ImGui.TableSetupColumn("Total", ImGuiTableColumnFlags.None);
-                ImGui.TableSetupColumn("", ImGuiTableColumnFlags.NoSort);
+                ImGui.TableSetupColumn("Zone", ImGuiTableColumnFlags.NoSort);
+                ImGui.TableSetupColumn("Actions", ImGuiTableColumnFlags.NoSort);
                 ImGui.TableHeadersRow();
 
                 // Get sorting specs
                 ImGuiTableSortSpecsPtr sortSpecs = ImGui.TableGetSortSpecs();
-                List<BuyableItem> filteredItems = C.Items
-                    .Where(item => item.C_ID == CurrencyId && item.Type == ItemType.Sellable)
-                    .ToList();
+                List<ShopItem> filteredItems = ShopHelper.GetItems(Currency);
 
                 if (sortSpecs.NativePtr != null && sortSpecs.SpecsCount > 0 && filteredItems.Count > 0)
                 {
@@ -147,20 +238,21 @@ internal class SpendingWindow : Window
                 }
 
                 // Render the table rows
-                foreach (BuyableItem item in filteredItems)
+                foreach (ShopItem item in filteredItems)
                 {
+                    item.Profit = item.CurrentPrice * item.AmountCanBuy;
                     ImGui.TableNextColumn();
                     if (ImGui.Selectable(item.Name)) // Make the name clickable
                     {
                         ImGui.SetClipboardText(item.Name); // Copy the name to the clipboard
                         Notify.Success("Name copied to clipboard");
-                        Service.Log.Verbose($"Copied '{item.Name}' to clipboard.");
+                        PluginLog.Verbose($"Copied '{item.Name}' to clipboard.");
                     }
-                    if (ImGui.IsItemHovered() && C.debug)
+                    if (ImGui.IsItemHovered() && C.Debug)
                     {
                         // Display a tooltip or additional info
                         ImGui.BeginTooltip();
-                        ImGui.Text($"Additional Info:\nID: {item.ItemId}\nName: {item.Name}");
+                        ImGui.Text($"ID: {item.Id}\nName: {item.Name}\nCat: {item.Category}\nNPC:{item.Shop.NpcName}\nShop:{item.Shop.ShopId}\nNpcName: {item.Shop.NpcName}\nNpcId: {item.Shop.NpcId}");
                         ImGui.EndTooltip();
                     }
                     ImGui.TableNextColumn();
@@ -174,16 +266,19 @@ internal class SpendingWindow : Window
                     ImGui.TableNextColumn();
                     UiHelper.Rightalign(item.Profit == 0 ? "-" : item.Profit.ToString(), true);
                     ImGui.TableNextColumn();
-                    if (ImGui.Button($"Flag Marker##sellable{item.ItemId}"))
+                    ImGui.Text(item.Shop.Location.Zone);
+                    ImGui.TableNextColumn();
+                    if (item.Shop.Location != null && item.Shop.Location != Location.locations[0])
                     {
-                        Location loc = Location.retrieve(item.Loc);
-                        if (!Service.GameGui.OpenMapWithMapLink(new MapLinkPayload(loc.TerritoryId, loc.MapId, loc.Postion.Item1, loc.Postion.Item2)))
+                        if (ImGui.Button("Flag##collectable" + item.Id + "-" + item.ShopId))
                         {
-                            Service.Log.Verbose("Failed to open map.");
+                            Service.GameGui.OpenMapWithMapLink(item.Shop.Location.GetMapMarker());
                         }
-                        else
+                        ImGui.SameLine();
+                        if (ImGui.Button("TP##collectable" + item.Id + "-" + item.ShopId))
                         {
-                            Service.Log.Verbose("Map opened successfully.");
+                            item.Shop.Location.Teleport();
+                            Service.GameGui.OpenMapWithMapLink(item.Shop.Location.GetMapMarker());
                         }
                     }
                 }

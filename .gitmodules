@@ -1,6 +1,6 @@
 [submodule "ECommons"]
 	path = ECommons
 	url = https://github.com/NightmareXIV/ECommons.git
-[submodule "AllaganLib"]
-	path = AllaganLib
-	url = https://github.com/Critical-Impact/AllaganLib.git
+[submodule "FFXIVClientStructs"]
+	path = FFXIVClientStructs
+	url = https://github.com/aers/FFXIVClientStructs.git

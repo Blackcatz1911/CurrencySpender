@@ -1,4 +1,6 @@
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
+using Dalamud.Interface.Textures.TextureWraps;
+using Dalamud.Interface.Textures;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using Lumina.Excel.Sheets;
 
@@ -28,13 +30,21 @@ public unsafe class TrackedCurrency
     }
 
     [JsonIgnore]
+    public IDalamudTextureWrap Icon => Service.TextureProvider.GetFromGameIcon(new GameIconLookup
+    {
+        HiRes = true, ItemHq = Type is CurrencyType.HighQualityItem, IconId = IconId,
+    }).GetWrapOrEmpty();
+
+    [JsonIgnore]
     public uint IconId
     {
         get => Service.DataManager.GetExcelSheet<Item>().GetRow(ItemId).Icon;
         set => iconId = value;
     }
 
-    public required int Threshold;
+    public uint? Threshold;
+
+    public uint? Parent;
 
     public bool Enabled = true;
 
@@ -53,6 +63,8 @@ public unsafe class TrackedCurrency
     [JsonIgnore] public int CurrentCount => InventoryManager.Instance()->GetInventoryItemCount(ItemId, Type is CurrencyType.HighQualityItem, false, false);
 
     public int MaxCount;
+
+    [JsonIgnore] public float Percentage => CurrentCount * 100 / MaxCount;
 
     [JsonIgnore] public bool HasWarning => Invert ? CurrentCount < Threshold : CurrentCount > Threshold;
 

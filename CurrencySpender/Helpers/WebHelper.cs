@@ -1,24 +1,28 @@
 using Newtonsoft.Json;
 using System.Net.Http;
 using Newtonsoft.Json.Linq;
+using CurrencySpender.Data;
 
 
 namespace CurrencySpender.Helpers
 {
     internal class WebHelper
     {
-        public static String homeWorld = "";
-        public static List<uint> lookup = new List<uint>();
-        public static async void CheckPrices(Boolean forced = false)
+        public static string homeWorld = "";
+        //public static List<uint> lookup = new List<uint>();
+        public static async void CheckPrices(List<uint> lookup, bool forced = false)
         {
-            if (!preCheck()) return;
-            generateLookup(forced);
             try
             {
                 var url = string.Join(",", lookup.ToArray());
-                //Service.Log.Verbose(url);
+                url = "https://universalis.app/api/v2/aggregated/" + homeWorld + "/" + url;
+                PluginLog.Verbose(url);
                 HttpClient client = new HttpClient();
-                HttpResponseMessage response = await client.GetAsync("https://universalis.app/api/v2/aggregated/" + homeWorld + "/" + url);
+                HttpResponseMessage response = await client.GetAsync(url);
+                if (!response.IsSuccessStatusCode)
+                {
+                    PluginLog.Error($"Request failed with status code {response.StatusCode}");
+                }
                 string responseBody = await response.Content.ReadAsStringAsync();
                 var json = JsonConvert.DeserializeObject<JObject>(responseBody);
 
@@ -40,29 +44,32 @@ namespace CurrencySpender.Helpers
                         itemPrices.Add((itemId, worldPrice));
                     }
                 }
-                // Iterate through C.Items and update BuyableItem properties
-                foreach (var item in C.Items)
+                foreach (var item in Generator.items)
                 {
+                    //PluginLog.Verbose($"Item: {item.Name}");
                     // Find a matching entry in itemPrices for the current item's ItemId
-                    var priceInfo = itemPrices.FirstOrDefault(p => p.ItemId == item.ItemId);
+                    var priceInfo = itemPrices.FirstOrDefault(p => p.ItemId == item.Id);
 
                     if (priceInfo != default)
                     {
                         item.CurrentPrice = priceInfo.WorldPrice;
                         item.LastChecked = (uint)DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+                        item.Type |= Classes.ItemType.Sellable;
+                        //PluginLog.Verbose($"Item was changed: {item.Name}");
+                    } else
+                    {
+                        //PluginLog.Verbose($"Item was default: {item.Name}");
                     }
                 }
             }
-            catch(Exception e) { Service.Log.Error(e.ToString()); }
+            catch(Exception e) { PluginLog.Error(e.ToString()); }
         }
-        public static async void CheckSales(Boolean forced = false)
+        public static async void CheckSales(List<uint> lookup, bool forced = false)
         {
-            if (!preCheck()) return;
-            generateLookup(forced);
             try
             {
                 var url = string.Join(",", lookup.ToArray());
-                //Service.Log.Verbose(url);
+                //PluginLog.Verbose(url);
                 HttpClient client = new HttpClient();
                 HttpResponseMessage response = await client.GetAsync("https://universalis.app/api/v2/history/" + homeWorld + "/" + url);
                 string responseBody = await response.Content.ReadAsStringAsync();
@@ -88,10 +95,10 @@ namespace CurrencySpender.Helpers
                 }
 
                 // Iterate through C.Items and update BuyableItem properties
-                foreach (var item in C.Items)
+                foreach (var item in Generator.items)
                 {
                     // Find a matching entry in itemPrices for the current item's ItemId
-                    var priceInfo = itemSales.FirstOrDefault(p => p.ItemId == item.ItemId);
+                    var priceInfo = itemSales.FirstOrDefault(p => p.ItemId == item.Id);
 
                     if (priceInfo != default)
                     {
@@ -99,7 +106,51 @@ namespace CurrencySpender.Helpers
                     }
                 }
             }
-            catch (Exception e) { Service.Log.Error(e.ToString()); }
+            catch (Exception e) { PluginLog.Error(e.ToString()); }
+        }
+        public static async void CheckMarketable(List<uint> lookup, bool forced = false)
+        {
+            try
+            {
+                var url = string.Join(",", lookup.ToArray());
+                //PluginLog.Verbose(url);
+                HttpClient client = new HttpClient();
+                HttpResponseMessage response = await client.GetAsync("https://universalis.app/api/v2/history/" + homeWorld + "/" + url);
+                string responseBody = await response.Content.ReadAsStringAsync();
+                var json = JsonConvert.DeserializeObject<JObject>(responseBody);
+
+                var itemSales = new List<(uint ItemId, uint Sales)>();
+
+                // Access the "items" object in the JSON
+                var items = json["items"] as JObject; // "items" is a JSON object
+                if (items != null)
+                {
+                    foreach (var item in items.Properties()) // Iterate over the properties of the JObject
+                    {
+                        // Extract the itemId from the property name
+                        uint itemId = uint.Parse(item.Name);
+
+                        // Extract the sales count from "stackSizeHistogram" -> "1"
+                        uint sales = item.Value["regularSaleVelocity"]?.Value<uint>() ?? 0;
+
+                        // Add it to the list
+                        itemSales.Add((itemId, sales));
+                    }
+                }
+
+                // Iterate through C.Items and update BuyableItem properties
+                foreach (var item in Generator.items)
+                {
+                    // Find a matching entry in itemPrices for the current item's ItemId
+                    var priceInfo = itemSales.FirstOrDefault(p => p.ItemId == item.Id);
+
+                    if (priceInfo != default)
+                    {
+                        item.HasSoldWeek = priceInfo.Sales;
+                    }
+                }
+            }
+            catch (Exception e) { PluginLog.Error(e.ToString()); }
         }
         public static bool IsTimestampOlderThan(uint unixTimestamp, int minutes)
         {
@@ -107,12 +158,12 @@ namespace CurrencySpender.Helpers
             return (DateTime.UtcNow - savedTime).TotalMinutes > minutes;
         }
 
-        public static Boolean preCheck()
+        public static bool preCheck()
         {
             if (Service.ClientState.LocalPlayer == null)
             {
-                Service.Log.Verbose("WebHelper early return");
-                Service.Log.Verbose("LocalPlayer: " + (Service.ClientState.LocalPlayer == null));
+                PluginLog.Verbose("WebHelper early return");
+                PluginLog.Verbose("LocalPlayer: " + (Service.ClientState.LocalPlayer == null));
                 return false;
             }
             if (Service.ClientState.LocalPlayer != null)
@@ -121,8 +172,8 @@ namespace CurrencySpender.Helpers
                     Service.ClientState.LocalPlayer.CurrentWorld.RowId).Name.ExtractText();
                 if (homeWorld == "")
                 {
-                    Service.Log.Verbose("WebHelper early return");
-                    Service.Log.Verbose("P.homeWorld: " + homeWorld);
+                    PluginLog.Verbose("WebHelper early return");
+                    PluginLog.Verbose("P.homeWorld: " + homeWorld);
                     return false;
                 }
                 else
@@ -132,15 +183,30 @@ namespace CurrencySpender.Helpers
             }
             return false;
         }
-        public static void generateLookup(Boolean forced = false)
+        public static List<uint> generateLookup(uint currencyId, bool forced = false)
         {
-            lookup = [];
-            foreach (var item in C.Items)
+            List<uint> lookup = new List<uint>();
+            foreach (var item in Generator.items)
             {
-                if ((item.LastChecked == 0 || IsTimestampOlderThan(item.LastChecked, 10) || forced) && !lookup.Contains(item.ItemId) && lookup.Count < 99)
-                {
-                    lookup.Add(item.ItemId);
-                }
+                if ((item.LastChecked == 0 || IsTimestampOlderThan(item.LastChecked, 30) || forced) && !lookup.Contains(item.Id)
+                    && item.Type.HasFlag(Classes.ItemType.Tradeable) && item.Currency == currencyId)
+                    lookup.Add(item.Id);
+            }
+            return lookup;
+        }
+        public static void CheckAll(uint currencyId, bool forced = false)
+        {
+            if (!preCheck()) return;
+            List<uint> lookup = generateLookup(currencyId, forced);
+            //if (C.Debug) return;
+            for (int i = 0; i < lookup.Count; i += 90)
+            {
+                int max = Math.Min(lookup.Count, (i + 90))-1;
+                int range = max - i + 1;
+                //PluginLog.Verbose($"From {i} to {max}, range: {range}");
+                List<uint> list = lookup.GetRange(i, range);
+                P.TaskManager.Enqueue(() => CheckPrices(list));
+                P.TaskManager.Enqueue(() => CheckSales(list));
             }
         }
     }

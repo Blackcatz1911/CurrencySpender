@@ -1,11 +1,15 @@
+using CurrencySpender.Classes;
 using Dalamud.Interface;
+using ECommons.Funding;
 
 namespace CurrencySpender.Windows;
 
 internal class MainTabWindow : Window
 {
+    private TitleBarButton LockButton;
     public MainTabWindow() : base($"")
     {
+        PatreonBanner.IsOfficialPlugin = () => true;
         this.SizeConstraints = new()
         {
             MinimumSize = new(250, 100),
@@ -23,15 +27,17 @@ internal class MainTabWindow : Window
 
     public override void PreDraw()
     {
-        WindowName = $"{P.Name} {P.GetType().Assembly.GetName().Version}###MainTabWindow";
+        WindowName = $"{P.Name} {P.Version}###MainTabWindow";
     }
 
     public override void Draw()
     {
+        KofiBanner.DrawRight();
         ImGuiEx.EzTabBar("tabbar", [
-            ("Main", MainTab.Draw, null, true),
+            ("Currencies", MainTab.Draw, null, true),
+            ("Instructions", InstructionsTab.Draw, null, true),
             //("Todo list", TodoTab.Draw, null, true),
-            ("About", AboutTab.Draw, null, true),
+            //("About", AboutTab.Draw, null, true),
          ]);
 
     }

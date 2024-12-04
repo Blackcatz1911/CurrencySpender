@@ -14,7 +14,7 @@ unsafe internal class DebugTabWindow : Window
 
     public override void PreDraw()
     {
-        WindowName = $"{P.Name} Debug {P.GetType().Assembly.GetName().Version}###DebugTabWindow";
+        WindowName = $"{P.Name} Debug {P.Version}###DebugTabWindow";
     }
 
     public override void Draw()
@@ -23,7 +23,7 @@ unsafe internal class DebugTabWindow : Window
             ("Main Debug Tab", DebugMainTab.Draw, null, true),
             //("Todo list", TodoTab.Draw, null, true),
             //("Changelog", ChangelogTab.Draw, null, true),
-            //(C.debug?"Debug":null, DebugTab.Draw, null, true),
+            //(C.Debug?"Debug":null, DebugTab.Draw, null, true),
          ]);
     }
 }

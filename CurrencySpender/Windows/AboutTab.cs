@@ -11,7 +11,7 @@ internal class AboutTab
     {
         ImGuiEx.LineCentered("About0", delegate
         {
-            ImGuiEx.Text($"{Svc.PluginInterface.Manifest.Name} - {Svc.PluginInterface.Manifest.AssemblyVersion}");
+            ImGuiEx.Text($"{Svc.PluginInterface.Manifest.Name} - {P.Version}");
         });
         ImGui.Separator();
 
@@ -30,7 +30,7 @@ internal class AboutTab
             ImGuiEx.TextWrapped("by Blackcatz1911");
         });
         ImGui.Separator();
-        List<String> thanks = ["The Dalamud Team", "Yuki", "Taurenkey", "Limiana", "MidoriKami", "CriticalImpact"];
+        List<String> thanks = ["The Dalamud Team", "FFXIVClientStructs", "Yuki", "Limiana", "Taurenkey", "MidoriKami", "CriticalImpact", "Haselnussbomber"];
         ImGuiEx.LineCentered("About3", delegate
         {
             ImGui.TextWrapped("Special thanks to:");
@@ -43,7 +43,7 @@ internal class AboutTab
             });
         }
         ImGui.Separator();
-        ImGui.TextWrapped("If you want something added, dont hesitate to make a ticket on the repo.");
+        ImGui.TextWrapped("If you want something added, dont hesitate to make an issue on the repo.");
         ImGui.Separator();
         ImGuiEx.LineCentered("About4", delegate
         {
@@ -51,7 +51,16 @@ internal class AboutTab
             {
                 Process.Start(new ProcessStartInfo()
                 {
-                    FileName = Svc.PluginInterface.Manifest.RepoUrl,
+                    FileName = "https://github.com/Blackcatz1911/CurrencySpender",
+                    UseShellExecute = true
+                });
+            }
+            ImGui.SameLine();
+            if (ImGui.Button("KoFi"))
+            {
+                Process.Start(new ProcessStartInfo()
+                {
+                    FileName = "https://ko-fi.com/Blackcatz1911",
                     UseShellExecute = true
                 });
             }

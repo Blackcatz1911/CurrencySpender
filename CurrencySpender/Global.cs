@@ -13,4 +13,4 @@ global using ECommons.ImGuiMethods;
 global using static CurrencySpender.Plugin;
 global using CurrencySpender.Configuration;
 global using CurrencySpender.Helpers;
-global using Dalamud.Interface.Utility;
+global using ECommons.Logging;

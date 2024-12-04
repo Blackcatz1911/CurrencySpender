@@ -4,3 +4,4 @@ bin/
 *.user
 converter.py
 list.txt
+test.json

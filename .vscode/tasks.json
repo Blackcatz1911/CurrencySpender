@@ -1,0 +1,13 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "dotnet",
+			"task": "build c:\\Users\\seb\\Documents\\CurrencySpender\\CurrencySpender\\CurrencySpender.csproj -c Release",
+			"file": "c:\\Users\\seb\\Documents\\CurrencySpender\\CurrencySpender\\CurrencySpender.csproj",
+			"group": "build",
+			"problemMatcher": [],
+			"label": "dotnet release"
+		}
+	]
+}

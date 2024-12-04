@@ -5,6 +5,16 @@ using CurrencySpender.Classes;
 using ECommons.Configuration;
 using ECommons.Schedulers;
 using ECommons.Automation.NeoTaskManager;
+using CurrencySpender.Data;
+using System.IO;
+using Dalamud.Game.Command;
+using InteropGenerator.Runtime;
+using System;
+using System.Runtime.InteropServices;
+using InteropGenerator.Runtime.Attributes;
+using static FFXIVClientStructs.Interop.SpanExtensions;
+using FFXIVClientStructs.FFXIV.Client.Game.UI;
+using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 
 namespace CurrencySpender;
 
@@ -28,6 +38,9 @@ public sealed class Plugin : IDalamudPlugin
     internal SpendingWindow spendingWindow;
     internal DebugTabWindow debugTabWindow;
 
+    internal string? changelogPath;
+    public string Version;
+    public bool Problem = false;
     internal TaskManager TaskManager;
     //private SpendingWindow SpendingWindow { get; init; }
 
@@ -35,8 +48,20 @@ public sealed class Plugin : IDalamudPlugin
     {
         pluginInterface.Create<Service>();
         //config = PluginInterface.GetPluginConfig() as Config ?? new Config();
-        ECommonsMain.Init(pluginInterface, this);
+        ECommonsMain.Init(pluginInterface, this, Module.DalamudReflector);
         P = this;
+        changelogPath = Path.Combine(PluginInterface.AssemblyLocation.Directory?.FullName!, "CHANGELOG.md");
+
+        CommandManager.AddHandler("/cur", new CommandInfo(OnCommand)
+        {
+            HelpMessage = "Short command. Also pairable with all arguments. Arguments: config, c, settings, s"
+        });
+
+        CommandManager.AddHandler("/currencyspender", new CommandInfo(OnCommand)
+        {
+            HelpMessage = "Open plugin interface. Also pairable with all arguments. Arguments: config, c, settings, s"
+        });
+
         _ = new TickScheduler(delegate
         {
             EzConfig.Migrate<Config>();
@@ -52,15 +77,44 @@ public sealed class Plugin : IDalamudPlugin
             PluginInterface.UiBuilder.OpenMainUi += delegate { mainTabWindow.IsOpen = true; };
             TaskManager = new() { };
             DataHelper.GenerateCurrencyList();
-            DataHelper.GenerateItemList();
-            EzCmd.Add("/cur", CommandHandler, "Open plugin interface");
-            TaskManager.Enqueue(() => WebHelper.CheckPrices());
-            TaskManager.Enqueue(() => WebHelper.CheckSales());
             ItemHelper.initHairStyles();
         });
-
+        //PlayerHelper.init();
+        //Generator.init();
+        FontHelper.SetupFonts();
+        Version = StringHelper.ToSemVer(P.GetType().Assembly.GetName().Version.ToString());
+        Service.ClientState.Login += OnLogin;
+#if HAS_LOCAL_CS
+        FFXIVClientStructs.Interop.Generated.Addresses.Register();
+        //Addresses.Register();
+        Resolver.GetInstance.Setup(
+            Service.sigScanner.SearchBase,
+            Service.DataManager.GameData.Repositories["ffxiv"].Version,
+            new FileInfo(Path.Join(pluginInterface.ConfigDirectory.FullName, "SigCache.json")));
+        Resolver.GetInstance.Resolve();
+#endif
+        if (Service.ClientState.IsLoggedIn)
+        {
+            PluginLog.Verbose("logged in");
+            PlayerHelper.init();
+        }
+        else
+        {
+            PluginLog.Verbose("not logged in");
+        }
+        //var fateProgressSheet = Service.DataManager.GetExcelSheet<FateProgressUI>();
+        //foreach (var row in fateProgressSheet)
+        //{
+        //    var zoneId = row.RowId;       // Zone ID
+        //    var fateRank = row.ReqFatesToRank4;      // Current Shared FATE rank
+        //    //var maxRank = row.;    // Maximum possible rank
+        //    PluginLog.Verbose($"Zone {zoneId}: Rank {fateRank}");
+        //}
+        //PluginLog.Verbose(PlayerHelper.GCRankMaelstrom.ToString());
+        //ECommons.ImGuiMethods.ImGuiEx.Text();
         // you might normally want to embed resources and load them from the manifest stream
         //var goatImagePath = Path.Combine(PluginInterface.AssemblyLocation.Directory?.FullName!, "goat.png");
+
 
         //ConfigWindow = new Windows.ConfigWindow(this);
         //MainWindow = new MainWindow(this);
@@ -79,16 +133,29 @@ public sealed class Plugin : IDalamudPlugin
 
         // Adds another button that is doing the same but for the main ui of the plugin
 
-        //Service.Log.Verbose("Item Unlocked - Should be True"+ItemHelper.CheckUnlockStatus(15814).ToString()); //unlocked
-        //Service.Log.Verbose("Item Unlocked - Should be False" + ItemHelper.CheckUnlockStatus(38457).ToString());
+        //PluginLog.Verbose("Item Unlocked - Should be True"+ItemHelper.CheckUnlockStatus(15814).ToString()); //unlocked
+        //PluginLog.Verbose("Item Unlocked - Should be False" + ItemHelper.CheckUnlockStatus(38457).ToString());
         //ItemHelper.CheckUnlockStatus(38457); //not unlocked
     }
 
-    private void CommandHandler(string command, string arguments)
+    public void Dispose()
     {
-        if (arguments.EqualsIgnoreCase("debug"))
+        PluginInterface.UiBuilder.Draw -= ws.Draw;
+        ECommonsMain.Dispose();
+        FontHelper.DisposeFonts();
+    }
+
+
+    private void OnCommand(string command, string args)
+    {
+        if (args.EqualsIgnoreCase("debug") || args.EqualsIgnoreCase("d"))
         {
             debugTabWindow.IsOpen = true;
+        }
+        else if (args.EqualsIgnoreCase("config") || args.EqualsIgnoreCase("c")
+            || args.EqualsIgnoreCase("settings") || args.EqualsIgnoreCase("s"))
+        {
+            configTabWindow.IsOpen = true;
         }
         else
         {
@@ -96,26 +163,29 @@ public sealed class Plugin : IDalamudPlugin
         }
     }
 
-    public void Dispose()
-    {
-        PluginInterface.UiBuilder.Draw -= ws.Draw;
-        ECommonsMain.Dispose();
-    }
-
-    private void OnCommand(string command, string args)
-    {
-        mainTabWindow.IsOpen = true;
-    }
-
 
     //public void ToggleConfigUI() => ConfigWindow.Toggle();
-    public void ToggleSpendingUI(uint CurrencyId, String name, List<BuyableItem> cItems)
+    public void ToggleSpendingUI(TrackedCurrency Currency)
     {
-        TaskManager.Enqueue(() => WebHelper.CheckPrices());
-        TaskManager.Enqueue(() => WebHelper.CheckSales());
-        spendingWindow.collectableItems = cItems;
-        spendingWindow.CurrencyId = CurrencyId;
-        spendingWindow.CurrencyName = name;
+        List<ShopItem> collectableItems = Generator.items
+        .Where(item => item.Currency == Currency.ItemId && item.Type.HasFlag(ItemType.Collectable) && !item.Disabled && !ItemHelper.CheckUnlockStatus(item.Id))
+        .ToList();
+        List<ShopItem> ventures = Generator.items
+            .Where(item => item.Currency == Currency.ItemId && item.Type.HasFlag(ItemType.Venture))
+            .ToList();
+        if (ventures.Count > 0)
+        {
+            spendingWindow.Ventures = ventures;
+            spendingWindow.VentureBuyable = true;
+        }
+        else
+        {
+            spendingWindow.Ventures = null;
+            spendingWindow.VentureBuyable = false;
+        }
+        TaskManager.Enqueue(() => WebHelper.CheckAll(Currency.ItemId));
+        spendingWindow.CollectableItems = collectableItems;
+        spendingWindow.Currency = Currency;
         spendingWindow.IsOpen = true;
         //SpendingWindow.AllowPinning = true;
     }
@@ -123,7 +193,7 @@ public sealed class Plugin : IDalamudPlugin
 
     private void OnLogin()
     {
-
+        PlayerHelper.init();
     }
 
     private void OnFrameworkUpdate(IFramework framework)

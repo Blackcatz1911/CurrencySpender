@@ -1,7 +1,6 @@
+using Dalamud.Game;
 using Dalamud.IoC;
-using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
-using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 
 namespace CurrencySpender;
 
@@ -19,4 +18,5 @@ public class Service
     [PluginService] public static IAddonEventManager AddonEventManager { get; set; }
     [PluginService] public static IAddonLifecycle AddonLifecycle { get; set; }
     [PluginService] public static ICondition Condition { get; set; }
+    [PluginService] public static ISigScanner sigScanner { get; set; }
 }

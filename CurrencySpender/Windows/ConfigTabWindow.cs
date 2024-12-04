@@ -14,16 +14,17 @@ unsafe internal class ConfigTabWindow : Window
 
     public override void PreDraw()
     {
-        WindowName = $"{P.Name} Settings {P.GetType().Assembly.GetName().Version}###ConfigTabWindow";
+        WindowName = $"{P.Name} Settings {P.Version}###ConfigTabWindow";
     }
 
     public override void Draw()
     {
         ImGuiEx.EzTabBar("tabbar", [
-            ("Main Settings", ConfigTab.Draw, null, true),
-            ("Todo list", TodoTab.Draw, null, true),
+            ("Settings", ConfigTab.Draw, null, true),
+            //("Todo list", TodoTab.Draw, null, true),
             ("Changelog", ChangelogTab.Draw, null, true),
-            (C.debug?"Debug":null, DebugTab.Draw, null, true),
+            ("About", AboutTab.Draw, null, true),
+            (C.Debug?"Debug":null, DebugTab.Draw, null, true),
          ]);
     }
 }

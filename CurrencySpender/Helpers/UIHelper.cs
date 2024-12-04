@@ -1,6 +1,5 @@
-using ImGuiNET;
-using System;
-using System.Collections.Generic;
+using Dalamud.Interface;
+using Dalamud.Interface.ManagedFontAtlas;
 
 namespace CurrencySpender.Helpers;
 
@@ -15,4 +14,13 @@ internal static unsafe class UiHelper
             ImGui.SetCursorPosX(posX);
         ImGui.Text(str);
     }
+    public static void WarningText(string str)
+    {
+        ImGui.PushFont(UiBuilder.IconFont);
+        ImGuiEx.Text(EColor.YellowBright, FontAwesomeIcon.ExclamationTriangle.ToIconString());
+        ImGui.PopFont();
+        ImGui.SameLine();
+        ImGuiEx.TextWrapped(EColor.YellowBright, str);
+    }
+
 }
