@@ -1,5 +1,6 @@
 using CurrencySpender.Classes;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
+using FFXIVClientStructs.FFXIV.Component.Exd;
 using Lumina.Excel;
 using Lumina.Excel.Sheets;
 
@@ -126,6 +127,83 @@ namespace CurrencySpender.Helpers
             {
                 hairstyles.Add(item.HintItem.RowId);
             }
+        }
+
+        public static unsafe bool IsUnlocked(uint id)
+        {
+            Item item = Service.DataManager.GetExcelSheet<Item>().GetRow(id);
+            if (item.ItemAction.RowId == 0)
+                return false;
+
+            if (item.ItemUICategory.RowId == 94 && item.Name.ExtractText().Contains("Faded"))
+            {
+                if (Debug) PluginLog.Verbose("Item is Faded Copy of Orchestration Roll");
+                var new_name = item.Name.ExtractText().Replace("Faded Copy of ", "") + " Orchestrion Roll";
+                var rowId = GetItemIDFromString(new_name);
+                if (Debug) PluginLog.Verbose("new_name: '" + new_name + "'");
+                if (Debug) PluginLog.Verbose("row: " + rowId.ToString());
+                if (rowId != 0)
+                {
+                    var new_item = Service.DataManager.GetExcelSheet<Item>()!.GetRow(rowId);
+                    var new_additionalData = new_item.AdditionalData.RowId;
+                    return UIState.Instance()->PlayerState.IsOrchestrionRollUnlocked(new_additionalData);
+                }
+            }
+
+            switch ((ItemActionType)item.ItemAction.Value.Type)
+            {
+                case ItemActionType.Companion:
+                    return UIState.Instance()->IsCompanionUnlocked(item.ItemAction.Value.Data[0]);
+
+                case ItemActionType.BuddyEquip:
+                    return UIState.Instance()->Buddy.CompanionInfo.IsBuddyEquipUnlocked(item.ItemAction.Value.Data[0]);
+
+                case ItemActionType.Mount:
+                    return PlayerState.Instance()->IsMountUnlocked(item.ItemAction.Value.Data[0]);
+
+                case ItemActionType.SecretRecipeBook:
+                    return PlayerState.Instance()->IsSecretRecipeBookUnlocked(item.ItemAction.Value.Data[0]);
+
+                case ItemActionType.UnlockLink:
+                    return UIState.Instance()->IsUnlockLinkUnlocked(item.ItemAction.Value.Data[0]);
+
+                case ItemActionType.TripleTriadCard when item.AdditionalData.Is<TripleTriadCard>():
+                    return UIState.Instance()->IsTripleTriadCardUnlocked((ushort)item.AdditionalData.RowId);
+
+                case ItemActionType.FolkloreTome:
+                    return PlayerState.Instance()->IsFolkloreBookUnlocked(item.ItemAction.Value.Data[0]);
+
+                case ItemActionType.OrchestrionRoll when item.AdditionalData.Is<Orchestrion>():
+                    return PlayerState.Instance()->IsOrchestrionRollUnlocked(item.AdditionalData.RowId);
+
+                case ItemActionType.FramersKit:
+                    return PlayerState.Instance()->IsFramersKitUnlocked(item.ItemAction.Value.Data[0]);
+
+                case ItemActionType.Ornament:
+                    return PlayerState.Instance()->IsOrnamentUnlocked(item.ItemAction.Value.Data[0]);
+
+                case ItemActionType.Glasses:
+                    return PlayerState.Instance()->IsGlassesUnlocked((ushort)item.AdditionalData.RowId);
+            }
+
+            var row = ExdModule.GetItemRowById(item.RowId);
+            return row != null && UIState.Instance()->IsItemActionUnlocked(row) == 1;
+        }
+        public enum ItemActionType : ushort
+        {
+            Companion = 853,
+            BuddyEquip = 1013,
+            Mount = 1322,
+            SecretRecipeBook = 2136,
+            UnlockLink = 2633, // riding maps, blu totems, emotes/dances, hairstyles
+            TripleTriadCard = 3357,
+            FolkloreTome = 4107,
+            OrchestrionRoll = 25183,
+            FramersKit = 29459,
+            // FieldNotes = 19743, // bozjan field notes (server side, but cached)
+            Ornament = 20086,
+            Glasses = 37312,
+            CompanySealVouchers = 41120, // can use = is in grand company, is unlocked = always false
         }
         public static ItemType GetItemTypes(RowRef<Item> item)
         {

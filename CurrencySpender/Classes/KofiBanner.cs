@@ -3,7 +3,7 @@ using Dalamud.Interface.Utility;
 namespace CurrencySpender.Classes;
 public static class KofiBanner
 {
-    public static string Text = "♥ Kofi";
+    public static string Text = "♥ Ko-fi";
     public static string DonateLink => "https://ko-fi.com/catz1911";
     public static void DrawRaw()
     {
@@ -71,7 +71,7 @@ public static class KofiBanner
 
     private static string SmallPatreonButtonTooltip => $"""
 				If you like {Service.PluginInterface.Manifest.Name},
-				please consider supporting it's developer via Ko-fi.
+				please consider supporting its developer via Ko-fi.
 				""";
 
     private static void Popup()

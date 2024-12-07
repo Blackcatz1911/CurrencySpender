@@ -5,9 +5,9 @@ namespace CurrencySpender.Helpers
 {
     internal static class ShopHelper
     {
-        public static List<ShopItem> GetItems(TrackedCurrency Currency)
+        public static List<ShopItem> GetSellableItems(TrackedCurrency Currency)
         {
-            List<ShopItem> filteredItems = new List<ShopItem>();
+            List<ShopItem> SellableItems = new List<ShopItem>();
             if (Currency.ItemId == 26807)
             {
                 //var shops = Generator.shops
@@ -17,20 +17,33 @@ namespace CurrencySpender.Helpers
                 //{
                 //    PluginLog.Verbose(shop.ToString());
                 //}
-                filteredItems = Generator.items
-                    .Where(item => item.Currency == Currency.ItemId && item.Type.HasFlag(ItemType.Tradeable)
+                SellableItems = Generator.items
+                    .Where(item => (item.Currency == Currency.ItemId || (Currency.Children != null && Currency.Children.Contains(item.Currency))) && item.Type.HasFlag(ItemType.Tradeable)
                     && !item.Disabled && !item.Shop.Disabled)
                     .ToList();
-                //PluginLog.Verbose($"{filteredItems.Count}");
+                //PluginLog.Verbose($"{SellableItems.Count}");
             }
             else
             {
-                filteredItems = Generator.items
-                    .Where(item => item.Currency == Currency.ItemId && item.Type.HasFlag(ItemType.Tradeable))
+                SellableItems = Generator.items
+                    .Where(item => (item.Currency == Currency.ItemId || (Currency.Children != null && Currency.Children.Contains(item.Currency))) && item.Type.HasFlag(ItemType.Tradeable))
                     .ToList();
-                //PluginLog.Verbose($"{filteredItems.Count}");
+                //PluginLog.Verbose($"{SellableItems.Count}");
             }
-            return filteredItems;
+            return SellableItems;
+        }
+        public static List<ShopItem> GetCollectableItems(TrackedCurrency Currency)
+        {
+            List<ShopItem> Items = Generator.items
+                .Where(item => (item.Currency == Currency.ItemId || (Currency.Children != null && Currency.Children.Contains(item.Currency))) && item.Type.HasFlag(ItemType.Collectable) && !item.Disabled && !ItemHelper.CheckUnlockStatus(item.Id))
+                .ToList();
+            return Items;
+        }
+        public static List<ShopItem> GetVentures(TrackedCurrency Currency)
+        {
+            return Generator.items
+                .Where(item => item.Currency == Currency.ItemId && item.Type.HasFlag(ItemType.Venture))
+                .ToList();
         }
     }
 }

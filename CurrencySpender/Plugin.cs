@@ -157,33 +157,12 @@ public sealed class Plugin : IDalamudPlugin
         }
     }
 
-
-    //public void ToggleConfigUI() => ConfigWindow.Toggle();
     public void ToggleSpendingUI(TrackedCurrency Currency)
     {
-        List<ShopItem> collectableItems = Generator.items
-        .Where(item => item.Currency == Currency.ItemId && item.Type.HasFlag(ItemType.Collectable) && !item.Disabled && !ItemHelper.CheckUnlockStatus(item.Id))
-        .ToList();
-        List<ShopItem> ventures = Generator.items
-            .Where(item => item.Currency == Currency.ItemId && item.Type.HasFlag(ItemType.Venture))
-            .ToList();
-        if (ventures.Count > 0)
-        {
-            spendingWindow.Ventures = ventures;
-            spendingWindow.VentureBuyable = true;
-        }
-        else
-        {
-            spendingWindow.Ventures = null;
-            spendingWindow.VentureBuyable = false;
-        }
-        TaskManager.Enqueue(() => WebHelper.CheckAll(Currency.ItemId));
-        spendingWindow.CollectableItems = collectableItems;
-        spendingWindow.Currency = Currency;
+        P.TaskManager.Enqueue(() => WebHelper.CheckAll(Currency.ItemId));
+        spendingWindow.GetData(Currency);
         spendingWindow.IsOpen = true;
-        //SpendingWindow.AllowPinning = true;
     }
-    //public void ToggleMainUI() => MainWindow.Toggle();
 
     private void OnLogin()
     {

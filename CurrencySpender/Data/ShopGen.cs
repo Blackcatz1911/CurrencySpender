@@ -103,11 +103,11 @@ namespace CurrencySpender.Data
         public static void EvalulateRowRef(ENpcBase npcBase, RowRef rowRef)
         {
             var npcName = Service.DataManager.GetExcelSheet<ENpcResident>()!.GetRow(npcBase.RowId).Singular.ExtractText();
-            //List<string> names = ["Tepli", "Kunuhali", "Rral Wuruq", "Mitepe", "Toashana", "Clerk PX-0029", "Kajeel Ja", "Beryl"];
-            //if (names.Contains(npcName))
-            //{
-            //    PluginLog.Verbose($"FOUND: {npcBase.RowId}-{npcName}");
-            //}
+            // List<string> names = ["Edelina"];
+            // if (names.Contains(npcName))
+            // {
+            //     PluginLog.Verbose($"FOUND: {npcBase.RowId}-{npcName}-{rowRef.Is<SpecialShop>()}");
+            // }
             Location loc = Location.GetLocation(npcBase.RowId);
             //var loc = Location.locations.FirstOrDefault(loc => loc.Name.Equals(npcName, StringComparison.OrdinalIgnoreCase));
             //if (loc == default) { loc = Location.locations[0]; }

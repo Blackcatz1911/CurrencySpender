@@ -32,8 +32,8 @@ internal class MainTab
                 ImGui.Image(currency.Icon.ImGuiHandle, new Vector2(21, 21));
                 ImGui.SameLine();
                 var text = $"{currency.CurrentCount}/{currency.MaxCount} - {currency.Percentage}%";
-                if (currency.Percentage > 90) ImGuiEx.Text(EColor.RedBright, text);
-                else if(currency.Percentage > 75) ImGuiEx.Text(EColor.YellowBright, text);
+                if (currency.Percentage > 70) ImGuiEx.Text(EColor.RedBright, text);
+                else if(currency.Percentage > 50) ImGuiEx.Text(EColor.YellowBright, text);
                 else ImGuiEx.Text(text);
 
                 if (ImGuiEx.IconButtonWithText(Dalamud.Interface.FontAwesomeIcon.MagnifyingGlassChart, " "+currency.Name)) {
@@ -47,7 +47,7 @@ internal class MainTab
                     //    .Where(item => item.Currency == currency.ItemId && item.Type.HasFlag(ItemType.Collectable) && !ItemHelper.CheckUnlockStatus(item.Id))
                     //    .ToList();
 
-                    //foreach (ShopItem item in filteredItems)
+                    //foreach (ShopItem item in SellableItems)
                     //{
                     //    item.Profit = item.CurrentPrice * item.AmountCanBuy;
                     //}

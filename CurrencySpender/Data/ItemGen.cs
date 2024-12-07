@@ -89,9 +89,9 @@ namespace CurrencySpender.Data
                     var costItemId = itemCol_.ItemCosts[i].ItemCost.RowId;
                     var cur = ConvertCurrencyId(shop_.RowId, costItemId, shop_.UseCurrencyType);
                     var cur_item = Service.DataManager.GetExcelSheet<Item>().GetRow(cur);
-                    if (!enabled_currencies.Contains(cur)) continue;
-                    //if(itemCol_.ReceiveItems[i].Item.RowId == 21072)
-                    //PluginLog.Verbose($"{cur}-{cur_item.Name}-{shop.NpcName}-{shop.ShopId}-{ itemCol_.ReceiveItems[i].Item.Value.Name.ToString()}");
+                    //if (!enabled_currencies.Contains(cur)) continue;
+                    // if(itemCol_.ReceiveItems[i].Item.RowId == 43590)
+                    //     PluginLog.Verbose($"{cur}-{cur_item.Name}-{shop.NpcName}-{shop.ShopId}-{ itemCol_.ReceiveItems[i].Item.Value.Name.ToString()}");
                     var existing_item = Generator.items.FirstOrDefault(it => it.Id == itemCol_.ReceiveItems[i].Item.RowId && it.ShopId == shop.ShopId); //it.Shop.NpcId == shop.NpcId);
                     if(existing_item == default)
                     {

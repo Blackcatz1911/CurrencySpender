@@ -7,14 +7,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CurrencySpender", "Currency
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ECommons", "ECommons\ECommons\ECommons.csproj", "{8215F062-1000-4041-9AD9-F11852386EEB}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InteropGenerator", "FFXIVClientStructs\InteropGenerator\InteropGenerator.csproj", "{1C8DE1C3-A80F-4BAA-BE30-A6FCFE53B61F}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InteropGenerator.Runtime", "FFXIVClientStructs\InteropGenerator.Runtime\InteropGenerator.Runtime.csproj", "{D6125D41-88CC-4DFE-B3C7-B5B51E5701B4}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FFXIVClientStructs", "FFXIVClientStructs\FFXIVClientStructs\FFXIVClientStructs.csproj", "{C36F8189-78F5-4DF5-B544-C0EA16F5851E}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FFXIVClientStructs.Generators", "FFXIVClientStructs\FFXIVClientStructs.Generators\FFXIVClientStructs.Generators.csproj", "{4A4E42E1-D93C-4356-93CB-801166EF94DC}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -29,22 +21,6 @@ Global
 		{8215F062-1000-4041-9AD9-F11852386EEB}.Debug|x64.Build.0 = Debug|x64
 		{8215F062-1000-4041-9AD9-F11852386EEB}.Release|x64.ActiveCfg = Release|x64
 		{8215F062-1000-4041-9AD9-F11852386EEB}.Release|x64.Build.0 = Release|x64
-		{1C8DE1C3-A80F-4BAA-BE30-A6FCFE53B61F}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{1C8DE1C3-A80F-4BAA-BE30-A6FCFE53B61F}.Debug|x64.Build.0 = Debug|Any CPU
-		{1C8DE1C3-A80F-4BAA-BE30-A6FCFE53B61F}.Release|x64.ActiveCfg = Release|Any CPU
-		{1C8DE1C3-A80F-4BAA-BE30-A6FCFE53B61F}.Release|x64.Build.0 = Release|Any CPU
-		{D6125D41-88CC-4DFE-B3C7-B5B51E5701B4}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{D6125D41-88CC-4DFE-B3C7-B5B51E5701B4}.Debug|x64.Build.0 = Debug|Any CPU
-		{D6125D41-88CC-4DFE-B3C7-B5B51E5701B4}.Release|x64.ActiveCfg = Release|Any CPU
-		{D6125D41-88CC-4DFE-B3C7-B5B51E5701B4}.Release|x64.Build.0 = Release|Any CPU
-		{C36F8189-78F5-4DF5-B544-C0EA16F5851E}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{C36F8189-78F5-4DF5-B544-C0EA16F5851E}.Debug|x64.Build.0 = Debug|Any CPU
-		{C36F8189-78F5-4DF5-B544-C0EA16F5851E}.Release|x64.ActiveCfg = Release|Any CPU
-		{C36F8189-78F5-4DF5-B544-C0EA16F5851E}.Release|x64.Build.0 = Release|Any CPU
-		{4A4E42E1-D93C-4356-93CB-801166EF94DC}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{4A4E42E1-D93C-4356-93CB-801166EF94DC}.Debug|x64.Build.0 = Debug|Any CPU
-		{4A4E42E1-D93C-4356-93CB-801166EF94DC}.Release|x64.ActiveCfg = Release|Any CPU
-		{4A4E42E1-D93C-4356-93CB-801166EF94DC}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

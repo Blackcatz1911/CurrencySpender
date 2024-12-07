@@ -1,13 +1,15 @@
 using CurrencySpender.Classes;
+using CurrencySpender.Data;
 using Dalamud.Interface;
+using FFXIVClientStructs.FFXIV.Client.Game;
 
 namespace CurrencySpender.Windows;
 internal class SpendingWindow : Window
 {
-    public TrackedCurrency? Currency;
-    public List<ShopItem>? CollectableItems;
-    public List<ShopItem>? Ventures;
-    public bool VentureBuyable;
+    public static TrackedCurrency? Currency;
+    internal static List<ShopItem>? CollectableItems;
+    internal static List<ShopItem>? Ventures;
+    internal static List<ShopItem>? SellableItems;
     public SpendingWindow() : base("SpendingWindow")
     {
         this.SizeConstraints = new()
@@ -32,7 +34,7 @@ internal class SpendingWindow : Window
     }
     public unsafe override void Draw()
     {
-        if(Currency == null || CollectableItems == null) return;
+        if(Currency == null) return;
         //WindowName = "SpendingGuide: " + this.CurrencyName;
         ImGui.Image(Currency.Icon.ImGuiHandle, new Vector2(21, 21));
         ImGui.SameLine();
@@ -50,7 +52,7 @@ internal class SpendingWindow : Window
         }
         if (Currency.ItemId == 26807)
         {
-            UiHelper.WarningText("Some items cannot be purchased yet due to GC rankings... So they will not be displayed here.");
+            UiHelper.WarningText("Some items cannot be purchased yet due to shared FATE rankings... So they will not be displayed here.");
         }
 
         ImGui.Separator();
@@ -63,15 +65,17 @@ internal class SpendingWindow : Window
                 {
                     //ImGui.TableSetupColumn("ID");
                     ImGui.TableSetupColumn("Name", ImGuiTableColumnFlags.WidthStretch);
-                    ImGui.TableSetupColumn("Price");
+                    ImGui.TableSetupColumn("Price", ImGuiTableColumnFlags.WidthFixed, 100);
                     ImGui.TableSetupColumn("Zone");
                     ImGui.TableSetupColumn("Actions");
                     ImGui.TableHeadersRow();
                     foreach (var item in CollectableItems)
                     {
+                        ImGui.TableNextRow();
                         //ImGui.TableNextColumn();
                         //ImGui.Text(item.Id.ToString());
-                        ImGui.TableNextColumn();
+                        //ImGui.TableNextColumn();
+                        ImGui.TableSetColumnIndex(0);
                         //PluginLog.Verbose("Starting ImGui item.Name rendering...");
                         ImGui.Text(item.Name);
                         if (ImGui.IsItemHovered() && C.Debug)
@@ -81,17 +85,62 @@ internal class SpendingWindow : Window
                             ImGui.Text($"ID: {item.Id}\nCat: {item.Category}\nShopId: {item.Shop.ShopId}\nNPCName: {item.Shop.NpcName}\nNPCID: {item.Shop.NpcId}");
                             ImGui.EndTooltip();
                         }
-                        ImGui.TableNextColumn();
-                        //PluginLog.Verbose("Starting ImGui item.Price rendering...");
-                        UiHelper.Rightalign(item.Price.ToString(), true);
+                        if (item.Currency != Currency.ItemId)
+                        {
+                            var child_cur = C.Currencies.Where(cur => cur.ItemId == item.Currency).First();
+                            ImGui.Text(child_cur.Name);
+                            if (ImGui.IsItemHovered() && C.Debug)
+                            {
+                                // Display a tooltip or additional info
+                                ImGui.BeginTooltip();
+                                ImGui.Text($"ID: {child_cur.ItemId}");
+                                ImGui.EndTooltip();
+                            }
+                        }
+                        ImGui.TableSetColumnIndex(1);
                         //ImGui.Text(item.Price.ToString());
-                        ImGui.TableNextColumn();
-                        ImGui.Text(item.Shop.Location!=null?item.Shop.Location.Zone:"");
-                        ImGui.TableNextColumn();
+                        //UiHelper.Rightalign(item.Price.ToString(), false);
+                        if(item.Currency == Currency.ItemId)
+                            UiHelper.RightAlignWithIcon(item.Price.ToString(), Currency.Icon.ImGuiHandle, true);
+                        if (item.Currency != Currency.ItemId)
+                        {
+                            var child_cur = C.Currencies.Where(cur => cur.ItemId == item.Currency).First();
+                            UiHelper.RightAlignWithIcon(item.Price.ToString(), child_cur.Icon.ImGuiHandle, true);
+                            UiHelper.RightAlignWithIcon((item.Price * child_cur.Price).ToString(), Currency.Icon.ImGuiHandle, true);
+                            //ImGui.Text("test2");
+                            //UiHelper.Rightalign(item.Price.ToString(), Currency.Icon.ImGuiHandle, true);
+                            //ImGui.Text(item.Price.ToString());
+                            //    //UiHelper.Rightalign(item.Price.ToString(), true);
+                            //    ImGui.SameLine();
+                            //    var child_cur = C.Currencies.Where(cur => cur.ItemId == item.Currency).First();
+                            //    ImGui.Image(child_cur.Icon.ImGuiHandle, new Vector2(20, 20));
+                            //    ImGui.Text((item.Price * child_cur.Price).ToString());
+                            //    ImGui.SameLine();
+                            //    ImGui.Image(Currency.Icon.ImGuiHandle, new Vector2(20, 20));
+                        }
+                        //ImGui.TableNextColumn();
+                        ImGui.TableSetColumnIndex(2);
+                        ImGui.Text(item.Shop.Location != null ? item.Shop.Location.Zone : "Unknown");
+                        if (item.Currency != Currency.ItemId)
+                        {
+                            var item_ = Generator.items.Where(cur => cur.Id == item.Currency).First();
+                            ImGui.Text(item_.Shop.Location != null ? item_.Shop.Location.Zone : "Unknown");
+                            //ImGui.Text("test2");
+                            //UiHelper.Rightalign(item.Price.ToString(), Currency.Icon.ImGuiHandle, true);
+                            //ImGui.Text(item.Price.ToString());
+                            //    //UiHelper.Rightalign(item.Price.ToString(), true);
+                            //    ImGui.SameLine();
+                            //    var child_cur = C.Currencies.Where(cur => cur.ItemId == item.Currency).First();
+                            //    ImGui.Image(child_cur.Icon.ImGuiHandle, new Vector2(20, 20));
+                            //    ImGui.Text((item.Price * child_cur.Price).ToString());
+                            //    ImGui.SameLine();
+                            //    ImGui.Image(Currency.Icon.ImGuiHandle, new Vector2(20, 20));
+                        }
+                        ImGui.TableSetColumnIndex(3);
                         //PluginLog.Verbose("Starting ImGui Flag rendering...");
                         if (item.Shop.Location != null && item.Shop.Location != Location.locations[0])
                         {
-                            if (ImGui.Button("Flag##collectable" + item.Id+"-"+item.ShopId))
+                            if (ImGui.Button("Flag##collectable" + item.Id + "-" + item.ShopId))
                             {
                                 Service.GameGui.OpenMapWithMapLink(item.Shop.Location.GetMapMarker());
                             }
@@ -100,6 +149,20 @@ internal class SpendingWindow : Window
                             {
                                 item.Shop.Location.Teleport();
                                 Service.GameGui.OpenMapWithMapLink(item.Shop.Location.GetMapMarker());
+                            }
+                        }
+                        if (item.Currency != Currency.ItemId)
+                        {
+                            var item_ = Generator.items.Where(cur => cur.Id == item.Currency).First();
+                            if (ImGui.Button("Flag##collectable" + item_.Id + "-" + item_.ShopId))
+                            {
+                                Service.GameGui.OpenMapWithMapLink(item_.Shop.Location.GetMapMarker());
+                            }
+                            ImGui.SameLine();
+                            if (ImGui.Button("TP##collectable" + item_.Id + "-" + item_.ShopId))
+                            {
+                                item_.Shop.Location.Teleport();
+                                Service.GameGui.OpenMapWithMapLink(item_.Shop.Location.GetMapMarker());
                             }
                         }
                         //PluginLog.Verbose("Ending ImGui Flag rendering...");
@@ -111,14 +174,14 @@ internal class SpendingWindow : Window
                 ImGui.Separator();
             }
 
-            if (VentureBuyable && C.ShowVentures && Ventures != null)
+            if (Ventures.Count > 0 && C.ShowVentures && Ventures != null)
             {
                 ImGui.Text($"Can buy Ventures:");
-                if (ImGui.BeginTable("##collectables", 4, ImGuiTableFlags.Borders | ImGuiTableFlags.SizingFixedFit))
+                if (ImGui.BeginTable("##ventures", 4, ImGuiTableFlags.Borders | ImGuiTableFlags.SizingFixedFit))
                 {
                     //ImGui.TableSetupColumn("ID");
                     ImGui.TableSetupColumn("Name", ImGuiTableColumnFlags.WidthStretch);
-                    ImGui.TableSetupColumn("Price");
+                    ImGui.TableSetupColumn("Price", ImGuiTableColumnFlags.WidthFixed, 100);
                     ImGui.TableSetupColumn("Zone");
                     ImGui.TableSetupColumn("Actions");
                     ImGui.TableHeadersRow();
@@ -138,7 +201,7 @@ internal class SpendingWindow : Window
                         }
                         ImGui.TableNextColumn();
                         //PluginLog.Verbose("Starting ImGui item.Price rendering...");
-                        UiHelper.Rightalign(item.Price.ToString(), true);
+                        UiHelper.RightAlignWithIcon(item.Price.ToString(), Currency.Icon.ImGuiHandle, true);
                         //ImGui.Text(item.Price.ToString());
                         ImGui.TableNextColumn();
                         ImGui.Text(item.Shop.Location != null ? item.Shop.Location.Zone : "");
@@ -168,24 +231,24 @@ internal class SpendingWindow : Window
 
             ImGui.Text($"Sellable items on the marketboard:");
 
-            if (ImGui.BeginTable("##markettable", 8, ImGuiTableFlags.Borders | ImGuiTableFlags.SizingFixedFit | ImGuiTableFlags.Sortable))
+            if (ImGui.BeginTable("##markettable", 7, ImGuiTableFlags.Borders | ImGuiTableFlags.SizingFixedFit | ImGuiTableFlags.Sortable))
             {
                 // Set up columns
                 ImGui.TableSetupColumn("Name", ImGuiTableColumnFlags.WidthStretch);
                 ImGui.TableSetupColumn("Sales", ImGuiTableColumnFlags.None);
-                ImGui.TableSetupColumn("Price", ImGuiTableColumnFlags.None);
+                ImGui.TableSetupColumn("Price", ImGuiTableColumnFlags.WidthFixed, 100);
                 ImGui.TableSetupColumn("Qty", ImGuiTableColumnFlags.None);
                 ImGui.TableSetupColumn("Sells for", ImGuiTableColumnFlags.None);
                 ImGui.TableSetupColumn("Total", ImGuiTableColumnFlags.None);
-                ImGui.TableSetupColumn("Zone", ImGuiTableColumnFlags.NoSort);
+                //ImGui.TableSetupColumn("Zone", ImGuiTableColumnFlags.NoSort);
                 ImGui.TableSetupColumn("Actions", ImGuiTableColumnFlags.NoSort);
                 ImGui.TableHeadersRow();
 
                 // Get sorting specs
                 ImGuiTableSortSpecsPtr sortSpecs = ImGui.TableGetSortSpecs();
-                List<ShopItem> filteredItems = ShopHelper.GetItems(Currency);
+                //List<ShopItem> SellableItems = ShopHelper.GetSellableItems(Currency);
 
-                if (sortSpecs.NativePtr != null && sortSpecs.SpecsCount > 0 && filteredItems.Count > 0)
+                if (sortSpecs.NativePtr != null && sortSpecs.SpecsCount > 0 && SellableItems.Count > 0)
                 {
                     // Retrieve sorting specification
                     ImGuiTableColumnSortSpecsPtr spec = sortSpecs.Specs;
@@ -196,39 +259,39 @@ internal class SpendingWindow : Window
                     switch (columnIndex)
                     {
                         case 0: // Name
-                            filteredItems = ascending
-                                ? filteredItems.OrderBy(item => item.Name).ToList()
-                                : filteredItems.OrderByDescending(item => item.Name).ToList();
+                            SellableItems = ascending
+                                ? SellableItems.OrderBy(item => item.Name).ToList()
+                                : SellableItems.OrderByDescending(item => item.Name).ToList();
                             break;
                         
                         case 1: // Sales
-                            filteredItems = ascending
-                                ? filteredItems.OrderBy(item => item.HasSoldWeek).ToList()
-                                : filteredItems.OrderByDescending(item => item.HasSoldWeek).ToList();
+                            SellableItems = ascending
+                                ? SellableItems.OrderBy(item => item.HasSoldWeek).ToList()
+                                : SellableItems.OrderByDescending(item => item.HasSoldWeek).ToList();
                             break;
 
                         case 2: // Price
-                            filteredItems = ascending
-                                ? filteredItems.OrderBy(item => item.Price).ToList()
-                                : filteredItems.OrderByDescending(item => item.Price).ToList();
+                            SellableItems = ascending
+                                ? SellableItems.OrderBy(item => item.Price).ToList()
+                                : SellableItems.OrderByDescending(item => item.Price).ToList();
                             break;
 
                         case 3: // Qty
-                            filteredItems = ascending
-                                ? filteredItems.OrderBy(item => item.AmountCanBuy).ToList()
-                                : filteredItems.OrderByDescending(item => item.AmountCanBuy).ToList();
+                            SellableItems = ascending
+                                ? SellableItems.OrderBy(item => item.AmountCanBuy).ToList()
+                                : SellableItems.OrderByDescending(item => item.AmountCanBuy).ToList();
                             break;
 
                         case 4: // Sells for
-                            filteredItems = ascending
-                                ? filteredItems.OrderBy(item => item.CurrentPrice).ToList()
-                                : filteredItems.OrderByDescending(item => item.CurrentPrice).ToList();
+                            SellableItems = ascending
+                                ? SellableItems.OrderBy(item => item.CurrentPrice).ToList()
+                                : SellableItems.OrderByDescending(item => item.CurrentPrice).ToList();
                             break;
 
                         case 5: // Total
-                            filteredItems = ascending
-                                ? filteredItems.OrderBy(item => item.Profit).ToList()
-                                : filteredItems.OrderByDescending(item => item.Profit).ToList();
+                            SellableItems = ascending
+                                ? SellableItems.OrderBy(item => item.Profit).ToList()
+                                : SellableItems.OrderByDescending(item => item.Profit).ToList();
                             break;
 
                         default:
@@ -237,7 +300,7 @@ internal class SpendingWindow : Window
                 }
 
                 // Render the table rows
-                foreach (ShopItem item in filteredItems)
+                foreach (ShopItem item in SellableItems)
                 {
                     item.Profit = item.CurrentPrice * item.AmountCanBuy;
                     ImGui.TableNextColumn();
@@ -257,15 +320,15 @@ internal class SpendingWindow : Window
                     ImGui.TableNextColumn();
                     UiHelper.Rightalign(item.HasSoldWeek.ToString(), true);
                     ImGui.TableNextColumn();
-                    UiHelper.Rightalign(item.Price.ToString(), true);
+                    UiHelper.RightAlignWithIcon(item.Price.ToString(), Currency.Icon.ImGuiHandle, true);
                     ImGui.TableNextColumn();
                     UiHelper.Rightalign(item.AmountCanBuy.ToString(), true);
                     ImGui.TableNextColumn();
                     UiHelper.Rightalign(item.CurrentPrice == 0 ? "-" : item.CurrentPrice.ToString(), true);
                     ImGui.TableNextColumn();
                     UiHelper.Rightalign(item.Profit == 0 ? "-" : item.Profit.ToString(), true);
-                    ImGui.TableNextColumn();
-                    ImGui.Text(item.Shop.Location.Zone);
+                    //ImGui.TableNextColumn();
+                    //ImGui.Text(item.Shop.Location.Zone);
                     ImGui.TableNextColumn();
                     if (item.Shop.Location != null && item.Shop.Location != Location.locations[0])
                     {
@@ -289,5 +352,13 @@ internal class SpendingWindow : Window
         {
             Service.Log.Error(e, "ImGuiTable");
         }
+    }
+
+    public void GetData(TrackedCurrency cur)
+    {
+        Currency = cur;
+        CollectableItems = ShopHelper.GetCollectableItems(Currency);
+        Ventures = ShopHelper.GetVentures(Currency);
+        SellableItems = ShopHelper.GetSellableItems(Currency);
     }
 }

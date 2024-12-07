@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.2
+- Currency Icon will now be displayed in the table
+- Collectables and sellables will now be displayed when another currency can be bought with it
+- Thousand seperator setting added
+
 ## 1.0.1
 - Fixing lib dependencies
 - Code cleanup

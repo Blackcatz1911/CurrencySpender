@@ -16,12 +16,14 @@ namespace CurrencySpender.Helpers
                     new TrackedCurrency { Type = CurrencyType.Item, ItemId = 36656, Threshold = 18000, MaxCount = 20000, Enabled = true, }, // TrophyCrystals
 
                     new TrackedCurrency { Type = CurrencyType.Item, ItemId = 27, Threshold = 3500, MaxCount = 4000, Enabled = true, }, // AlliedSeals
-                    new TrackedCurrency { Type = CurrencyType.Item, ItemId = 10307, Threshold = 3500, MaxCount = 4000, Enabled = true, }, // CenturioSeals
-                    new TrackedCurrency { Type = CurrencyType.Item, ItemId = 13625, Parent = 10307, Enabled = false, }, // Centurio Clan Mark
+                    new TrackedCurrency { Type = CurrencyType.Item, ItemId = 10307, Threshold = 3500, MaxCount = 4000, Enabled = true, Children=[13625] }, // CenturioSeals
+                    new TrackedCurrency { Type = CurrencyType.Item, ItemId = 13625, Price = 100 , Enabled = true}, // Centurio Clan Mark
 
                     new TrackedCurrency { Type = CurrencyType.Item, ItemId = 26533, Threshold = 3500, MaxCount = 4000, Enabled = true, }, // SackOfNuts
 
-                    new TrackedCurrency { Type = CurrencyType.Item, ItemId = 26807, Threshold = 800, MaxCount = 1500, Enabled = true, }, // BicolorGemstones
+                    new TrackedCurrency { Type = CurrencyType.Item, ItemId = 26807, Threshold = 800, MaxCount = 1500, Enabled = true, Children=[43961, 35833] }, // BicolorGemstones
+                    new TrackedCurrency { Type = CurrencyType.Item, ItemId = 43961, Price = 100 , Enabled = true }, // Turali Gemstone Voucher
+                    new TrackedCurrency { Type = CurrencyType.Item, ItemId = 35833, Price = 100 , Enabled = true }, // Gemstone Voucher
 
                     new TrackedCurrency { Type = CurrencyType.Item, ItemId = 28, Threshold = 1400, MaxCount = 2000, Enabled = true, }, // Poetics
                     new TrackedCurrency { Type = CurrencyType.NonLimitedTomestone, Threshold = 1400, MaxCount = 2000, Enabled = true, }, // NonLimitedTomestone

@@ -44,7 +44,8 @@ public unsafe class TrackedCurrency
 
     public uint? Threshold;
 
-    public uint? Parent;
+    public List<uint>? Children;
+    public int? Price;
 
     public bool Enabled = true;
 
@@ -62,7 +63,7 @@ public unsafe class TrackedCurrency
 
     [JsonIgnore] public int CurrentCount => InventoryManager.Instance()->GetInventoryItemCount(ItemId, Type is CurrencyType.HighQualityItem, false, false);
 
-    public int MaxCount;
+    public int MaxCount = 0;
 
     [JsonIgnore] public float Percentage => CurrentCount * 100 / MaxCount;
 

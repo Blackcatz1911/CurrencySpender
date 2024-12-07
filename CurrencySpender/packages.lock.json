@@ -21,16 +21,6 @@
       },
       "ecommons": {
         "type": "Project"
-      },
-      "ffxivclientstructs": {
-        "type": "Project",
-        "dependencies": {
-          "InteropGenerator.Runtime": "[1.0.0, )",
-          "JetBrains.Annotations": "[2021.2.0, )"
-        }
-      },
-      "interopgenerator.runtime": {
-        "type": "Project"
       }
     }
   }

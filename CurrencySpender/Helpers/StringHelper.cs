@@ -1,22 +1,34 @@
 using System;
+using System.Text;
 
 namespace CurrencySpender.Helpers
 {
     internal static class StringHelper
     {
-        public static string FormatString(String str)
+        public static string FormatString(string str)
         {
-            int len = str.Length;
-            var reverse = Reverse(str);
-            var str_ = "";
-            for (int i = 0; i < len; i++)
+            if (string.IsNullOrEmpty(str))
+                return str;
+
+            var sb = new StringBuilder();
+            int count = 0;
+            string[] items = { "", ".", "," };
+            string insert = items[C.Seperator];
+
+            // Iterate the string in reverse to add separators
+            for (int i = str.Length - 1; i >= 0; i--)
             {
-                if (i % 3 == 0 && i != 0)
-                    str_ += ".";
-                str_ += reverse[i];
+                sb.Insert(0, str[i]); // Insert at the beginning
+                count++;
+                if (count % 3 == 0 && i > 0) // Add separator every 3 digits, except at the start
+                {
+                    sb.Insert(0, insert);
+                }
             }
-            return Reverse(str_);
+
+            return sb.ToString();
         }
+
         public static string Reverse(string s)
         {
             char[] charArray = s.ToCharArray();

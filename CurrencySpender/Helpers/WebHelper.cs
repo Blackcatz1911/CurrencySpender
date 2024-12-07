@@ -22,6 +22,7 @@ namespace CurrencySpender.Helpers
                 if (!response.IsSuccessStatusCode)
                 {
                     PluginLog.Error($"Request failed with status code {response.StatusCode}");
+                    return;
                 }
                 string responseBody = await response.Content.ReadAsStringAsync();
                 var json = JsonConvert.DeserializeObject<JObject>(responseBody);
@@ -72,6 +73,11 @@ namespace CurrencySpender.Helpers
                 //PluginLog.Verbose(url);
                 HttpClient client = new HttpClient();
                 HttpResponseMessage response = await client.GetAsync("https://universalis.app/api/v2/history/" + homeWorld + "/" + url);
+                if (!response.IsSuccessStatusCode)
+                {
+                    PluginLog.Error($"Request failed with status code {response.StatusCode}");
+                    return;
+                }
                 string responseBody = await response.Content.ReadAsStringAsync();
                 var json = JsonConvert.DeserializeObject<JObject>(responseBody);
 
