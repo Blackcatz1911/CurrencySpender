@@ -72,6 +72,7 @@ public sealed class Plugin : IDalamudPlugin
             TaskManager = new() { };
             DataHelper.GenerateCurrencyList();
             ItemHelper.initHairStyles();
+            PlayerHelper.init();
         });
         //PlayerHelper.init();
         //Generator.init();
@@ -87,15 +88,6 @@ public sealed class Plugin : IDalamudPlugin
             new FileInfo(Path.Join(pluginInterface.ConfigDirectory.FullName, "SigCache.json")));
         Resolver.GetInstance.Resolve();
 #endif
-        if (Service.ClientState.IsLoggedIn)
-        {
-            PluginLog.Verbose("logged in");
-            PlayerHelper.init();
-        }
-        else
-        {
-            PluginLog.Verbose("not logged in");
-        }
         //var fateProgressSheet = Service.DataManager.GetExcelSheet<FateProgressUI>();
         //foreach (var row in fateProgressSheet)
         //{
@@ -166,7 +158,8 @@ public sealed class Plugin : IDalamudPlugin
 
     private void OnLogin()
     {
-        PlayerHelper.init();
+        PluginLog.Verbose("OnLogin");
+        P.TaskManager.Enqueue(() => PlayerHelper.init());
     }
 
     private void OnFrameworkUpdate(IFramework framework)

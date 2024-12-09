@@ -18,7 +18,7 @@ namespace CurrencySpender.Helpers
                 //    PluginLog.Verbose(shop.ToString());
                 //}
                 SellableItems = Generator.items
-                    .Where(item => (item.Currency == Currency.ItemId || (Currency.Children != null && Currency.Children.Contains(item.Currency))) && item.Type.HasFlag(ItemType.Tradeable)
+                    .Where(item => (item.Currency == Currency.ItemId) && item.Type.HasFlag(ItemType.Tradeable)
                     && !item.Disabled && !item.Shop.Disabled)
                     .ToList();
                 //PluginLog.Verbose($"{SellableItems.Count}");
@@ -26,7 +26,7 @@ namespace CurrencySpender.Helpers
             else
             {
                 SellableItems = Generator.items
-                    .Where(item => (item.Currency == Currency.ItemId || (Currency.Children != null && Currency.Children.Contains(item.Currency))) && item.Type.HasFlag(ItemType.Tradeable))
+                    .Where(item => (item.Currency == Currency.ItemId) && item.Type.HasFlag(ItemType.Tradeable))
                     .ToList();
                 //PluginLog.Verbose($"{SellableItems.Count}");
             }

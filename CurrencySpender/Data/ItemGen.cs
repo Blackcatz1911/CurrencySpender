@@ -5,6 +5,7 @@ namespace CurrencySpender.Data
 {
     internal class ItemGen
     {
+        internal static bool FateShopsDone = false;
         public static List<uint> enabled_currencies = new List<uint>();
         public static void init()
         {
@@ -29,39 +30,7 @@ namespace CurrencySpender.Data
                 }
                 //PluginLog.Verbose($"{shop}");
             }
-
-            // Assuming `Generator.shops` is a list of Shop objects
-            var shops = Generator.shops.Where(shop => shop.Type == ShopType.FateShop).ToList();
-
-            // Group FateShops by NpcId
-            var groupedShops = shops.GroupBy(shop => shop.NpcId);
-
-            // Create a dictionary to store the shop with the most items for each NpcId
-            var shopsWithMaxItems = new Dictionary<uint, Shop>();
-
-            // Step 1: Find the shop with the maximum number of items for each NpcId
-            foreach (var group in groupedShops)
-            {
-                // Find the shop with the most items in this group using the ItemCount property
-                var shopWithMaxItems = group.OrderByDescending(shop => shop.ItemCount).First();
-                shopsWithMaxItems[shopWithMaxItems.NpcId] = shopWithMaxItems;
-            }
-
-            // Step 2: Iterate through the shops and disable items in shops that have fewer items
-            foreach (var shop in shops)
-            {
-                if (!shopsWithMaxItems.ContainsKey(shop.NpcId) || shopsWithMaxItems[shop.NpcId] != shop)
-                {
-                    // This shop has fewer items than the shop with the maximum, disable its items and the shop itself
-                    foreach (var item in shop.Items)
-                    {
-                        item.Disabled = true; // Disable the items in this shop
-                    }
-                    shop.Disabled = true; // Disable the shop itself
-                }
-            }
-
-            fateShops();
+            if(PlayerHelper.SharedFateRanks.Count > 0) fateShops();
             PluginLog.Verbose("ItemGen init finished");
 
             //foreach (var item in Generator.items)
@@ -198,6 +167,39 @@ namespace CurrencySpender.Data
 
         internal static void fateShops()
         {
+            if (FateShopsDone) return;
+            PluginLog.Verbose("FateShop init");
+            // Assuming `Generator.shops` is a list of Shop objects
+            var shops = Generator.shops.Where(shop => shop.Type == ShopType.FateShop).ToList();
+
+            // Group FateShops by NpcId
+            var groupedShops = shops.GroupBy(shop => shop.NpcId);
+
+            // Create a dictionary to store the shop with the most items for each NpcId
+            var shopsWithMaxItems = new Dictionary<uint, Shop>();
+
+            // Step 1: Find the shop with the maximum number of items for each NpcId
+            foreach (var group in groupedShops)
+            {
+                // Find the shop with the most items in this group using the ItemCount property
+                var shopWithMaxItems = group.OrderByDescending(shop => shop.ItemCount).First();
+                shopsWithMaxItems[shopWithMaxItems.NpcId] = shopWithMaxItems;
+            }
+
+            // Step 2: Iterate through the shops and disable items in shops that have fewer items
+            foreach (var shop in shops)
+            {
+                if (!shopsWithMaxItems.ContainsKey(shop.NpcId) || shopsWithMaxItems[shop.NpcId] != shop)
+                {
+                    // This shop has fewer items than the shop with the maximum, disable its items and the shop itself
+                    foreach (var item in shop.Items)
+                    {
+                        item.Disabled = true; // Disable the items in this shop
+                    }
+                    shop.Disabled = true; // Disable the shop itself
+                }
+            }
+
             Dictionary<uint, (int Rank, List<uint> TerritoryIds)> ranks = new Dictionary<uint, (int, List<uint>)>
             {
                 { 1027998, (3, [813, 814, 815, 816, 817, 818]) },
@@ -306,6 +308,8 @@ namespace CurrencySpender.Data
                 //}
                 //PluginLog.Verbose("---");
             }
+            FateShopsDone = true;
+            PluginLog.Verbose("FateShop init finished");
         }
 
         private static Dictionary<uint, uint> Currencies_Dict = new Dictionary<uint, uint>()

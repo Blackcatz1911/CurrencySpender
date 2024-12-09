@@ -7,6 +7,11 @@ internal class MainTab
     public static bool colored = false;
     internal static void Draw()
     {
+        if(Service.ClientState.LocalPlayer == null)
+        {
+            UiHelper.WarningText("Please login before using this Plugin!");
+            return;
+        }
         if (P.Problem)
         {
             UiHelper.WarningText("The current shared FATE ranks could not be fetched. Please click the button below:");
@@ -16,19 +21,15 @@ internal class MainTab
             }
             ImGui.Separator();
         }
-        //if(Service.ClientState.LocalPlayer == null)
-        //{
-        //    ImGui.TextWrapped("Please login before using this Plugin!");
-        //    return;
-        //}
         //var font = UiBuilder.;
         //font.Scale = 1.1f; 
         //ImGuiEx.Text(ImGuiColors.DalamudGrey, font, "Test");
         //ImGui.PopFont();
         foreach (TrackedCurrency currency in C.Currencies)
         {
-            if (currency.Enabled && currency.CurrentCount > 0)
+            if (currency.Enabled && currency.CurrentCount > 0 && !currency.Child)
             {
+                if (currency.ItemId == 26807 && P.Problem) continue;
                 ImGui.Image(currency.Icon.ImGuiHandle, new Vector2(21, 21));
                 ImGui.SameLine();
                 var text = $"{currency.CurrentCount}/{currency.MaxCount} - {currency.Percentage}%";

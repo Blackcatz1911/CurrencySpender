@@ -16,6 +16,7 @@ namespace CurrencySpender.Helpers
             { 2, GCRankTwinAdders },
             { 3, GCRankImmortalFlames }
         };
+        public static bool GCRankCreated = false;
         public static Dictionary<uint, uint> SharedFateRanks = new Dictionary<uint, uint>();
 
         public static void init()
@@ -23,7 +24,7 @@ namespace CurrencySpender.Helpers
             PluginLog.Verbose("PlayerHelper init");
             P.TaskManager.Enqueue(() => populateGCRank());
             P.TaskManager.Enqueue(() => populateFateRanks());
-            P.TaskManager.Enqueue(() => check());
+            P.TaskManager.Enqueue(() => checkGCRanks());
         }
         public static bool populateGCRank()
         {
@@ -44,6 +45,7 @@ namespace CurrencySpender.Helpers
                     { 3, GCRankImmortalFlames }
                 };
                 PluginLog.Verbose("populateGCRank created");
+                GCRankCreated = true;
                 return true;
             }
             PluginLog.Verbose("populateGCRank not created2");
@@ -87,19 +89,28 @@ namespace CurrencySpender.Helpers
             }
             return false;
         }
-        public static void check()
+        public static void checkGCRanks()
         {
-            if (SharedFateRanks.Count != 0)
+            if (GCRankCreated)
             {
                 P.TaskManager.Enqueue(() => Generator.init());
             }
         }
+        //public static void checkFateRanks()
+        //{
+        //    if (SharedFateRanks.Count != 0)
+        //    {
+        //        P.TaskManager.Enqueue(() => ItemGen.fateShops());
+        //    }
+        //}
         public static void openSharedFate()
         {
             if (UIModule.Instance()->IsMainCommandUnlocked(84))
             {
                 UIModule.Instance()->ExecuteMainCommand(84);
-                P.TaskManager.Enqueue(() => init());
+                P.TaskManager.InsertDelay(500);
+                P.TaskManager.Enqueue(() => populateFateRanks());
+                P.TaskManager.Enqueue(() => ItemGen.fateShops());
                 //P.TaskManager.InsertDelay(500);
                 //P.TaskManager.Enqueue(() => UIModule.Instance()->ExecuteMainCommand(84));
             }

@@ -1,9 +1,15 @@
 # Changelog
 
+## 1.0.3
+- Fixed Login routine to fix a bug, where no currencies would be loaded
+- Plugin will show an error message, when the user is not logged in
+- Small code fixes
+
 ## 1.0.2
 - Currency Icon will now be displayed in the table
 - Collectables and sellables will now be displayed when another currency can be bought with it
 - Thousand seperator setting added
+- Removed local FFXIVClientStructs
 
 ## 1.0.1
 - Fixing lib dependencies

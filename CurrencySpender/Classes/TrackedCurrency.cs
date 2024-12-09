@@ -46,6 +46,7 @@ public unsafe class TrackedCurrency
 
     public List<uint>? Children;
     public int? Price;
+    public bool Child = false;
 
     public bool Enabled = true;
 
