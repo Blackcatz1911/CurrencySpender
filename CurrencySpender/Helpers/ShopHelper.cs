@@ -26,7 +26,7 @@ namespace CurrencySpender.Helpers
             else
             {
                 SellableItems = Generator.items
-                    .Where(item => (item.Currency == Currency.ItemId) && item.Type.HasFlag(ItemType.Tradeable))
+                    .Where(item => (item.Currency == Currency.ItemId) && item.Type.HasFlag(ItemType.Tradeable) && !item.Disabled && !item.Shop.Disabled)
                     .ToList();
                 //PluginLog.Verbose($"{SellableItems.Count}");
             }
@@ -43,6 +43,12 @@ namespace CurrencySpender.Helpers
         {
             return Generator.items
                 .Where(item => item.Currency == Currency.ItemId && item.Type.HasFlag(ItemType.Venture))
+                .ToList();
+        }
+        public static List<ShopItem> GetItemsOfInterest(TrackedCurrency Currency)
+        {
+            return Generator.items
+                .Where(item => item.Currency == Currency.ItemId && C.ItemsOfInterest.Contains(item.Id) && !item.Shop.Disabled)
                 .ToList();
         }
     }

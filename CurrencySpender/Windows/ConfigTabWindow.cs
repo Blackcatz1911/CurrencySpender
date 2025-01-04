@@ -21,7 +21,7 @@ unsafe internal class ConfigTabWindow : Window
     {
         ImGuiEx.EzTabBar("tabbar", [
             ("Settings", ConfigTab.Draw, null, true),
-            //("Todo list", TodoTab.Draw, null, true),
+            ("Items", ItemsTab.Draw, null, true),
             ("Changelog", ChangelogTab.Draw, null, true),
             ("About", AboutTab.Draw, null, true),
             (C.Debug?"Debug":null, DebugTab.Draw, null, true),

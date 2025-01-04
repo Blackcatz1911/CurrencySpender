@@ -8,7 +8,10 @@ internal static class Generator
     public static List<ShopItem> items = new List<ShopItem>();
     public static void init()
     {
-        P.TaskManager.Enqueue(() => ShopGen.init());
-        P.TaskManager.Enqueue(() => ItemGen.init());
+        if(shops.Count == 0 && items.Count == 0)
+        {
+            P.TaskManager.Enqueue(() => ShopGen.init());
+            P.TaskManager.Enqueue(() => ItemGen.init());
+        }
     }
 }

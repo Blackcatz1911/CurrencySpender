@@ -176,5 +176,20 @@ namespace CurrencySpender.Managers
                 dict[row.RowId] = name;
             }
         }
+
+        internal static bool TryFindAetheryteById(uint? aetheryteId, out TeleportInfo info)
+        {
+            UpdateAvailableAetherytes();
+            info = new TeleportInfo();
+            foreach (var tpInfo in AvailableAetherytes)
+            {
+                if (tpInfo.AetheryteId == aetheryteId)
+                {
+                    info = tpInfo;
+                    return true;
+                }
+            }
+            return false;
+        }
     }
 }

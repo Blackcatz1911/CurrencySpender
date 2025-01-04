@@ -1,4 +1,5 @@
 using CurrencySpender.Classes;
+using ECommons;
 using Lumina.Excel.Sheets;
 
 namespace CurrencySpender.Data
@@ -6,14 +7,18 @@ namespace CurrencySpender.Data
     internal class ItemGen
     {
         internal static bool FateShopsDone = false;
+        internal static bool GCShopsDone = false;
         public static List<uint> enabled_currencies = new List<uint>();
         public static void init()
         {
-            PluginLog.Verbose("ItemGen init");
+            PluginLog.Debug("ItemGen init");
             foreach(var currency in C.Currencies)
             {
                 if (currency.Enabled) enabled_currencies.Add(currency.ItemId);
             }
+            PluginLog.Verbose($"SpecialShops: {Generator.shops.Where(shop => shop.Type == ShopType.SpecialShop).ToList().Count}");
+            PluginLog.Verbose($"GCShops: {Generator.shops.Where(shop => shop.Type == ShopType.GCShop).ToList().Count}");
+            PluginLog.Verbose($"FateShops: {Generator.shops.Where(shop => shop.Type == ShopType.FateShop).ToList().Count}");
             foreach (var shop in Generator.shops)
             {
                 if(shop.Type == ShopType.SpecialShop)
@@ -30,8 +35,13 @@ namespace CurrencySpender.Data
                 }
                 //PluginLog.Verbose($"{shop}");
             }
-            if(PlayerHelper.SharedFateRanks.Count > 0) fateShops();
-            PluginLog.Verbose("ItemGen init finished");
+            if (PlayerHelper.SharedFateRanksCreated)
+            {
+                PluginLog.Debug("Starting fateShops");
+                fateShops();
+            } else PluginLog.Debug("Not starting fateShops");
+            if (PlayerHelper.GCRanksCreated) GCShops();
+            PluginLog.Debug("ItemGen init finished");
 
             //foreach (var item in Generator.items)
             //{
@@ -118,12 +128,10 @@ namespace CurrencySpender.Data
                         //var item = Service.DataManager.GetExcelSheet<Item>().GetRow(GCScripShopItem.Item.RowId);
                         var item = GCScripShopItem.Item.Value;
                         var item_ref = GCScripShopItem.Item;
-                        //GCScripShopItem.CostGCSeals;
                         if (item.RowId == 0)
                         {
                             break;
                         }
-                        //break;
                         var cat = item.ItemUICategory.RowId;
                         var types = ItemHelper.GetItemTypes(item_ref);
 
@@ -131,11 +139,6 @@ namespace CurrencySpender.Data
                         if (existing_item == default)
                         {
                             uint requiredRank = GCScripShopItem.RequiredGrandCompanyRank.RowId;
-                            uint currentRank = 0;
-                            if (shop.GC != null)
-                            {
-                                currentRank = PlayerHelper.GCRanks[(uint)shop.GC];
-                            }
                             ShopItem shopItem = new ShopItem
                             {
                                 Id = item.RowId,
@@ -149,17 +152,7 @@ namespace CurrencySpender.Data
                             };
                             Generator.items.Add(shopItem);
                             shop.Items.Add(shopItem);
-                            //if (item.RowId == 21072)
-                            //    PluginLog.Verbose($"ID: {item.RowId.ToString()} Name: {item.Name.ToString()} Price: {GCScripShopItem.CostGCSeals.ToString()}" +
-                            //    $" NPC: {shop.NpcName}");
                         }
-                        //GCScripShopItem.Item.Value.PriceMid;
-
-                        //var ENpcDataId = gcShop.RowId;
-                        //var ENpcBaseId = GetNpcBaseFromNpcData(ENpcDataId);
-                        //var costList = new List<(ItemAdapter Item, int Amount)> { (GCItem, (int)item.PriceMid) };
-                        //var shopEntry = new Shop(costList, ENpcBaseId, gcShop.RowId);
-                        //AddEntry(item.RowId, shopEntry);
                     }
                 }
             }
@@ -167,10 +160,15 @@ namespace CurrencySpender.Data
 
         internal static void fateShops()
         {
-            if (FateShopsDone) return;
-            PluginLog.Verbose("FateShop init");
+            if (FateShopsDone)
+            {
+                PluginLog.Debug("FateShopDone");
+                return;
+            }
+            PluginLog.Debug("FateShop init");
             // Assuming `Generator.shops` is a list of Shop objects
             var shops = Generator.shops.Where(shop => shop.Type == ShopType.FateShop).ToList();
+            PluginLog.Verbose($"shops: {shops.Count}");
 
             // Group FateShops by NpcId
             var groupedShops = shops.GroupBy(shop => shop.NpcId);
@@ -260,6 +258,7 @@ namespace CurrencySpender.Data
                         if (PlayerHelper.SharedFateRanks.ContainsKey(territoryId))
                         {
                             var playerRank = PlayerHelper.SharedFateRanks[territoryId];
+                            PluginLog.Debug($"PlayerRank: {playerRank} for {territoryId}, Required: {requiredRank}");
 
                             // If the player's rank matches the required rank for this NpcId, perform actions
                             if (playerRank != requiredRank)
@@ -270,6 +269,7 @@ namespace CurrencySpender.Data
                     }
                     if(!unlocked)
                     {
+                        PluginLog.Information($"{shop.NpcName} not unlocked!");
                         foreach (var item in shop.Items)
                         {
                             item.Disabled = true; // Disable the items in this shop
@@ -310,6 +310,24 @@ namespace CurrencySpender.Data
             }
             FateShopsDone = true;
             PluginLog.Verbose("FateShop init finished");
+        }
+
+        internal static void GCShops()
+        {
+            if (GCShopsDone) return;
+            PluginLog.Verbose("GCShops init");
+            var shops = Generator.shops.Where(shop => shop.Type == ShopType.GCShop).ToList();
+
+            foreach (var shop in shops)
+            {
+                foreach (var item in shop.Items)
+                {
+                    if(shop.GC != null && item.RequiredRank > PlayerHelper.GCRanks[(uint)shop.GC])
+                        item.Disabled = true;
+                }
+            }
+            GCShopsDone = true;
+            PluginLog.Verbose("GCShops init finished");
         }
 
         private static Dictionary<uint, uint> Currencies_Dict = new Dictionary<uint, uint>()

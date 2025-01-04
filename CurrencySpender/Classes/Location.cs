@@ -12,6 +12,7 @@ namespace CurrencySpender.Classes
         public uint MapId { get; set; }
         public uint TerritoryId { get; set; }
         private uint? aetheryteTerritoryId;
+        public uint? AetheryteId;
         public uint AetheryteTerritoryId
         {
             get => aetheryteTerritoryId ?? TerritoryId; // Default to TerritoryId if not explicitly set
@@ -42,7 +43,15 @@ namespace CurrencySpender.Classes
         public void Teleport()
         {
             TeleportInfo info;
-            bool found = AetheryteManager.TryFindAetheryteByTerritory(AetheryteTerritoryId, out info);
+            bool found = false;
+            if (AetheryteId != null)
+            {
+                found = AetheryteManager.TryFindAetheryteById(AetheryteId, out info);
+            }
+            else
+            {
+                found = AetheryteManager.TryFindAetheryteByTerritory(AetheryteTerritoryId, out info);
+            }
             if (found)
             {
                 PluginLog.Verbose($"info.AetheryteId: {info.AetheryteId} info.SubIndex: {info.SubIndex}");
@@ -60,7 +69,7 @@ namespace CurrencySpender.Classes
             new Location { MapId = 013, TerritoryId = 0130, Postion = (8.3f, 9.0f), NpcId = 1002390 },
             new Location { MapId = 002, TerritoryId = 0132, Postion = (9.8f, 11.0f), NpcId = 1002393 },
 
-            new Location { MapId = 257, TerritoryId = 0478, Postion = (5.7f, 5.3f), NpcId = 1012228 },
+            new Location { MapId = 257, TerritoryId = 0478, Postion = (5.7f, 5.2f), NpcId = 1012228 },
             new Location { MapId = 366, TerritoryId = 0635, Postion = (13.9f, 11.6f), NpcId = 1019450 },
             new Location { MapId = 051, TerritoryId = 0250, Postion = (4.5f, 6.0f), NpcId = 1005244 },
             new Location { MapId = 856, TerritoryId = 1186, Postion = (8.6f, 13.5f), NpcId = 1049079 },
@@ -97,7 +106,7 @@ namespace CurrencySpender.Classes
             new Location { MapId = 695, TerritoryId = 956, Postion = (29.9f,12.9f), NpcId = 1037484 }, // Faezbroes
             new Location { MapId = 696, TerritoryId = 957, Postion = (25.8f,34.6f), NpcId = 1037635 }, // Mahveydah
             new Location { MapId = 697, TerritoryId = 958, Postion = (12.9f,30.0f), NpcId = 1037724 }, // Zawawa
-            new Location { MapId = 698, TerritoryId = 959, Postion = (21.8f,12.2f), NpcId = 1037793 }, // Tradingway
+            new Location { MapId = 698, TerritoryId = 959, Postion = (21.8f,12.2f), NpcId = 1037793, AetheryteId = 175 }, // Tradingway
             new Location { MapId = 699, TerritoryId = 960, Postion = (30.8f,28.0f), NpcId = 1038004 }, // N-1499
             new Location { MapId = 700, TerritoryId = 961, Postion = (24.4f,23.4f), NpcId = 1037909 }, // Aisara
             new Location { MapId = 693, TerritoryId = 962, Postion = (12.7f,10.4f), NpcId = 1037055 }, // Gadfrid

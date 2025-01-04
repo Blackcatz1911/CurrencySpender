@@ -15,8 +15,9 @@ internal class MainTab
         if (P.Problem)
         {
             UiHelper.WarningText("The current shared FATE ranks could not be fetched. Please click the button below:");
-            if(ImGui.Button("Open shared FATE window"))
+            if (ImGui.Button("Open shared FATE window"))
             {
+                //PlayerHelper.reset();
                 PlayerHelper.openSharedFate();
             }
             ImGui.Separator();

@@ -86,18 +86,6 @@ namespace CurrencySpender.Data
                     }
                 }
             }
-            var shops = Generator.shops
-                .Where(shop => shop.RequiredLevel != null)
-                .ToList();
-            foreach (var shop in shops)
-            {
-                if(shop.RequiredLevel >= 0 && shop.RequiredLevel != 99)
-                {
-                    if (PlayerHelper.SharedFateRanks.ContainsKey(shop.Location.TerritoryId))
-                        shop.CurrentLevel = PlayerHelper.SharedFateRanks[shop.Location.TerritoryId];
-                }
-                //PluginLog.Verbose(shop.ToString());
-            }
             PluginLog.Verbose("ShopGen init finished");
         }
         public static void EvalulateRowRef(ENpcBase npcBase, RowRef rowRef)

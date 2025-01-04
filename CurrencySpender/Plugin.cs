@@ -8,7 +8,6 @@ using ECommons.Automation.NeoTaskManager;
 using CurrencySpender.Data;
 using System.IO;
 using Dalamud.Game.Command;
-using InteropGenerator.Runtime;
 
 namespace CurrencySpender;
 
@@ -72,6 +71,7 @@ public sealed class Plugin : IDalamudPlugin
             TaskManager = new() { };
             DataHelper.GenerateCurrencyList();
             ItemHelper.initHairStyles();
+            Generator.init();
             PlayerHelper.init();
         });
         //PlayerHelper.init();
@@ -88,40 +88,6 @@ public sealed class Plugin : IDalamudPlugin
             new FileInfo(Path.Join(pluginInterface.ConfigDirectory.FullName, "SigCache.json")));
         Resolver.GetInstance.Resolve();
 #endif
-        //var fateProgressSheet = Service.DataManager.GetExcelSheet<FateProgressUI>();
-        //foreach (var row in fateProgressSheet)
-        //{
-        //    var zoneId = row.RowId;       // Zone ID
-        //    var fateRank = row.ReqFatesToRank4;      // Current Shared FATE rank
-        //    //var maxRank = row.;    // Maximum possible rank
-        //    PluginLog.Verbose($"Zone {zoneId}: Rank {fateRank}");
-        //}
-        //PluginLog.Verbose(PlayerHelper.GCRankMaelstrom.ToString());
-        //ECommons.ImGuiMethods.ImGuiEx.Text();
-        // you might normally want to embed resources and load them from the manifest stream
-        //var goatImagePath = Path.Combine(PluginInterface.AssemblyLocation.Directory?.FullName!, "goat.png");
-
-
-        //ConfigWindow = new Windows.ConfigWindow(this);
-        //MainWindow = new MainWindow(this);
-        //SpendingWindow = new SpendingWindow(this);
-        //WindowSystem.AddWindow(ConfigWindow);
-        ////WindowSystem.AddWindow(MainWindow);
-        //ws.AddWindow(SpendingWindow);
-
-        //PluginInterface.UiBuilder.Draw += DrawUI;
-
-        //var text = Dalamud.Game.ClientState.Objects.Enums.ObjectKind.
-
-        // This adds a button to the plugin installer entry of this plugin which allows
-        // to toggle the display status of the configuration ui
-        //PluginInterface.UiBuilder.OpenConfigUi += ToggleConfigUI;
-
-        // Adds another button that is doing the same but for the main ui of the plugin
-
-        //PluginLog.Verbose("Item Unlocked - Should be True"+ItemHelper.CheckUnlockStatus(15814).ToString()); //unlocked
-        //PluginLog.Verbose("Item Unlocked - Should be False" + ItemHelper.CheckUnlockStatus(38457).ToString());
-        //ItemHelper.CheckUnlockStatus(38457); //not unlocked
     }
 
     public void Dispose()
@@ -130,7 +96,6 @@ public sealed class Plugin : IDalamudPlugin
         ECommonsMain.Dispose();
         FontHelper.DisposeFonts();
     }
-
 
     private void OnCommand(string command, string args)
     {
@@ -148,6 +113,7 @@ public sealed class Plugin : IDalamudPlugin
             mainTabWindow.IsOpen = !mainTabWindow.IsOpen;
         }
     }
+    
 
     public void ToggleSpendingUI(TrackedCurrency Currency)
     {
@@ -158,24 +124,16 @@ public sealed class Plugin : IDalamudPlugin
 
     private void OnLogin()
     {
-        PluginLog.Verbose("OnLogin");
+        PluginLog.Debug("OnLogin");
+        P.TaskManager.Enqueue(() => PlayerHelper.reset());
         P.TaskManager.Enqueue(() => PlayerHelper.init());
     }
 
     private void OnFrameworkUpdate(IFramework framework)
     {
-        if (!Service.ClientState.IsLoggedIn) return;
-
-        //System.OverlayController.Update();
     }
 
     private void OnZoneChange(ushort e)
     {
-        //if (System.Config is { ChatWarning: false }) return;
-
-        //foreach (var currency in System.Config.Currencies.Where(currency => currency is { HasWarning: true, ChatWarning: true, Enabled: true }))
-        //{
-        //    Service.ChatGui.Print($"{currency.Name} is {(currency.Invert ? "below" : "above")} threshold.", "CurrencyAlert", 43);
-        //}
     }
 }
