@@ -134,10 +134,10 @@ namespace CurrencySpender.Data
                         }
                         var cat = item.ItemUICategory.RowId;
                         var types = ItemHelper.GetItemTypes(item_ref);
-
                         var existing_item = Generator.items.FirstOrDefault(existing_item => existing_item.Id == item.RowId && existing_item.ShopId == shop.ShopId);
                         if (existing_item == default)
                         {
+                            //if (item.RowId == 21319) DuoLog.Information($"Found: 21319 ShopId:{shop.ShopId}");
                             uint requiredRank = GCScripShopItem.RequiredGrandCompanyRank.RowId;
                             ShopItem shopItem = new ShopItem
                             {

@@ -38,7 +38,7 @@ internal class SpendingWindow : Window
         //WindowName = "SpendingGuide: " + this.CurrencyName;
         ImGui.Image(Currency.Icon.ImGuiHandle, new Vector2(21, 21));
         ImGui.SameLine();
-        UiHelper.LeftAlign($"{Currency.Name}? And {Currency.CurrentCount} of them? What to do with that:");
+        UiHelper.LeftAlign($"{Currency.Name}: {Currency.CurrentCount}");
         if (C.Debug)
         {
             UiHelper.LeftAlign($"DEBUG: CurrencyId: {Currency.ItemId}");

@@ -1,8 +1,8 @@
 {
   "Author": "Blackcatz1911",
   "Name": "Currency Spender",
-  "Punchline": "Figure out what to do with all the ingame currency.",
-  "Description": "'What the heck do I do with that?' will be a question for the past. Get the current prices from universalis, missing collectables from that currency and see what you can do with those currencies...",
+  "Punchline": "Discover how to use all the in-game currencies.",
+  "Description": "Never wonder 'What should I do with this?' again. Access real-time prices from Universalis, identify missing collectibles tied to your currencies, and unlock new possibilities for utilizing your in-game resources effectively.",
   "ApplicableVersion": "any",
   "Tags": [
     "currency",

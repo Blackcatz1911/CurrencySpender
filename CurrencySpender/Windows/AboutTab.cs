@@ -43,7 +43,7 @@ internal class AboutTab
             });
         }
         ImGui.Separator();
-        ImGui.TextWrapped("If you want something added, dont hesitate to make an issue on the repo.");
+        ImGui.TextWrapped("If you have suggestions or feature requests, feel free to open an issue on the repository.");
         ImGui.Separator();
         ImGuiEx.LineCentered("About4", delegate
         {

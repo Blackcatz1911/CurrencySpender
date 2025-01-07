@@ -66,8 +66,8 @@ namespace CurrencySpender.Classes
         public static List<Location> locations = [
             new Location {  },
             new Location { MapId = 011, TerritoryId = 0128, Postion = (13.1f, 12.7f), NpcId = 1002387, AetheryteTerritoryId = 129 },
-            new Location { MapId = 013, TerritoryId = 0130, Postion = (8.3f, 9.0f), NpcId = 1002390 },
-            new Location { MapId = 002, TerritoryId = 0132, Postion = (9.8f, 11.0f), NpcId = 1002393 },
+            new Location { MapId = 002, TerritoryId = 0132, Postion = (9.8f, 11.0f), NpcId = 1002390 },
+            new Location { MapId = 013, TerritoryId = 0130, Postion = (8.3f, 9.0f), NpcId =  1002393 },
 
             new Location { MapId = 257, TerritoryId = 0478, Postion = (5.7f, 5.2f), NpcId = 1012228 },
             new Location { MapId = 366, TerritoryId = 0635, Postion = (13.9f, 11.6f), NpcId = 1019450 },

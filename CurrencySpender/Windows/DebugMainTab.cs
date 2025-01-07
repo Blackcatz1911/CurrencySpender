@@ -1,3 +1,4 @@
+using CurrencySpender.Classes;
 using CurrencySpender.Data;
 
 namespace CurrencySpender.Windows;
@@ -22,16 +23,16 @@ internal class DebugMainTab
             //ImGui.TableSetupColumn("Price");
             //ImGui.TableSetupColumn("");
             ImGui.TableHeadersRow();
-            foreach (var shop in Generator.shops.ToList())
+            foreach (var item in Generator.items.Where(item => item.Currency == 22 && item.Type.HasFlag(ItemType.Collectable)).ToList())
             {
                 ImGui.TableNextColumn();
                 //ImGui.Text("text1");
-                ImGui.Text($"{shop.ShopId}");
+                ImGui.Text($"{item.Name}");
                 ImGui.TableNextColumn();
-                ImGui.Text($"{shop.NpcId}");
+                ImGui.Text($"{item.Id}");
                 ImGui.TableNextColumn();
                 //ImGui.Text("text2");
-                ImGui.Text($"{shop.NpcName}");
+                ImGui.Text($"{ItemHelper.CheckUnlockStatus(item.Id)}");
             }
             //PluginLog.Verbose("Starting ImGui EndTable rendering...");
             ImGui.EndTable();

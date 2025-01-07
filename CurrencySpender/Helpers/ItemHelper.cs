@@ -215,7 +215,7 @@ namespace CurrencySpender.Helpers
             if(C.Currencies.Where(cur => cur.ItemId == item.RowId).ToList().Count > 0) curType |= ItemType.Currency;
             if (cat == 61)
             {
-                if(name.Contains("Ballroom Etiquette") || name.Contains("Ballroom Etiquette") || name.Contains("Framer's Kit"))
+                if(name.Contains("Ballroom Etiquette") || name.Contains("Ballroom Etiquette") || name.Contains("Framer's Kit") || name.Contains("Battlefield Etiquette"))
                 {
                     curType |= ItemType.Collectable;
                 }
