@@ -1,7 +1,6 @@
 # Changelog
 
 ## 1.0.5
-- Added: CI/CD to automate releases
 - Fixed: Flame and Serpent NPCs were swapped
 - Fixed: Battlefield Etiquette tracking issues
 - Changed: Rephrased the punchline and description of the plugin

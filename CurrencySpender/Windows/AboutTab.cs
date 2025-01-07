@@ -47,7 +47,7 @@ internal class AboutTab
         ImGui.Separator();
         ImGuiEx.LineCentered("About4", delegate
         {
-            if (ImGui.Button("GitHub Repo"))
+            if (ImGui.Button("GitHub repository"))
             {
                 GenericHelpers.ShellStart("https://github.com/Blackcatz1911/CurrencySpender");
             }
