@@ -5,7 +5,7 @@ namespace CurrencySpender.Helpers;
 
 internal static unsafe class UiHelper
 {
-    public static void RightAlign(String str, bool formatString = false)
+    public static void RightAlign(string str, bool formatString = false)
     {
         if (formatString) str = StringHelper.FormatString(str);
         float rowHeight = ImGui.GetFrameHeight(); // Height of the row
@@ -58,7 +58,7 @@ internal static unsafe class UiHelper
         ImGui.SameLine();
         ImGui.Image(icon, iconSize);
     }
-    public static void LeftAlign(String str, bool formatString = false)
+    public static void LeftAlign(string str, bool formatString = false)
     {
         if (formatString) str = StringHelper.FormatString(str);
         float rowHeight = ImGui.GetFrameHeight(); // Height of the row

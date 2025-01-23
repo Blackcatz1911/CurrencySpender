@@ -6,24 +6,21 @@ namespace CurrencySpender.Windows;
 
 internal class ItemsTab
 {
-    private static string searchQuery = "";
-    private static List<string> itemList = new List<string> { "Potion", "Hi-Potion", "Elixir", "Mega Elixir", "Phoenix Down" };
-    private static List<ShopItem> filteredItems;
-    private static List<uint> selectedItems = new List<uint>();
-    private static int selectedIndex = -1;
+    private static string SearchQuery = "";
+    private static List<ShopItem> FilteredItems = new List<ShopItem>();
     internal static void Draw()
     {   
         ImGui.TextWrapped("Displays table if you can buy items of interest with current currency:");
         ImGui.Checkbox($"Show items of interest", ref C.ShowItemsOfInterest);
         ImGui.Separator();
         ImGui.TextWrapped("Items to add to the list:");
-        if (ImGui.InputText("##Search", ref searchQuery, 100))
+        if (ImGui.InputText("##Search", ref SearchQuery, 100))
         {
             // Filter the list based on the query
-            if (!string.IsNullOrWhiteSpace(searchQuery))
+            if (!string.IsNullOrWhiteSpace(SearchQuery))
             {
-                filteredItems = Generator.items
-                    .Where(item => item.Name.Contains(searchQuery, StringComparison.OrdinalIgnoreCase))
+                FilteredItems = Generator.items
+                    .Where(item => item.Name.Contains(SearchQuery, StringComparison.OrdinalIgnoreCase))
                     .GroupBy(item => item.Name) // Group by Name to remove duplicates
                     .Select(group => group.First()) // Take the first item from each group
                     .Where(item => !C.ItemsOfInterest.Contains(item.Id))
@@ -31,14 +28,14 @@ internal class ItemsTab
             }
             else
             {
-                filteredItems.Clear();
+                FilteredItems.Clear();
             }
         }
-        if (!string.IsNullOrWhiteSpace(searchQuery) && filteredItems.Count > 0)
+        if (!string.IsNullOrWhiteSpace(SearchQuery) && FilteredItems.Count > 0)
         {
-            if (ImGui.BeginListBox("##FilteredDropdown", new Vector2(0, Math.Min(filteredItems.Count * 20.0f, 100.0f))))
+            if (ImGui.BeginListBox("##FilteredDropdown", new Vector2(0, Math.Min(FilteredItems.Count * 20.0f, 100.0f))))
             {
-                foreach (var item in filteredItems)
+                foreach (var item in FilteredItems)
                 {
                     if (ImGui.Selectable(item.Name))
                     {
@@ -49,8 +46,8 @@ internal class ItemsTab
                         }
 
                         // Clear search and close dropdown
-                        searchQuery = "";
-                        filteredItems.Clear();
+                        SearchQuery = "";
+                        FilteredItems.Clear();
                         break; // Exit loop after selection
                     }
                 }
@@ -60,7 +57,6 @@ internal class ItemsTab
         ImGui.Separator();
         ImGui.TextWrapped("Current items of interest:");
         uint? itemToRemove = null; // Store the ID of the item to remove
-        uint? confirmRemoveItem = null; // Store the ID of the item awaiting confirmation
 
         if (ImGui.BeginTable("##itemsofinterest", 2, ImGuiTableFlags.Borders | ImGuiTableFlags.SizingFixedFit))
         {
@@ -95,7 +91,7 @@ internal class ItemsTab
         // Remove the item outside of the table rendering
         if (itemToRemove.HasValue)
         {
-            searchQuery = "";
+            SearchQuery = "";
             C.ItemsOfInterest.Remove(itemToRemove.Value);
             itemToRemove = null;
         }

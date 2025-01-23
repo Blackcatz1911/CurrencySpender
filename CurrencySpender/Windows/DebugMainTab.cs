@@ -38,5 +38,29 @@ internal class DebugMainTab
             ImGui.EndTable();
         }
         ImGui.Separator();
+        if (ImGui.BeginTable("##Shops", 3, ImGuiTableFlags.Borders | ImGuiTableFlags.SizingFixedFit))
+        {
+            ImGui.TableSetupColumn("ShopId");
+            ImGui.TableSetupColumn("Name");
+            //ImGui.TableSetupColumn("NpcId");
+            //ImGui.TableSetupColumn("NpcName");
+            //ImGui.TableSetupColumn("Location-NpcName");
+            //ImGui.TableSetupColumn("Name", ImGuiTableColumnFlags.WidthStretch);
+            //ImGui.TableSetupColumn("Price");
+            //ImGui.TableSetupColumn("");
+            ImGui.TableHeadersRow();
+            foreach (var shop in Generator.shops)
+            {
+                ImGui.TableNextColumn();
+                //ImGui.Text("text1");
+                ImGui.Text($"{shop.ShopId}");
+                ImGui.TableNextColumn();
+                ImGui.Text($"{shop.ShopName}");
+                ImGui.TableNextColumn();
+                ImGui.Text($"{shop.NpcName}");
+            }
+            //PluginLog.Verbose("Starting ImGui EndTable rendering...");
+            ImGui.EndTable();
+        }
     }
 }

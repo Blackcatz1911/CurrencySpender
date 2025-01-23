@@ -17,6 +17,7 @@ public unsafe class Shop
 {
     public required ShopType Type { get; set; }
     public uint ShopId { get; set; }
+    public string? ShopName { get; set; }
     public uint NpcId { get; set; }
     public string NpcName
     {

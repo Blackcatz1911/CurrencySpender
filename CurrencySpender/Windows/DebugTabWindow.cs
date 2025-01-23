@@ -21,9 +21,6 @@ unsafe internal class DebugTabWindow : Window
     {
         ImGuiEx.EzTabBar("tabbar", [
             ("Main Debug Tab", DebugMainTab.Draw, null, true),
-            //("Todo list", TodoTab.Draw, null, true),
-            //("Changelog", ChangelogTab.Draw, null, true),
-            //(C.Debug?"Debug":null, DebugTab.Draw, null, true),
          ]);
     }
 }

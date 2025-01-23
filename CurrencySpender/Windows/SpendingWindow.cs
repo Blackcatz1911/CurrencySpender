@@ -31,6 +31,7 @@ internal class SpendingWindow : Window
                 ShowTooltip = () => ImGui.SetTooltip("Force refresh Universalis"),
             });
         }
+        P.ws.AddWindow(this);
     }
     public unsafe override void Draw()
     {
@@ -42,9 +43,9 @@ internal class SpendingWindow : Window
         if (C.Debug)
         {
             UiHelper.LeftAlign($"DEBUG: CurrencyId: {Currency.ItemId}");
-            UiHelper.LeftAlign($"DEBUG: CollectableItems: {CollectableItems.Count}");
-            UiHelper.LeftAlign($"DEBUG: SellableItems: {SellableItems.Count}");
-            UiHelper.LeftAlign($"DEBUG: ItemsOfInterest: {ItemsOfInterest.Count}");
+            UiHelper.LeftAlign($"DEBUG: CollectableItems: {CollectableItems?.Count}");
+            UiHelper.LeftAlign($"DEBUG: SellableItems: {SellableItems?.Count}");
+            UiHelper.LeftAlign($"DEBUG: ItemsOfInterest: {ItemsOfInterest?.Count}");
         }
         List<uint> ids = [20, 21, 22];
         if (ids.Contains(Currency.ItemId)) {
@@ -65,14 +66,50 @@ internal class SpendingWindow : Window
             if (C.ShowItemsOfInterest && ItemsOfInterest != null && ItemsOfInterest.Count > 0)
             {
                 UiHelper.LeftAlign($"Can buy items of interest:");
-                if (ImGui.BeginTable("##itemsofinterest", 4, ImGuiTableFlags.Borders | ImGuiTableFlags.SizingFixedFit))
+                if (ImGui.BeginTable("##itemsofinterest", 4, ImGuiTableFlags.Borders | ImGuiTableFlags.SizingFixedFit | ImGuiTableFlags.Sortable))
                 {
                     //ImGui.TableSetupColumn("ID");
                     ImGui.TableSetupColumn("Name", ImGuiTableColumnFlags.WidthStretch);
                     ImGui.TableSetupColumn("Price", ImGuiTableColumnFlags.WidthFixed, 100);
                     ImGui.TableSetupColumn("Zone");
-                    ImGui.TableSetupColumn("Actions");
+                    ImGui.TableSetupColumn("Actions", ImGuiTableColumnFlags.NoSort);
                     ImGui.TableHeadersRow();
+
+                    ImGuiTableSortSpecsPtr sortSpecs = ImGui.TableGetSortSpecs();
+                    //List<ShopItem> SellableItems = ShopHelper.GetSellableItems(Currency);
+
+                    if (sortSpecs.NativePtr != null && sortSpecs.SpecsCount > 0)
+                    {
+                        // Retrieve sorting specification
+                        ImGuiTableColumnSortSpecsPtr spec = sortSpecs.Specs;
+                        int columnIndex = spec.ColumnIndex;
+                        bool ascending = spec.SortDirection == ImGuiSortDirection.Ascending;
+
+                        // Sort based on the column index
+                        switch (columnIndex)
+                        {
+                            case 0: // Name
+                                ItemsOfInterest = ascending
+                                    ? ItemsOfInterest.OrderBy(item => item.Name).ToList()
+                                    : ItemsOfInterest.OrderByDescending(item => item.Name).ToList();
+                                break;
+
+                            case 1: // Price
+                                ItemsOfInterest = ascending
+                                    ? ItemsOfInterest.OrderBy(item => item.Price).ToList()
+                                    : ItemsOfInterest.OrderByDescending(item => item.Price).ToList();
+                                break;
+
+                            case 2: // Zone
+                                ItemsOfInterest = ascending
+                                    ? ItemsOfInterest.OrderBy(item => item.Shop.Location.Zone).ToList()
+                                    : ItemsOfInterest.OrderByDescending(item => item.Shop.Location.Zone).ToList();
+                                break;
+                            default:
+                                break; // Do nothing for unhandled columns
+                        }
+                    }
+
                     foreach (var item in ItemsOfInterest)
                     {
                         //ImGui.TableNextColumn();
@@ -109,12 +146,12 @@ internal class SpendingWindow : Window
                         //PluginLog.Verbose("Starting ImGui Flag rendering...");
                         if (item.Shop.Location != null && item.Shop.Location != Location.locations[0])
                         {
-                            if (ImGui.Button("Flag##collectable" + item.Id + "-" + item.ShopId))
+                            if (ImGui.Button("Flag##ioi" + item.Id + "-" + item.ShopId + "-" + item.Shop.NpcId))
                             {
                                 Service.GameGui.OpenMapWithMapLink(item.Shop.Location.GetMapMarker());
                             }
                             ImGui.SameLine();
-                            if (ImGui.Button("TP##collectable" + item.Id + "-" + item.ShopId))
+                            if (ImGui.Button("TP##ioi" + item.Id + "-" + item.ShopId + "-" + item.Shop.NpcId))
                             {
                                 item.Shop.Location.Teleport();
                                 Service.GameGui.OpenMapWithMapLink(item.Shop.Location.GetMapMarker());
@@ -129,17 +166,53 @@ internal class SpendingWindow : Window
                 ImGui.Separator();
             }
 
-            if (CollectableItems != null && CollectableItems.Count > 0)
+            if (C.ShowCollectables && CollectableItems != null && CollectableItems.Count > 0)
             {
-                UiHelper.LeftAlign($"Collectables not yet registered:");
-                if (ImGui.BeginTable("##collectables", 4, ImGuiTableFlags.Borders | ImGuiTableFlags.SizingFixedFit))
+                UiHelper.LeftAlign("Selected collectables not yet registered:");
+                if (ImGui.BeginTable("##collectables", 4, ImGuiTableFlags.Borders | ImGuiTableFlags.SizingFixedFit | ImGuiTableFlags.Sortable))
                 {
                     //ImGui.TableSetupColumn("ID");
                     ImGui.TableSetupColumn("Name", ImGuiTableColumnFlags.WidthStretch);
                     ImGui.TableSetupColumn("Price", ImGuiTableColumnFlags.WidthFixed, 100);
                     ImGui.TableSetupColumn("Zone");
-                    ImGui.TableSetupColumn("Actions");
+                    ImGui.TableSetupColumn("Actions", ImGuiTableColumnFlags.NoSort);
                     ImGui.TableHeadersRow();
+
+                    ImGuiTableSortSpecsPtr sortSpecs = ImGui.TableGetSortSpecs();
+                    //List<ShopItem> SellableItems = ShopHelper.GetSellableItems(Currency);
+
+                    if (sortSpecs.NativePtr != null && sortSpecs.SpecsCount > 0)
+                    {
+                        // Retrieve sorting specification
+                        ImGuiTableColumnSortSpecsPtr spec = sortSpecs.Specs;
+                        int columnIndex = spec.ColumnIndex;
+                        bool ascending = spec.SortDirection == ImGuiSortDirection.Ascending;
+
+                        // Sort based on the column index
+                        switch (columnIndex)
+                        {
+                            case 0: // Name
+                                CollectableItems = ascending
+                                    ? CollectableItems.OrderBy(item => item.Name).ToList()
+                                    : CollectableItems.OrderByDescending(item => item.Name).ToList();
+                                break;
+
+                            case 1: // Price
+                                CollectableItems = ascending
+                                    ? CollectableItems.OrderBy(item => item.Price).ToList()
+                                    : CollectableItems.OrderByDescending(item => item.Price).ToList();
+                                break;
+
+                            case 2: // Zone
+                                CollectableItems = ascending
+                                    ? CollectableItems.OrderBy(item => item.Shop.Location.Zone).ToList()
+                                    : CollectableItems.OrderByDescending(item => item.Shop.Location.Zone).ToList();
+                                break;
+                            default:
+                                break; // Do nothing for unhandled columns
+                        }
+                    }
+
                     foreach (var item in CollectableItems)
                     {
                         ImGui.TableNextRow();
@@ -153,20 +226,27 @@ internal class SpendingWindow : Window
                         {
                             // Display a tooltip or additional info
                             ImGui.BeginTooltip();
-                            UiHelper.LeftAlign($"ID: {item.Id}\nCat: {item.Category}\nShopId: {item.Shop.ShopId}\nNPCName: {item.Shop.NpcName}\nNPCID: {item.Shop.NpcId}");
+                            UiHelper.LeftAlign($"ID: {item.Id}\nCat: {item.Category}\nShopId: {item.Shop.ShopId}\nNPCName: {item.Shop.NpcName}\nNPCID: {item.Shop.NpcId}\nShopType: {item.Shop.Type}");
                             ImGui.EndTooltip();
                         }
                         if (item.Currency != Currency.ItemId)
                         {
                             var child_cur = C.Currencies.Where(cur => cur.ItemId == item.Currency).First();
-                            UiHelper.LeftAlign(child_cur.Name);
-                            if (ImGui.IsItemHovered() && C.Debug)
+                            var items = Generator.items.Where(cur => cur.Id == item.Currency).ToList();
+                            foreach (var item_ in items)
                             {
-                                // Display a tooltip or additional info
-                                ImGui.BeginTooltip();
-                                UiHelper.LeftAlign($"ID: {child_cur.ItemId}");
-                                ImGui.EndTooltip();
+                                ImGui.SetCursorPosY(ImGui.GetCursorPosY() + 3);
+                                ImGui.SetCursorPosX(ImGui.GetCursorPosX() + 20);
+                                UiHelper.LeftAlign(child_cur.Name);
                             }
+                            //if (ImGui.IsItemHovered() && C.Debug)
+                            //{
+                            //    // Display a tooltip or additional info
+                            //    ImGui.BeginTooltip();
+                            //    if(child_item != null)
+                            //    UiHelper.LeftAlign($"ID: {child_item.Id}\nCat: {child_item.Category}\nShopId: {child_item.Shop.ShopId}\nNPCName: {child_item.Shop.NpcName}\nNPCID: {child_item.Shop.NpcId}\nShopType: {child_item.Shop.Type}");
+                            //    ImGui.EndTooltip();
+                            //}
                         }
                         ImGui.TableSetColumnIndex(1);
                         //UiHelper.LeftAlign(item.Price.ToString());
@@ -177,7 +257,11 @@ internal class SpendingWindow : Window
                         {
                             var child_cur = C.Currencies.Where(cur => cur.ItemId == item.Currency).First();
                             UiHelper.RightAlignWithIcon(item.Price.ToString(), child_cur.Icon.ImGuiHandle, true);
-                            UiHelper.RightAlignWithIcon((item.Price * child_cur.Price).ToString(), Currency.Icon.ImGuiHandle, true);
+                            var items = Generator.items.Where(cur => cur.Id == item.Currency).ToList();
+                            foreach (var item_ in items)
+                            {
+                                UiHelper.RightAlignWithIcon((item.Price * item_.Price).ToString(), Currency.Icon.ImGuiHandle, true);
+                            }
                             //UiHelper.LeftAlign("test2");
                             //UiHelper.Rightalign(item.Price.ToString(), Currency.Icon.ImGuiHandle, true);
                             //UiHelper.LeftAlign(item.Price.ToString());
@@ -194,8 +278,12 @@ internal class SpendingWindow : Window
                         UiHelper.LeftAlign(item.Shop.Location != null ? item.Shop.Location.Zone : "Unknown");
                         if (item.Currency != Currency.ItemId)
                         {
-                            var item_ = Generator.items.Where(cur => cur.Id == item.Currency).First();
-                            UiHelper.LeftAlign(item_.Shop.Location != null ? item_.Shop.Location.Zone : "Unknown");
+                            var items = Generator.items.Where(cur => cur.Id == item.Currency).ToList();
+                            foreach(var item_ in items)
+                            {
+                                ImGui.SetCursorPosY(ImGui.GetCursorPosY() + 3);
+                                UiHelper.LeftAlign(item_.Shop.Location != null ? item_.Shop.Location.Zone : "Unknown");
+                            }
                             //UiHelper.LeftAlign("test2");
                             //UiHelper.Rightalign(item.Price.ToString(), Currency.Icon.ImGuiHandle, true);
                             //UiHelper.LeftAlign(item.Price.ToString());
@@ -211,12 +299,12 @@ internal class SpendingWindow : Window
                         //PluginLog.Verbose("Starting ImGui Flag rendering...");
                         if (item.Shop.Location != null && item.Shop.Location != Location.locations[0])
                         {
-                            if (ImGui.Button("Flag##collectable" + item.Id + "-" + item.ShopId))
+                            if (ImGui.Button($"Flag##collectable-{item.Id}-{item.ShopId}-{item.Shop.NpcId}"))
                             {
                                 Service.GameGui.OpenMapWithMapLink(item.Shop.Location.GetMapMarker());
                             }
                             ImGui.SameLine();
-                            if (ImGui.Button("TP##collectable" + item.Id + "-" + item.ShopId))
+                            if (ImGui.Button($"TP##collectable-{item.Id}-{item.ShopId}-{item.Shop.NpcId}"))
                             {
                                 item.Shop.Location.Teleport();
                                 Service.GameGui.OpenMapWithMapLink(item.Shop.Location.GetMapMarker());
@@ -224,16 +312,24 @@ internal class SpendingWindow : Window
                         }
                         if (item.Currency != Currency.ItemId)
                         {
-                            var item_ = Generator.items.Where(cur => cur.Id == item.Currency).First();
-                            if (ImGui.Button("Flag##collectable" + item_.Id + "-" + item_.ShopId))
+                            var items = Generator.items.Where(cur => cur.Id == item.Currency).ToList();
+                            foreach (var item_ in items)
                             {
-                                Service.GameGui.OpenMapWithMapLink(item_.Shop.Location.GetMapMarker());
-                            }
-                            ImGui.SameLine();
-                            if (ImGui.Button("TP##collectable" + item_.Id + "-" + item_.ShopId))
-                            {
-                                item_.Shop.Location.Teleport();
-                                Service.GameGui.OpenMapWithMapLink(item_.Shop.Location.GetMapMarker());
+                                if(item_.Shop.Location.Zone != "Unknown")
+                                {
+                                    if (ImGui.Button($"Flag##collectable-{item.Id}{item_.Id}-{item_.ShopId}-{item_.Shop.NpcId}"))
+                                    {
+                                        Service.GameGui.OpenMapWithMapLink(item_.Shop.Location.GetMapMarker());
+                                        // TODO: Add NPC Markings and Shop Markings
+                                        // DuoLog.Information(item_.Shop.ShopName);
+                                    }
+                                    ImGui.SameLine();
+                                    if (ImGui.Button($"TP##collectable-{item.Id}{item_.Id}-{item_.ShopId}-{item_.Shop.NpcId}"))
+                                    {
+                                        item_.Shop.Location.Teleport();
+                                        Service.GameGui.OpenMapWithMapLink(item_.Shop.Location.GetMapMarker());
+                                    }
+                                }
                             }
                         }
                         //PluginLog.Verbose("Ending ImGui Flag rendering...");
@@ -245,17 +341,53 @@ internal class SpendingWindow : Window
                 ImGui.Separator();
             }
 
-            if (Ventures != null && Ventures.Count > 0 && C.ShowVentures)
+            if (C.ShowVentures && Ventures != null && Ventures.Count > 0)
             {
                 UiHelper.LeftAlign($"Can buy ventures:");
-                if (ImGui.BeginTable("##ventures", 4, ImGuiTableFlags.Borders | ImGuiTableFlags.SizingFixedFit))
+                if (ImGui.BeginTable("##ventures", 4, ImGuiTableFlags.Borders | ImGuiTableFlags.SizingFixedFit | ImGuiTableFlags.Sortable))
                 {
                     //ImGui.TableSetupColumn("ID");
                     ImGui.TableSetupColumn("Name", ImGuiTableColumnFlags.WidthStretch);
                     ImGui.TableSetupColumn("Price", ImGuiTableColumnFlags.WidthFixed, 100);
                     ImGui.TableSetupColumn("Zone");
-                    ImGui.TableSetupColumn("Actions");
+                    ImGui.TableSetupColumn("Actions", ImGuiTableColumnFlags.NoSort);
                     ImGui.TableHeadersRow();
+
+                    ImGuiTableSortSpecsPtr sortSpecs = ImGui.TableGetSortSpecs();
+                    //List<ShopItem> SellableItems = ShopHelper.GetSellableItems(Currency);
+
+                    if (sortSpecs.NativePtr != null && sortSpecs.SpecsCount > 0)
+                    {
+                        // Retrieve sorting specification
+                        ImGuiTableColumnSortSpecsPtr spec = sortSpecs.Specs;
+                        int columnIndex = spec.ColumnIndex;
+                        bool ascending = spec.SortDirection == ImGuiSortDirection.Ascending;
+
+                        // Sort based on the column index
+                        switch (columnIndex)
+                        {
+                            case 0: // Name
+                                Ventures = ascending
+                                    ? Ventures.OrderBy(item => item.Name).ToList()
+                                    : Ventures.OrderByDescending(item => item.Name).ToList();
+                                break;
+
+                            case 1: // Price
+                                Ventures = ascending
+                                    ? Ventures.OrderBy(item => item.Price).ToList()
+                                    : Ventures.OrderByDescending(item => item.Price).ToList();
+                                break;
+
+                            case 2: // Zone
+                                Ventures = ascending
+                                    ? Ventures.OrderBy(item => item.Shop.Location.Zone).ToList()
+                                    : Ventures.OrderByDescending(item => item.Shop.Location.Zone).ToList();
+                                break;
+                            default:
+                                break; // Do nothing for unhandled columns
+                        }
+                    }
+
                     foreach (var item in Ventures)
                     {
                         //ImGui.TableNextColumn();
@@ -292,12 +424,12 @@ internal class SpendingWindow : Window
                         //PluginLog.Verbose("Starting ImGui Flag rendering...");
                         if (item.Shop.Location != null && item.Shop.Location != Location.locations[0])
                         {
-                            if (ImGui.Button("Flag##collectable" + item.Id + "-" + item.ShopId))
+                            if (ImGui.Button("Flag##ventures" + item.Id + "-" + item.ShopId + "-" + item.Shop.NpcId))
                             {
                                 Service.GameGui.OpenMapWithMapLink(item.Shop.Location.GetMapMarker());
                             }
                             ImGui.SameLine();
-                            if (ImGui.Button("TP##collectable" + item.Id + "-" + item.ShopId))
+                            if (ImGui.Button("TP##ventures" + item.Id + "-" + item.ShopId + "-" + item.Shop.NpcId))
                             {
                                 item.Shop.Location.Teleport();
                                 Service.GameGui.OpenMapWithMapLink(item.Shop.Location.GetMapMarker());
@@ -312,9 +444,9 @@ internal class SpendingWindow : Window
                 ImGui.Separator();
             }
 
-            UiHelper.LeftAlign($"Items eligible for sale on the marketboard:");
-            if (SellableItems != null)
+            if (SellableItems != null && SellableItems.Count > 0)
             {
+                UiHelper.LeftAlign($"Items eligible for sale on the marketboard:");
                 if (ImGui.BeginTable("##markettable", 7, ImGuiTableFlags.Borders | ImGuiTableFlags.SizingFixedFit | ImGuiTableFlags.Sortable))
                 {
                     // Set up columns
@@ -439,12 +571,12 @@ internal class SpendingWindow : Window
                         ImGui.TableNextColumn();
                         if (item.Shop.Location != null && item.Shop.Location != Location.locations[0])
                         {
-                            if (ImGui.Button("Flag##collectable" + item.Id + "-" + item.ShopId))
+                            if (ImGui.Button($"Flag##sellable-{item.Id}-{item.ShopId}-{item.Shop.NpcId}"))
                             {
                                 Service.GameGui.OpenMapWithMapLink(item.Shop.Location.GetMapMarker());
                             }
                             ImGui.SameLine();
-                            if (ImGui.Button("TP##collectable" + item.Id + "-" + item.ShopId))
+                            if (ImGui.Button($"TP##sellable-{item.Id}-{item.ShopId}-{item.Shop.NpcId}"))
                             {
                                 item.Shop.Location.Teleport();
                                 Service.GameGui.OpenMapWithMapLink(item.Shop.Location.GetMapMarker());
@@ -465,6 +597,14 @@ internal class SpendingWindow : Window
     public void GetData(TrackedCurrency cur)
     {
         Currency = cur;
+        CollectableItems = ShopHelper.GetCollectableItems(Currency);
+        Ventures = ShopHelper.GetVentures(Currency);
+        SellableItems = ShopHelper.GetSellableItems(Currency);
+        ItemsOfInterest = ShopHelper.GetItemsOfInterest(Currency);
+    }
+    public void UpdateData()
+    {
+        if(Currency == null) { return; }
         CollectableItems = ShopHelper.GetCollectableItems(Currency);
         Ventures = ShopHelper.GetVentures(Currency);
         SellableItems = ShopHelper.GetSellableItems(Currency);

@@ -1,4 +1,3 @@
-using System;
 using System.Text;
 
 namespace CurrencySpender.Helpers
@@ -34,20 +33,6 @@ namespace CurrencySpender.Helpers
             char[] charArray = s.ToCharArray();
             Array.Reverse(charArray);
             return new string(charArray);
-        }
-
-        public static string ToSemVer(string microsoftVersion)
-        {
-            // Split the version into parts
-            var parts = microsoftVersion.Split('.');
-
-            // SemVer only uses the first three components (Major.Minor.Patch)
-            if (parts.Length >= 3)
-            {
-                return $"{parts[0]}.{parts[1]}.{parts[2]}";
-            }
-
-            return "";
         }
     }
 }

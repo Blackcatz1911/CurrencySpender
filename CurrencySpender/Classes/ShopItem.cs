@@ -15,9 +15,24 @@ public enum ItemType
     Venture = 8,         // 2^3
     Currency = 16,       // 2^4
 }
+public enum CollectableType
+{
+    None,
+    Mount,
+    Minion,
+    Scroll,
+    Emote,
+    Hairstyle,
+    Barding,
+    RidingMap,
+    Facewear,
+    FramersKit,
+    TTCard
+}
 public unsafe class ShopItem
 {
     public ItemType Type { get; set; }
+    public CollectableType CollectableType { get; set; }
     public uint Id { get; set; }
     [JsonIgnore] public string Name => Service.DataManager.GetExcelSheet<Item>()!.GetRow(Id).Name.ExtractText() ?? "Unable to read name";
     public uint Category { get; set; }

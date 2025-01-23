@@ -6,6 +6,7 @@ namespace CurrencySpender.Helpers
     {
         public static IFontHandle LargeFont { get; private set; }
         public static IFontHandle LargerFont { get; private set; }
+        public static IFontHandle LargestFont { get; private set; }
 
         public static void SetupFonts()
         {
@@ -13,11 +14,18 @@ namespace CurrencySpender.Helpers
             {
                 e.OnPreBuild(tk => tk.AddDalamudAssetFont(Dalamud.DalamudAsset.NotoSansJpMedium, new()
                 {
-                    SizePx = 26 // Small font size
+                    SizePx = 24 // Small font size
                 }));
             });
 
             LargerFont = PluginInterface.UiBuilder.FontAtlas.NewDelegateFontHandle(e =>
+            {
+                e.OnPreBuild(tk => tk.AddDalamudAssetFont(Dalamud.DalamudAsset.NotoSansJpMedium, new()
+                {
+                    SizePx = 28 // Large font size
+                }));
+            });
+            LargestFont = PluginInterface.UiBuilder.FontAtlas.NewDelegateFontHandle(e =>
             {
                 e.OnPreBuild(tk => tk.AddDalamudAssetFont(Dalamud.DalamudAsset.NotoSansJpMedium, new()
                 {
@@ -27,6 +35,12 @@ namespace CurrencySpender.Helpers
         }
 
         // Example usage during ImGui rendering
+        public static void LargestText(string uidText)
+        {
+            LargestFont.Push();
+            ImGui.TextWrapped(uidText);
+            LargestFont.Pop();
+        }
         public static void LargerText(string uidText)
         {
             LargerFont.Push();
@@ -43,6 +57,7 @@ namespace CurrencySpender.Helpers
         {
             LargeFont.Dispose();
             LargerFont.Dispose();
+            LargestFont.Dispose();
         }
     }
 }

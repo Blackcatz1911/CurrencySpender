@@ -215,15 +215,16 @@ namespace CurrencySpender.Helpers
             if(C.Currencies.Where(cur => cur.ItemId == item.RowId).ToList().Count > 0) curType |= ItemType.Currency;
             if (cat == 61)
             {
-                if(name.Contains("Ballroom Etiquette") || name.Contains("Ballroom Etiquette") || name.Contains("Framer's Kit") || name.Contains("Battlefield Etiquette"))
+                if(name.Contains("Ballroom Etiquette") || name.Contains("Framer's Kit") || name.Contains("Battlefield Etiquette") ||
+                    name.Contains("The Faces We Wear") || name.Contains("Modern Aesthetics"))
                 {
                     curType |= ItemType.Collectable;
                 }
             }
             if(cat == 63)
             {
-                if(name.Contains("Barding") || item.Value.ItemAction.Value.Type == 1322 || item.Value.ItemAction.Value.Type == 29459)// ||
-                //    item.Value.ItemAction.Value.Type == 2633)
+                if(name.Contains("Barding") || item.Value.ItemAction.Value.Type == 1322 || item.Value.ItemAction.Value.Type == 29459 ||
+                    item.Value.ItemAction.Value.Type == 2633)
                 {
                     //2633 Riding Map
                     curType |= ItemType.Collectable;
@@ -236,6 +237,34 @@ namespace CurrencySpender.Helpers
             if(!untradable)
                 curType |= ItemType.Tradeable;
             return curType;
+        }
+        public static CollectableType GetCollectableType(RowRef<Item> item, ItemType item_types)
+        {
+            if (!item_types.HasFlag(ItemType.Collectable)) { return CollectableType.None; }
+            var cat = item.Value.ItemUICategory.RowId;
+            var name = item.Value.Name.ExtractText();
+            if (cat == 61)
+            {
+                if (name.Contains("Ballroom Etiquette") || name.Contains("Battlefield Etiquette"))
+                {
+                    return CollectableType.Scroll;
+                }
+                if (name.Contains("Framer's Kit")) return CollectableType.FramersKit;
+                if (name.Contains("The Faces We Wear")) return CollectableType.Facewear;
+                if (name.Contains("Modern Aesthetics")) return CollectableType.Hairstyle;
+            }
+            if (cat == 63)
+            {
+                if (name.Contains("Barding")) return CollectableType.Barding;
+                if (item.Value.ItemAction.Value.Type == 1322) return CollectableType.Mount;
+                if (item.Value.ItemAction.Value.Type == 29459) return CollectableType.FramersKit;
+                if (item.Value.ItemAction.Value.Type == 2633) return CollectableType.RidingMap;
+            }
+            if (cat == 81) return CollectableType.Minion;
+            if (cat == 86) return CollectableType.TTCard;
+            if (cat == 94) return CollectableType.Scroll;
+            if (Debug) DuoLog.Debug("Collectable Type not found!");
+            return CollectableType.None;
         }
     }
 }

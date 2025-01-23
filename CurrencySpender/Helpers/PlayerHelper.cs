@@ -3,15 +3,14 @@ using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using FFXIVClientStructs.FFXIV.Client.UI;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using FFXIVClientStructs.FFXIV.Component.GUI;
-using Lumina.Excel.Sheets;
 
 namespace CurrencySpender.Helpers
 {
     internal unsafe class PlayerHelper
     {
-        public static uint GCRankMaelstrom = 0;
-        public static uint GCRankTwinAdders = 0;
-        public static uint GCRankImmortalFlames = 0;
+        public static uint GCRankMaelstrom = 99;
+        public static uint GCRankTwinAdders = 99;
+        public static uint GCRankImmortalFlames = 99;
         public static Dictionary<uint, uint> GCRanks = new Dictionary<uint, uint>
         {
             { 1, GCRankMaelstrom },
@@ -34,14 +33,13 @@ namespace CurrencySpender.Helpers
             {
                 P.TaskManager.Enqueue(() => populateGCRank());
                 P.TaskManager.Enqueue(() => populateFateRanks());
-                P.TaskManager.Enqueue(() => checkGCRanks());
             }
         }
         public static bool reset()
         {
-            GCRankMaelstrom = 0;
-            GCRankTwinAdders = 0;
-            GCRankImmortalFlames = 0;
+            GCRankMaelstrom = 99;
+            GCRankTwinAdders = 99;
+            GCRankImmortalFlames = 99;
             GCRanks = new Dictionary<uint, uint>
             {
                 { 1, GCRankMaelstrom },
@@ -56,9 +54,9 @@ namespace CurrencySpender.Helpers
         }
         public static bool populateGCRank()
         {
-            if (PlayerState.Instance == null || PlayerState.Instance() == null)
+            if (PlayerState.Instance == null || PlayerState.Instance() == null || Service.ClientState.LocalPlayer == null)
             {
-                PluginLog.Verbose("populateGCRank not created");
+                PluginLog.Information("populateGCRank not created");
                 return true;
             }
             if (PlayerState.Instance() != null)
@@ -72,13 +70,17 @@ namespace CurrencySpender.Helpers
                     { 2, GCRankTwinAdders },
                     { 3, GCRankImmortalFlames }
                 };
-                PluginLog.Verbose("populateGCRank created");
-                GCRanksCreated = true;
-                return true;
+                if (GCRankMaelstrom != 99 && GCRankTwinAdders != 99 && GCRankImmortalFlames != 99)
+                {
+                    PluginLog.Information($"populateGCRank created: {GCRankMaelstrom}, {GCRankTwinAdders}, {GCRankImmortalFlames}");
+                    GCRanksCreated = true;
+                    P.TaskManager.Enqueue(() => ItemGen.GCShops());
+                    return true;
+                }
             }
             PluginLog.Verbose("populateGCRank not created2");
             //EzThrottler.Throttle("AutoRetainerGenericThrottle", 200, true);
-            return false;
+            return true;
         }
         public static bool populateFateRanks()
         {
@@ -114,7 +116,7 @@ namespace CurrencySpender.Helpers
                             else if (zone.TerritoryTypeId >= 1187 && zone.CurrentRank < 4) SharedFateRanksMax = false;
                         }
                         // Access the fields of the FateProgressZone
-                        PluginLog.Debug($"Zone Name: {zone.ZoneName}, TerritoryTypeId: {zone.TerritoryTypeId}, Current Rank: {zone.CurrentRank}, Fate Progress: {zone.FateProgress}/{zone.NeededFates}");
+                        //PluginLog.Debug($"Zone Name: {zone.ZoneName}, TerritoryTypeId: {zone.TerritoryTypeId}, Current Rank: {zone.CurrentRank}, Fate Progress: {zone.FateProgress}/{zone.NeededFates}");
                     }
                 }
                 if (SharedFateRanks.Count == 0)
@@ -134,20 +136,6 @@ namespace CurrencySpender.Helpers
             }
             return true;
         }
-        public static void checkGCRanks()
-        {
-            if (GCRanksCreated)
-            {
-                P.TaskManager.Enqueue(() => ItemGen.GCShops());
-            }
-        }
-        //public static void checkFateRanks()
-        //{
-        //    if (SharedFateRanks.Count != 0)
-        //    {
-        //        P.TaskManager.Enqueue(() => ItemGen.fateShops());
-        //    }
-        //}
         public static void openSharedFate()
         {
             if (UIModule.Instance()->IsMainCommandUnlocked(84))

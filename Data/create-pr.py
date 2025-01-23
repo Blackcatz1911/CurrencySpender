@@ -9,7 +9,7 @@ GITHUB_REPO_OWNER = "Blackcatz1911"
 GITHUB_REPO_NAME = "CurrencySpender"
 BRANCH_NAME = f"update-manifest-{GITHUB_REPO_NAME}"
 IMAGES_URL = "https://raw.githubusercontent.com/Blackcatz1911/CurrencySpender/refs/heads/master/Data/logo.png"
-repo = "TEST"
+repo = ""
 repo_path = "testing/live" if repo == "TEST" else "stable"
 
 # Helper functions to execute shell commands
@@ -88,6 +88,7 @@ print(f"FORK_DIR_ABS: {FORK_DIR_ABS}")
 try:
     # Initialize the repository
     repo = git.Repo(FORK_DIR_ABS)
+    repo.git.checkout("main")
 
     # Fetch latest changes from upstream (if needed)
     print("Fetching latest origin changes...")
@@ -102,7 +103,7 @@ try:
     # Check if the branch already exists
     if BRANCH_NAME in repo.heads:
         print(f"Branch {BRANCH_NAME} already exists. Deleting it.")
-        repo.delete_head(BRANCH_NAME, force=True)
+        repo.git.branch("-D", BRANCH_NAME)
 
     # Create and switch to the new branch
     print(f"Creating and checking out branch {BRANCH_NAME}...")

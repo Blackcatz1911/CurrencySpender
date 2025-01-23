@@ -30,6 +30,7 @@ public sealed class Plugin : IDalamudPlugin
     internal ConfigTabWindow configTabWindow;
     internal SpendingWindow spendingWindow;
     internal DebugTabWindow debugTabWindow;
+    internal ConfigWizardWindow configWizard;
 
     internal string? changelogPath;
     public string Version;
@@ -62,9 +63,9 @@ public sealed class Plugin : IDalamudPlugin
             ws = new();
             spendingWindow = new();
             debugTabWindow = new();
-            ws.AddWindow(spendingWindow);
             mainTabWindow = new();
             configTabWindow = new();
+            configWizard = new();
             PluginInterface.UiBuilder.Draw += ws.Draw;
             PluginInterface.UiBuilder.OpenConfigUi += delegate { configTabWindow.IsOpen = true; };
             PluginInterface.UiBuilder.OpenMainUi += delegate { mainTabWindow.IsOpen = true; };
@@ -73,12 +74,14 @@ public sealed class Plugin : IDalamudPlugin
             ItemHelper.initHairStyles();
             Generator.init();
             PlayerHelper.init();
+            VersionHelper.CheckVersion();
         });
         //PlayerHelper.init();
         //Generator.init();
         FontHelper.SetupFonts();
-        Version = StringHelper.ToSemVer(P.GetType().Assembly.GetName().Version.ToString());
+        Version = VersionHelper.GetVersion();
         Service.ClientState.Login += OnLogin;
+        Service.ClientState.Logout += OnLogout;
 #if HAS_LOCAL_CS
         FFXIVClientStructs.Interop.Generated.Addresses.Register();
         //Addresses.Register();
@@ -129,11 +132,23 @@ public sealed class Plugin : IDalamudPlugin
         P.TaskManager.Enqueue(() => PlayerHelper.init());
     }
 
-    private void OnFrameworkUpdate(IFramework framework)
+    private void OnLogout(int type, int code)
     {
+        PluginLog.Debug("OnLogout");
+        P.TaskManager.Enqueue(() => PlayerHelper.reset());
     }
-
-    private void OnZoneChange(ushort e)
+    
+    internal static readonly Dictionary<CollectableType, string> CollectableTypeLabels = new()
     {
-    }
+        { CollectableType.Mount, "Mounts" },
+        { CollectableType.Minion, "Minions" },
+        { CollectableType.Scroll, "Orchestration Scrolls" },
+        { CollectableType.Emote, "Emotes" },
+        { CollectableType.Hairstyle, "Hairstyles" },
+        { CollectableType.Barding, "Bardings" },
+        { CollectableType.RidingMap, "Riding Maps" },
+        { CollectableType.Facewear, "Facewear" },
+        { CollectableType.FramersKit, "Framer's Kits" },
+        { CollectableType.TTCard, "Triple Triad Cards" }
+    };
 }

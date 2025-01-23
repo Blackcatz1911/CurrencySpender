@@ -66,7 +66,7 @@ public unsafe class TrackedCurrency
 
     public int MaxCount = 0;
 
-    [JsonIgnore] public float Percentage => CurrentCount * 100 / MaxCount;
+    [JsonIgnore] public float Percentage => MaxCount != 0?CurrentCount * 100 / MaxCount:0;
 
     [JsonIgnore] public bool HasWarning => Invert ? CurrentCount < Threshold : CurrentCount > Threshold;
 

@@ -1,5 +1,4 @@
 using CurrencySpender.Classes;
-using ECommons;
 using Lumina.Excel.Sheets;
 
 namespace CurrencySpender.Data
@@ -45,18 +44,29 @@ namespace CurrencySpender.Data
 
             //foreach (var item in Generator.items)
             //{
-            //    PluginLog.Verbose(item.ToString());
+            //    if (item.Id == 44173)
+            //        DuoLog.Information($"{item.Name}-{item.Shop.NpcName}-{item.Shop.ShopId}");
             //}
         }
 
         internal static void specialShop(Shop shop)
         {
             var shop_ = Service.DataManager.GetExcelSheet<SpecialShop>().GetRow(shop.ShopId);
+            shop.ShopName = shop_.Name.ExtractText();
             var itemCol = shop_.Item;
             foreach (var itemCol_ in itemCol)
             {
                 var temp = new List<(uint, uint)>();
                 //PluginLog.Verbose(itemCol_.ItemCosts.ToString());
+                foreach (var currency in itemCol_.ItemCosts)
+                {
+                    if (currency.ItemCost.RowId == 0) continue;
+                    if (shop_.RowId != 1770766) continue;
+                    var costItemId = currency.ItemCost.RowId;
+                    costItemId = ConvertCurrencyId(shop_.RowId, costItemId, shop_.UseCurrencyType);
+                    var costItem = Service.DataManager.GetExcelSheet<Item>().GetRow(costItemId);
+                    //DuoLog.Information($"Currency: {costItem.Name}, shop_.UseCurrencyType: {shop_.UseCurrencyType}");
+                }
                 for (int i = 0; i < itemCol_.ReceiveItems.Count; i++)
                 {
                     if (i >= itemCol_.ItemCosts.Count) continue;
@@ -64,20 +74,19 @@ namespace CurrencySpender.Data
                     if (itemCol_.ReceiveItems[i].Item.RowId == 0) continue;
 
                     var item_types = ItemHelper.GetItemTypes(itemCol_.ReceiveItems[i].Item);
+                    var CollectableType = ItemHelper.GetCollectableType(itemCol_.ReceiveItems[i].Item, item_types);
+                    //if (CollectableType == CollectableType.Facewear) PluginLog.Debug($"specialShop Facewear: {itemCol_.ReceiveItems[i].Item.RowId}, shop: {shop.NpcName}");
+                    //if (CollectableType == CollectableType.Hairstyle) PluginLog.Debug($"specialShop Hairstyle: {itemCol_.ReceiveItems[i].Item.RowId}, shop: {shop.NpcName}");
                     //PluginLog.Verbose(types.ToString());
                     var costItemId = itemCol_.ItemCosts[i].ItemCost.RowId;
                     var cur = ConvertCurrencyId(shop_.RowId, costItemId, shop_.UseCurrencyType);
                     var cur_item = Service.DataManager.GetExcelSheet<Item>().GetRow(cur);
                     //if (!enabled_currencies.Contains(cur)) continue;
-                    // if(itemCol_.ReceiveItems[i].Item.RowId == 43590)
-                    //     PluginLog.Verbose($"{cur}-{cur_item.Name}-{shop.NpcName}-{shop.ShopId}-{ itemCol_.ReceiveItems[i].Item.Value.Name.ToString()}");
-                    var existing_item = Generator.items.FirstOrDefault(it => it.Id == itemCol_.ReceiveItems[i].Item.RowId && it.ShopId == shop.ShopId); //it.Shop.NpcId == shop.NpcId);
+                    //if(itemCol_.ReceiveItems[i].Item.RowId == 45002)
+                    //    DuoLog.Information($"{cur}-{cur_item.Name}-{shop.NpcName}-{shop.ShopId}-CurrencyId:{costItemId}-{ itemCol_.ReceiveItems[i].Item.Value.Name.ToString()}");
+                    var existing_item = Generator.items.FirstOrDefault(it => it.Id == itemCol_.ReceiveItems[i].Item.RowId && it.Shop.NpcId == shop.NpcId); //it.Shop.NpcId == shop.NpcId);
                     if(existing_item == default)
                     {
-                        if(costItemId == 26807)
-                        {
-                            //itemCol_
-                        }
                         ShopItem shopItem = new ShopItem
                         {
                             Id = itemCol_.ReceiveItems[i].Item.RowId,
@@ -86,6 +95,7 @@ namespace CurrencySpender.Data
                             Currency = cur,
                             Category = itemCol_.ReceiveItems[i].Item.Value.ItemUICategory.RowId,
                             Type = item_types,
+                            CollectableType = CollectableType,
                             Shop = shop
                         };
                         Generator.items.Add(shopItem);
@@ -95,6 +105,7 @@ namespace CurrencySpender.Data
                 }
                 //PluginLog.Verbose($"{itemCol_.ToString()}");
             }
+            //if(missingLoc && C.Debug) { DuoLog.Error($"Missing Location: NPC:{shop.NpcId} NPCName:{shop.NpcName} Shop:{shop.ShopId}"); }
         }
 
         internal static void GCShop(Shop shop)
@@ -115,7 +126,7 @@ namespace CurrencySpender.Data
                 foreach (var category in gcShopCategories)
                 {
                     //PluginLog.Verbose(GCScripShopItemSheet.TotalSubrowCount.ToString());
-                    for (var i = 0u; i < GCScripShopItemSheet.TotalSubrowCount; i++)
+                    for (var i = 0; i < GCScripShopItemSheet.TotalSubrowCount; i++)
                     {
                         //PluginLog.Verbose(GCScripShopItemSheet.TotalSubrowCount.ToString());
                         var GCScripShopItem = GCScripShopItemSheet.GetSubrow(category.RowId, (ushort)i);
@@ -134,10 +145,10 @@ namespace CurrencySpender.Data
                         }
                         var cat = item.ItemUICategory.RowId;
                         var types = ItemHelper.GetItemTypes(item_ref);
+                        var CollectableType = ItemHelper.GetCollectableType(item_ref, types);
                         var existing_item = Generator.items.FirstOrDefault(existing_item => existing_item.Id == item.RowId && existing_item.ShopId == shop.ShopId);
                         if (existing_item == default)
                         {
-                            //if (item.RowId == 21319) DuoLog.Information($"Found: 21319 ShopId:{shop.ShopId}");
                             uint requiredRank = GCScripShopItem.RequiredGrandCompanyRank.RowId;
                             ShopItem shopItem = new ShopItem
                             {
@@ -147,6 +158,7 @@ namespace CurrencySpender.Data
                                 Currency = shop.Currency,
                                 Category = item.ItemUICategory.RowId,
                                 Type = types,
+                                CollectableType = CollectableType,
                                 Shop = shop,
                                 RequiredRank = requiredRank,
                             };
@@ -258,7 +270,7 @@ namespace CurrencySpender.Data
                         if (PlayerHelper.SharedFateRanks.ContainsKey(territoryId))
                         {
                             var playerRank = PlayerHelper.SharedFateRanks[territoryId];
-                            PluginLog.Debug($"PlayerRank: {playerRank} for {territoryId}, Required: {requiredRank}");
+                            //PluginLog.Debug($"PlayerRank: {playerRank} for {territoryId}, Required: {requiredRank}");
 
                             // If the player's rank matches the required rank for this NpcId, perform actions
                             if (playerRank != requiredRank)
@@ -315,7 +327,7 @@ namespace CurrencySpender.Data
         internal static void GCShops()
         {
             if (GCShopsDone) return;
-            PluginLog.Verbose("GCShops init");
+            PluginLog.Debug("GCShops init");
             var shops = Generator.shops.Where(shop => shop.Type == ShopType.GCShop).ToList();
 
             foreach (var shop in shops)
@@ -327,7 +339,7 @@ namespace CurrencySpender.Data
                 }
             }
             GCShopsDone = true;
-            PluginLog.Verbose("GCShops init finished");
+            PluginLog.Debug("GCShops init finished");
         }
 
         private static Dictionary<uint, uint> Currencies_Dict = new Dictionary<uint, uint>()
@@ -395,9 +407,18 @@ namespace CurrencySpender.Data
                 return itemId;
             }
 
-            if ((useCurrencyType == 16 || useCurrencyType == 4) && itemId < 10)
+            if (useCurrencyType == 4 && itemId < 10)
             {
-                if (TomeStones_Dict.TryGetValue(itemId, out var currencyValue) || Currencies_Dict.TryGetValue(itemId, out currencyValue))
+                if (TomeStones_Dict.TryGetValue(itemId, out var currencyValue))
+                {
+                    return currencyValue;
+                }
+                return itemId;
+            }
+
+            if (useCurrencyType == 16 && itemId < 10)
+            {
+                if (Currencies_Dict.TryGetValue(itemId, out var currencyValue))
                 {
                     return currencyValue;
                 }

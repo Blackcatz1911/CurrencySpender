@@ -1,4 +1,3 @@
-using ECommons.DalamudServices;
 using Lumina.Excel.Sheets;
 using Dalamud.Game.Text.SeStringHandling.Payloads;
 using CurrencySpender.Managers;
@@ -25,7 +24,7 @@ namespace CurrencySpender.Classes
         public string Zone {
             get
             {
-                var data = Svc.Data.GetExcelSheet<TerritoryType>()!.GetRowOrDefault(TerritoryId);
+                var data = Service.DataManager.GetExcelSheet<TerritoryType>()!.GetRowOrDefault(TerritoryId);
                 if (data != null)
                 {
                     return data.Value.PlaceName.ValueNullable?.Name.ToString() ?? "Unknown";
@@ -38,7 +37,11 @@ namespace CurrencySpender.Classes
         {
             return locations.FirstOr0(loc => loc.NpcId == NpcId);
         }
-        public MapLinkPayload GetMapMarker() => new MapLinkPayload(TerritoryId, MapId, Postion.Item1, Postion.Item2);
+        public MapLinkPayload GetMapMarker()
+        {
+            if ((Zone == "Unknown" || Zone == "") && C.Debug) PluginLog.Error("Unknown location");
+            return new MapLinkPayload(TerritoryId, MapId, Postion.Item1, Postion.Item2);
+        }
 
         public void Teleport()
         {
@@ -69,6 +72,12 @@ namespace CurrencySpender.Classes
             new Location { MapId = 002, TerritoryId = 0132, Postion = (9.8f, 11.0f), NpcId = 1002390 },
             new Location { MapId = 013, TerritoryId = 0130, Postion = (8.3f, 9.0f), NpcId =  1002393 },
 
+            new Location { MapId = 196, TerritoryId = 0144, Postion = (5.1f,6.6f), NpcId =  1011039 }, // Gold Saucer Attendant
+            new Location { MapId = 196, TerritoryId = 0144, Postion = (5.4f,6.5f), NpcId =  1011610 }, // Modern Aesthetics Saleswoman
+            new Location { MapId = 196, TerritoryId = 0144, Postion = (5.0f,6.4f), NpcId =  1010478 }, // Triple Triad Trader
+
+            new Location { MapId = 197, TerritoryId = 0388, Postion = (7.7f,6.9f), NpcId =  1011595 }, // Minion Trader
+
             new Location { MapId = 257, TerritoryId = 0478, Postion = (5.7f, 5.2f), NpcId = 1012228 },
             new Location { MapId = 366, TerritoryId = 0635, Postion = (13.9f, 11.6f), NpcId = 1019450 },
             new Location { MapId = 051, TerritoryId = 0250, Postion = (4.5f, 6.0f), NpcId = 1005244 },
@@ -88,15 +97,21 @@ namespace CurrencySpender.Classes
             new Location { MapId = 694, TerritoryId = 0963, Postion = (10.5f,7.4f), NpcId = 1037312 },
             new Location { MapId = 855, TerritoryId = 1185, Postion = (13.9f, 13.5f), NpcId = 1048387 },
             new Location { MapId = 370, TerritoryId = 0628, Postion = (10.3f,10.2f), NpcId = 1019007 },
+            new Location { MapId = 370, TerritoryId = 0628, Postion = (10.4f,10.2f), NpcId = 1019008 },
             new Location { MapId = 366, TerritoryId = 0635, Postion = (13.0f,11.7f), NpcId = 1019454 },
+            new Location { MapId = 366, TerritoryId = 0635, Postion = (13.8f,11.8f), NpcId = 1019451 },
+            new Location { MapId = 366, TerritoryId = 0635, Postion = (13.0f, 11.7f), NpcId = 1019455 },
             new Location { MapId = 218, TerritoryId = 0418, Postion = (13.1f,11.9f), NpcId = 1012225 },
             new Location { MapId = 257, TerritoryId = 0478, Postion = (5.9f,5.2f), NpcId = 1015578 },
             new Location { MapId = 025, TerritoryId = 0156, Postion = (22.1f,4.9f), NpcId = 1036913 },
+            new Location { MapId = 574, TerritoryId = 0886, Postion = (12.0f,14.0f), NpcId = 1031680, AetheryteId = 70 },
+            new Location { MapId = 856, TerritoryId = 1186, Postion = (9.1f, 13.2f), NpcId = 1049086 },
+            new Location { MapId = 856, TerritoryId = 1186, Postion = (9.1f, 13.2f), NpcId = 1049085 },
             
             //Bicolor Gemstones
             new Location { MapId = 491, TerritoryId = 813, Postion = (35.5f,20.6f), NpcId = 1027385 }, // Siulmet
             new Location { MapId = 492, TerritoryId = 814, Postion = (11.8f,8.9f), NpcId = 1027497 }, // Zumutt
-            new Location { MapId = 493, TerritoryId = 815, Postion = (10.6f,17.1f), NpcId = 1027892 }, // Halden
+            new Location { MapId = 493, TerritoryId = 815, Postion = (10.6f,17.1f), NpcId = 1027892, AetheryteId = 141 }, // Halden
             new Location { MapId = 494, TerritoryId = 816, Postion = (16.2f,30.6f), NpcId = 1027665 }, // Sul Lad
             new Location { MapId = 495, TerritoryId = 817, Postion = (27.9f,18.2f), NpcId = 1027709 }, // Nacille
             new Location { MapId = 496, TerritoryId = 818, Postion = (33.2f,18.0f), NpcId = 1027766 }, // Goushs Ooan

@@ -33,8 +33,6 @@ internal class MainTabWindow : Window
         ImGuiEx.EzTabBar("tabbar", [
             ("Currencies", MainTab.Draw, null, true),
             ("Instructions", InstructionsTab.Draw, null, true),
-            //("Todo list", TodoTab.Draw, null, true),
-            //("About", AboutTab.Draw, null, true),
          ]);
 
     }

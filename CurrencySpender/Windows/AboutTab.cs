@@ -1,7 +1,6 @@
 using Dalamud.Interface.Colors;
 using Dalamud.Interface;
 using ECommons.DalamudServices;
-using System.Diagnostics;
 
 namespace CurrencySpender.Windows;
 
