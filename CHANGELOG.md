@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.1.1
+### Added
+- Tooltip for Map and Teleport Buttons.
+### Fixed 
+- Missing NPC data for Quinnana was added.
+- Default Scrip Exchange is now in Limsa Lower Decks.
+### Changed
+- Code Cleanup tasks.
+
 ## 1.1.0
 ### Added
 - A setting to filter out unwanted collectables.

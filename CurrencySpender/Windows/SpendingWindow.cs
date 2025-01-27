@@ -144,19 +144,7 @@ internal class SpendingWindow : Window
                         UiHelper.LeftAlign(item.Shop.Location != null ? item.Shop.Location.Zone : "");
                         ImGui.TableNextColumn();
                         //PluginLog.Verbose("Starting ImGui Flag rendering...");
-                        if (item.Shop.Location != null && item.Shop.Location != Location.locations[0])
-                        {
-                            if (ImGui.Button("Flag##ioi" + item.Id + "-" + item.ShopId + "-" + item.Shop.NpcId))
-                            {
-                                Service.GameGui.OpenMapWithMapLink(item.Shop.Location.GetMapMarker());
-                            }
-                            ImGui.SameLine();
-                            if (ImGui.Button("TP##ioi" + item.Id + "-" + item.ShopId + "-" + item.Shop.NpcId))
-                            {
-                                item.Shop.Location.Teleport();
-                                Service.GameGui.OpenMapWithMapLink(item.Shop.Location.GetMapMarker());
-                            }
-                        }
+                        UiHelper.BuildMapButtons(item);
                         //PluginLog.Verbose("Ending ImGui Flag rendering...");
                     }
                     //}
@@ -297,39 +285,13 @@ internal class SpendingWindow : Window
                         }
                         ImGui.TableSetColumnIndex(3);
                         //PluginLog.Verbose("Starting ImGui Flag rendering...");
-                        if (item.Shop.Location != null && item.Shop.Location != Location.locations[0])
-                        {
-                            if (ImGui.Button($"Flag##collectable-{item.Id}-{item.ShopId}-{item.Shop.NpcId}"))
-                            {
-                                Service.GameGui.OpenMapWithMapLink(item.Shop.Location.GetMapMarker());
-                            }
-                            ImGui.SameLine();
-                            if (ImGui.Button($"TP##collectable-{item.Id}-{item.ShopId}-{item.Shop.NpcId}"))
-                            {
-                                item.Shop.Location.Teleport();
-                                Service.GameGui.OpenMapWithMapLink(item.Shop.Location.GetMapMarker());
-                            }
-                        }
+                        UiHelper.BuildMapButtons(item);
                         if (item.Currency != Currency.ItemId)
                         {
                             var items = Generator.items.Where(cur => cur.Id == item.Currency).ToList();
                             foreach (var item_ in items)
                             {
-                                if(item_.Shop.Location.Zone != "Unknown")
-                                {
-                                    if (ImGui.Button($"Flag##collectable-{item.Id}{item_.Id}-{item_.ShopId}-{item_.Shop.NpcId}"))
-                                    {
-                                        Service.GameGui.OpenMapWithMapLink(item_.Shop.Location.GetMapMarker());
-                                        // TODO: Add NPC Markings and Shop Markings
-                                        // DuoLog.Information(item_.Shop.ShopName);
-                                    }
-                                    ImGui.SameLine();
-                                    if (ImGui.Button($"TP##collectable-{item.Id}{item_.Id}-{item_.ShopId}-{item_.Shop.NpcId}"))
-                                    {
-                                        item_.Shop.Location.Teleport();
-                                        Service.GameGui.OpenMapWithMapLink(item_.Shop.Location.GetMapMarker());
-                                    }
-                                }
+                                UiHelper.BuildMapButtons(item_);
                             }
                         }
                         //PluginLog.Verbose("Ending ImGui Flag rendering...");
@@ -421,20 +383,7 @@ internal class SpendingWindow : Window
                         ImGui.TableNextColumn();
                         UiHelper.LeftAlign(item.Shop.Location != null ? item.Shop.Location.Zone : "");
                         ImGui.TableNextColumn();
-                        //PluginLog.Verbose("Starting ImGui Flag rendering...");
-                        if (item.Shop.Location != null && item.Shop.Location != Location.locations[0])
-                        {
-                            if (ImGui.Button("Flag##ventures" + item.Id + "-" + item.ShopId + "-" + item.Shop.NpcId))
-                            {
-                                Service.GameGui.OpenMapWithMapLink(item.Shop.Location.GetMapMarker());
-                            }
-                            ImGui.SameLine();
-                            if (ImGui.Button("TP##ventures" + item.Id + "-" + item.ShopId + "-" + item.Shop.NpcId))
-                            {
-                                item.Shop.Location.Teleport();
-                                Service.GameGui.OpenMapWithMapLink(item.Shop.Location.GetMapMarker());
-                            }
-                        }
+                        UiHelper.BuildMapButtons(item);
                         //PluginLog.Verbose("Ending ImGui Flag rendering...");
                     }
                     //}
@@ -569,21 +518,8 @@ internal class SpendingWindow : Window
                         //ImGui.TableNextColumn();
                         //UiHelper.LeftAlign(item.Shop.Location.Zone);
                         ImGui.TableNextColumn();
-                        if (item.Shop.Location != null && item.Shop.Location != Location.locations[0])
-                        {
-                            if (ImGui.Button($"Flag##sellable-{item.Id}-{item.ShopId}-{item.Shop.NpcId}"))
-                            {
-                                Service.GameGui.OpenMapWithMapLink(item.Shop.Location.GetMapMarker());
-                            }
-                            ImGui.SameLine();
-                            if (ImGui.Button($"TP##sellable-{item.Id}-{item.ShopId}-{item.Shop.NpcId}"))
-                            {
-                                item.Shop.Location.Teleport();
-                                Service.GameGui.OpenMapWithMapLink(item.Shop.Location.GetMapMarker());
-                            }
-                        }
+                        UiHelper.BuildMapButtons(item);
                     }
-
                     ImGui.EndTable();
                 }
             }

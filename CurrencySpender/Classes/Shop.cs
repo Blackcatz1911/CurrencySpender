@@ -19,6 +19,7 @@ public unsafe class Shop
     public uint ShopId { get; set; }
     public string? ShopName { get; set; }
     public uint NpcId { get; set; }
+    public List<uint>? NpcVariants { get; set; }
     public string NpcName
     {
         get
@@ -34,7 +35,7 @@ public unsafe class Shop
             }
             return name;
         }
-    }// => Service.DataManager.GetExcelSheet<ENpcResident>().GetRow(NpcId).Singular.ExtractText() ?? "Unknown";
+    }
     public required Location Location { get; init; }
 
     public uint Currency;

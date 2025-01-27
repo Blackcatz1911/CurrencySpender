@@ -1,3 +1,4 @@
+using CurrencySpender.Classes;
 using Dalamud.Interface;
 using Dalamud.Interface.Textures.TextureWraps;
 
@@ -79,5 +80,39 @@ internal static unsafe class UiHelper
         ImGui.PopFont();
         ImGui.SameLine();
         ImGuiEx.TextWrapped(EColor.YellowBright, str);
+    }
+
+    internal static void BuildMapButtons(ShopItem item)
+    {
+        if (item.Shop.Location != null && item.Shop.Location != Location.locations[0])
+        {
+            if (ImGui.Button($"Flag##sellable-{item.Id}-{item.ShopId}-{item.Shop.NpcId}"))
+            {
+                Service.GameGui.OpenMapWithMapLink(item.Shop.Location.GetMapMarker());
+            }
+            if (ImGui.IsItemHovered())
+            {
+                // Display a tooltip or additional info
+                ImGui.BeginTooltip();
+                UiHelper.LeftAlign($"{item.Shop.Location.Zone}");
+                ImGui.EndTooltip();
+            }
+            ImGui.SameLine();
+            if (ImGui.Button($"TP##sellable-{item.Id}-{item.ShopId}-{item.Shop.NpcId}"))
+            {
+                item.Shop.Location.Teleport();
+                Service.GameGui.OpenMapWithMapLink(item.Shop.Location.GetMapMarker());
+            }
+            if (ImGui.IsItemHovered())
+            {
+                // Display a tooltip or additional info
+                ImGui.BeginTooltip();
+                UiHelper.LeftAlign($"{item.Shop.Location.Zone}");
+                ImGui.EndTooltip();
+            }
+        } else if(C.Debug)
+        {
+            //DuoLog.Error("Missing location!");
+        }
     }
 }

@@ -87,23 +87,23 @@ namespace CurrencySpender.Data
                         uint NpcId = 0;
                         Dictionary<List<uint>, uint> npcMapping = new()
                         {
-                            { new List<uint>(Enumerable.Range(1770112, 1770114 - 1770112 + 1).Select(i => (uint)i)), 1049085 }, // Scrip Exchange
-                            { new List<uint>(Enumerable.Range(1770183, 1770196 - 1770183 + 1).Select(i => (uint)i)), 1049085 }, // Scrip Exchange
-                            { new List<uint>(Enumerable.Range(1770264, 1770268 - 1770264 + 1).Select(i => (uint)i)), 1049085 }, // Scrip Exchange
-                            { new List<uint>(Enumerable.Range(1770272, 1770278 - 1770272 + 1).Select(i => (uint)i)), 1049085 }, // Scrip Exchange
-                            { new List<uint>(Enumerable.Range(1770420, 1770431 - 1770420 + 1).Select(i => (uint)i)), 1049085 }, // Scrip Exchange
+                            { ListRange(1770112, 1770114), 1003633 }, // Scrip Exchange
+                            { ListRange(1770183, 1770196), 1003633 }, // Scrip Exchange
+                            { ListRange(1770264, 1770268), 1003633 }, // Scrip Exchange
+                            { ListRange(1770272, 1770278), 1003633 }, // Scrip Exchange
+                            { ListRange(1770420, 1770431), 1003633 }, // Scrip Exchange
 
-                            { new List<uint>(Enumerable.Range(1770477, 1770510 - 1770477 + 1).Select(i => (uint)i)), 1049085 }, // Scrip Exchange
-                            { new List<uint>(Enumerable.Range(1770518, 1770535 - 1770518 + 1).Select(i => (uint)i)), 1049085 }, // Scrip Exchange
-                            { new List<uint>(Enumerable.Range(1770625, 1770631 - 1770625 + 1).Select(i => (uint)i)), 1049085 }, // Scrip Exchange
-                            { new List<uint>(Enumerable.Range(1770706, 1770707 - 1770706 + 1).Select(i => (uint)i)), 1049085 }, // Scrip Exchange
-                            { new List<uint>(Enumerable.Range(1770781, 1770794 - 1770781 + 1).Select(i => (uint)i)), 1049085 }, // Scrip Exchange
-                            { ListRange(1770868, 1770882), 1049085 }, // Scrip Exchange
-                            { ListRange(1770907, 1770907), 1049085 }, // Scrip Exchange
+                            { ListRange(1770477, 1770510), 1003633 }, // Scrip Exchange
+                            { ListRange(1770518, 1770535), 1003633 }, // Scrip Exchange
+                            { ListRange(1770625, 1770631), 1003633 }, // Scrip Exchange
+                            { ListRange(1770706, 1770707), 1003633 }, // Scrip Exchange
+                            { ListRange(1770781, 1770794), 1003633 }, // Scrip Exchange
+                            { ListRange(1770868, 1770882), 1003633 }, // Scrip Exchange
+                            { ListRange(1770907, 1770907), 1003633 }, // Scrip Exchange
                             { new List<uint> { 1769577, 1769578 }, 1012225 }, // Ardolain
                             { new List<uint> { 1769790, 1769791, 1769819, 1769814, 1769854, 1769883, 1769873, 1769940, 1769807 }, 1019451 }, // Eschina
                             { new List<uint> { 1769743, 1769744, 1770537 }, 1018655 }, // Disreputable Priest
-                            { new List<uint>(Enumerable.Range(1770551, 1770589 - 1770551 + 1).Select(i => (uint)i)), 1005244 }, // Mark Quartermaster
+                            { ListRange(1770551, 1770589), 1005244 }, // Mark Quartermaster
                             { new List<uint> { 1770888, 1770889 }, 1005244 }, // Mark Quartermaster
                             //{ new List<uint> { 1770041, 1770281, 1770301 }, 1031680 }, // Enie
 
@@ -132,6 +132,12 @@ namespace CurrencySpender.Data
                                 if (gemstones.Contains(NpcId))
                                 {
                                     Generator.shops.Add(new Shop { ShopId = shop.RowId, NpcId = NpcId, Type = ShopType.FateShop, Location = loc });
+                                }
+                                if (NpcId == 1003633)
+                                {
+                                    Generator.shops.Add(new Shop { ShopId = shop.RowId, NpcId = NpcId, Type = ShopType.SpecialShop, Location = loc,
+                                        NpcVariants = [1001617, 1003077]
+                                    });
                                 }
                                 else
                                 {

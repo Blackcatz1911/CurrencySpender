@@ -35,7 +35,7 @@ if not version_match:
 
 version = version_match.group(1)
 
-changelog = re.search(rf"## {version}\n(.*?)(?=\n##|\Z)", changelog_content, re.DOTALL)
+changelog = re.search(rf'## {version}\n([\s\S]*?)(?=\n## |\Z)', changelog_content, re.DOTALL)
 if not changelog:
     print(f"Changelog entry for version {version} not found.")
     exit(1)
@@ -52,34 +52,17 @@ print("Creating manifest.toml...")
 target_path = f"{repo_path}/{GITHUB_REPO_NAME}"
 os.makedirs(target_path, exist_ok=True)
 
-manifest_content = f"""
-[plugin]
+manifest_content = f"""[plugin]
 repository = "https://github.com/{GITHUB_REPO_OWNER}/{GITHUB_REPO_NAME}.git"
 owners = ["{GITHUB_REPO_OWNER}"]
 project_path = "{GITHUB_REPO_NAME}"
 commit = "{git_rev}"
-changelog = \"\"\"\\
-**{version}**
+changelog = \"\"\"
+## {version}
 {changelog_text}
 \"\"\"
 version = "{version}"
 """
-
-with open(f"{target_path}/manifest.toml", "w") as manifest_file:
-    manifest_file.write(manifest_content)
-
-# Add the images
-print("Adding images...")
-images_dir = os.path.join(target_path, "images")
-os.makedirs(images_dir, exist_ok=True)
-image_path = os.path.join(images_dir, "icon.png")
-
-with open(image_path, "wb") as img_file:
-    img_file.write(requests.get(IMAGES_URL).content)
-
-manifest_path = os.path.join(target_path, "manifest.toml")
-images_dir = os.path.join(target_path, "images")
-image_path = os.path.join(images_dir, "icon.png")
 
 print(f"Working directory: {os.getcwd()}")
 FORK_DIR_ABS = os.path.abspath(FORK_DIR)
@@ -88,6 +71,24 @@ print(f"FORK_DIR_ABS: {FORK_DIR_ABS}")
 try:
     # Initialize the repository
     repo = git.Repo(FORK_DIR_ABS)
+    repo.git.reset('--hard','origin/main')
+
+    with open(f"{target_path}/manifest.toml", "w") as manifest_file:
+        manifest_file.write(manifest_content)
+
+    # Add the images
+    print("Adding images...")
+    images_dir = os.path.join(target_path, "images")
+    os.makedirs(images_dir, exist_ok=True)
+    image_path = os.path.join(images_dir, "icon.png")
+
+    with open(image_path, "wb") as img_file:
+        img_file.write(requests.get(IMAGES_URL).content)
+
+    manifest_path = os.path.join(target_path, "manifest.toml")
+    images_dir = os.path.join(target_path, "images")
+    image_path = os.path.join(images_dir, "icon.png")
+
     repo.git.checkout("main")
 
     # Fetch latest changes from upstream (if needed)

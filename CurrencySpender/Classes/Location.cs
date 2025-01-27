@@ -72,6 +72,12 @@ namespace CurrencySpender.Classes
             new Location { MapId = 002, TerritoryId = 0132, Postion = (9.8f, 11.0f), NpcId = 1002390 },
             new Location { MapId = 013, TerritoryId = 0130, Postion = (8.3f, 9.0f), NpcId =  1002393 },
 
+            new Location { MapId = 012, TerritoryId = 0129, Postion = (06.0f, 11.9f), NpcId = 1003633 }, // Scrip Exchange Limsa
+            new Location { MapId = 014, TerritoryId = 0131, Postion = (14.2f, 10.8f), NpcId = 1001617, AetheryteTerritoryId = 130 }, // Scrip Exchange Uldah
+            new Location { MapId = 003, TerritoryId = 0133, Postion = (14.1f, 09.1f), NpcId = 1003077, AetheryteTerritoryId = 132 }, // Scrip Exchange Gridania
+            new Location { MapId = 856, TerritoryId = 1186, Postion = (09.1f, 13.2f), NpcId = 1003633 }, // Scrip Exchange Solution Nine
+            new Location { MapId = 497, TerritoryId = 0819, Postion = (10.4f, 07.8f), NpcId = 1045069 }, // Scrip Exchange Quinnana
+
             new Location { MapId = 196, TerritoryId = 0144, Postion = (5.1f,6.6f), NpcId =  1011039 }, // Gold Saucer Attendant
             new Location { MapId = 196, TerritoryId = 0144, Postion = (5.4f,6.5f), NpcId =  1011610 }, // Modern Aesthetics Saleswoman
             new Location { MapId = 196, TerritoryId = 0144, Postion = (5.0f,6.4f), NpcId =  1010478 }, // Triple Triad Trader
@@ -106,7 +112,6 @@ namespace CurrencySpender.Classes
             new Location { MapId = 025, TerritoryId = 0156, Postion = (22.1f,4.9f), NpcId = 1036913 },
             new Location { MapId = 574, TerritoryId = 0886, Postion = (12.0f,14.0f), NpcId = 1031680, AetheryteId = 70 },
             new Location { MapId = 856, TerritoryId = 1186, Postion = (9.1f, 13.2f), NpcId = 1049086 },
-            new Location { MapId = 856, TerritoryId = 1186, Postion = (9.1f, 13.2f), NpcId = 1049085 },
             
             //Bicolor Gemstones
             new Location { MapId = 491, TerritoryId = 813, Postion = (35.5f,20.6f), NpcId = 1027385 }, // Siulmet
