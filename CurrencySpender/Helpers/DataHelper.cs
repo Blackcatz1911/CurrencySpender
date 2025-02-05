@@ -40,6 +40,9 @@ namespace CurrencySpender.Helpers
                 new TrackedCurrency { Type = CurrencyType.Item, ItemId = 41807, Price = 1000, Child=true }, // Gemstone Voucher
                 new TrackedCurrency { Type = CurrencyType.Item, ItemId = 28063, Threshold = 7500, MaxCount = 10000 }, // Skybuilders scripts
 
+                new TrackedCurrency { Type = CurrencyType.Item, ItemId = 37549, Threshold = 9999999, MaxCount = 9999999 }, // Seafarer's Cowrie
+                new TrackedCurrency { Type = CurrencyType.Item, ItemId = 37550, Threshold = 9999999, MaxCount = 9999999 }, // Islander's Cowrie
+
             ];
             //foreach(var cur in currencies)
             //{

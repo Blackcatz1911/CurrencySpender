@@ -6,6 +6,12 @@ internal class ConfigTab
 {
     internal static void Draw()
     {
+        ImGui.TextWrapped("Opens the config wizard again for the last version.");
+        if (ImGui.Button("Open config wizard"))
+        {
+            VersionHelper.OpenConfigWizard();
+        }
+        ImGui.Separator();
         ImGui.TextWrapped("Shows you if you can buy ventures with it.");
         ImGui.Checkbox("Show ventures", ref C.ShowVentures);
         ImGui.Separator();
@@ -19,7 +25,7 @@ internal class ConfigTab
             ImGui.TextWrapped("Select which items you see as collectables:");
             foreach (CollectableType type in Enum.GetValues(typeof(CollectableType)))
             {
-                if (type == CollectableType.None) continue; // Skip 'None'
+                if (type == CollectableType.None || type == CollectableType.Container) continue; // Skip 'None'
                 string label = CollectableTypeLabels.TryGetValue(type, out var displayName) ? displayName : type.ToString();
                 bool isSelected = C.SelectedCollectableTypes.Contains(type);
                 if (ImGui.Checkbox($"##{type}", ref isSelected))
@@ -39,6 +45,8 @@ internal class ConfigTab
                 ImGui.Text(label);
             }
         }
+        ImGui.Separator();
+        ImGui.Checkbox("Show items eligible for sale", ref C.ShowSellables);
         ImGui.Separator();
         ImGui.TextWrapped("Select the thousand seperator");
         string[] items = { "None", "Seperator .", "Seperator ," };

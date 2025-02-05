@@ -33,7 +33,7 @@ namespace CurrencySpender.Helpers
             {
                 Items = Generator.items
                 .Where(item => (item.Currency == Currency.ItemId || (Currency.Children != null && Currency.Children.Contains(item.Currency))) && item.Type.HasFlag(ItemType.Collectable) && !item.Disabled &&
-                C.SelectedCollectableTypes.Contains((CollectableType)item.CollectableType) && !ItemHelper.CheckUnlockStatus(item.Id))
+                C.SelectedCollectableTypes.Contains((CollectableType)item.CollectableType) && !ItemHelper.IsUnlocked(item.Id))
                 .ToList();
             }
             else

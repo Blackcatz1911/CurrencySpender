@@ -15,9 +15,9 @@ namespace CurrencySpender.Data
             {
                 if (currency.Enabled) enabled_currencies.Add(currency.ItemId);
             }
-            PluginLog.Verbose($"SpecialShops: {Generator.shops.Where(shop => shop.Type == ShopType.SpecialShop).ToList().Count}");
-            PluginLog.Verbose($"GCShops: {Generator.shops.Where(shop => shop.Type == ShopType.GCShop).ToList().Count}");
-            PluginLog.Verbose($"FateShops: {Generator.shops.Where(shop => shop.Type == ShopType.FateShop).ToList().Count}");
+            PluginLog.Debug($"SpecialShops: {Generator.shops.Where(shop => shop.Type == ShopType.SpecialShop).ToList().Count}");
+            PluginLog.Debug($"GCShops: {Generator.shops.Where(shop => shop.Type == ShopType.GCShop).ToList().Count}");
+            PluginLog.Debug($"FateShops: {Generator.shops.Where(shop => shop.Type == ShopType.FateShop).ToList().Count}");
             foreach (var shop in Generator.shops)
             {
                 if(shop.Type == ShopType.SpecialShop)
@@ -73,9 +73,9 @@ namespace CurrencySpender.Data
                     if (itemCol_.ItemCosts[i].ItemCost.RowId == 0) continue;
                     if (itemCol_.ReceiveItems[i].Item.RowId == 0) continue;
 
-                    var item_types = ItemHelper.GetItemTypes(itemCol_.ReceiveItems[i].Item);
+                    var item_types = ItemHelper.GetItemTypes(itemCol_.ReceiveItems[i].Item.RowId);
                     var CollectableType = ItemHelper.GetCollectableType(itemCol_.ReceiveItems[i].Item, item_types);
-                    //if (CollectableType == CollectableType.Facewear) PluginLog.Debug($"specialShop Facewear: {itemCol_.ReceiveItems[i].Item.RowId}, shop: {shop.NpcName}");
+                    //if (CollectableType == CollectableType.Container) PluginLog.Debug($"specialShop Container: {itemCol_.ReceiveItems[i].Item.RowId}, shop: {shop.NpcName}");
                     //if (CollectableType == CollectableType.Hairstyle) PluginLog.Debug($"specialShop Hairstyle: {itemCol_.ReceiveItems[i].Item.RowId}, shop: {shop.NpcName}");
                     //PluginLog.Verbose(types.ToString());
                     var costItemId = itemCol_.ItemCosts[i].ItemCost.RowId;
@@ -120,6 +120,7 @@ namespace CurrencySpender.Data
                 var gcShopCategories = GCScripShopCategorySheet.Where(i => i.GrandCompany.RowId == shop.GC).ToList();
                 if (gcShopCategories.Count == 0)
                 {
+                    //PluginLog.Debug($"gcShopCategories.Count: {gcShopCategories.Count}");
                     return;
                 }
 
@@ -128,9 +129,8 @@ namespace CurrencySpender.Data
                     //PluginLog.Verbose(GCScripShopItemSheet.TotalSubrowCount.ToString());
                     for (var i = 0; i < GCScripShopItemSheet.TotalSubrowCount; i++)
                     {
-                        //PluginLog.Verbose(GCScripShopItemSheet.TotalSubrowCount.ToString());
+                        //PluginLog.Debug($"TotalSubrowCount: {GCScripShopItemSheet.TotalSubrowCount}, {i}");
                         var GCScripShopItem = GCScripShopItemSheet.GetSubrow(category.RowId, (ushort)i);
-                        //PluginLog.Verbose(GCScripShopItem.Item.RowId.ToString());
                         if (GCScripShopItem.RowId == 0)
                         {
                             break;
@@ -144,7 +144,7 @@ namespace CurrencySpender.Data
                             break;
                         }
                         var cat = item.ItemUICategory.RowId;
-                        var types = ItemHelper.GetItemTypes(item_ref);
+                        var types = ItemHelper.GetItemTypes(item_ref.RowId);
                         var CollectableType = ItemHelper.GetCollectableType(item_ref, types);
                         var existing_item = Generator.items.FirstOrDefault(existing_item => existing_item.Id == item.RowId && existing_item.ShopId == shop.ShopId);
                         if (existing_item == default)

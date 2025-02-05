@@ -1,5 +1,6 @@
 using CurrencySpender.Classes;
 using CurrencySpender.Data;
+using Dalamud.Interface.Utility.Raii;
 using System.Data;
 
 namespace CurrencySpender.Windows;
@@ -176,7 +177,7 @@ internal class MainTab
                         .Select(group => group.First()) // Take the first item from each group
                         .ToList().Count();
                     var items_unlocked = Generator.items
-                        .Where(item => (item.Currency == currency.ItemId || (currency.Children != null && currency.Children.Contains(item.Currency))) && item.Type.HasFlag(ItemType.Collectable) && !item.Disabled && C.SelectedCollectableTypes.Contains((CollectableType)item.CollectableType) && ItemHelper.CheckUnlockStatus(item.Id))
+                        .Where(item => (item.Currency == currency.ItemId || (currency.Children != null && currency.Children.Contains(item.Currency))) && item.Type.HasFlag(ItemType.Collectable) && !item.Disabled && C.SelectedCollectableTypes.Contains((CollectableType)item.CollectableType) && ItemHelper.IsUnlocked(item.Id))
                         .GroupBy(item => item.Id) // Group by unique item.Id
                         .Select(group => group.First()) // Take the first item from each group
                         .ToList().Count();

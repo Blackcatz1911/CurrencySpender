@@ -20,6 +20,7 @@ public class Config: IEzConfig
     public bool HideEmptyCurrencies = true;
     public bool ShowItemsOfInterest = true;
     public bool ShowMissingCollectables = true;
+    public bool ShowSellables = true;
 
     public bool Debug = false;
 }

@@ -1,3 +1,4 @@
+using CurrencySpender.Classes;
 using Dalamud.Interface;
 
 namespace CurrencySpender.Windows;
@@ -10,7 +11,8 @@ internal class ConfigWizardWindow : Window
 
     private static readonly Dictionary<string, Action<int>> VersionSteps = new()
     {
-        { "1.1.0", DrawVersion110Steps },
+        { "1.1.0", DrawVersion1_1_0Steps },
+        { "1.1.2", DrawVersion1_1_2Steps },
         //{ "1.2.0", DrawVersion120Steps }
     };
 
@@ -55,9 +57,11 @@ internal class ConfigWizardWindow : Window
             {
                 if (VersionHelper.LowerVersionThan(version, Version))
                 {
+                    //DuoLog.Information($"Lower version: {version} {Version}");
                     int versionStepCount = GetVersionStepCount(version);
                     if (Step > cumulativeSteps && Step <= cumulativeSteps + versionStepCount)
                     {
+                        ImGui.Text($"Changed in Version {version}:");
                         drawSteps(Step - cumulativeSteps);
                         break;
                     }
@@ -123,7 +127,7 @@ internal class ConfigWizardWindow : Window
         }
     }
 
-    private static void DrawVersion110Steps(int step)
+    private static void DrawVersion1_1_0Steps(int step)
     {
         switch (step)
         {
@@ -136,21 +140,58 @@ internal class ConfigWizardWindow : Window
         }
     }
 
-    private static void DrawVersion120Steps(int step)
+    private static void DrawVersion1_1_2Steps(int step)
     {
         switch (step)
         {
             case 1:
-                ImGui.TextWrapped("Step 1: Configure options for version 1.2.0.");
-                // Add controls and logic for this step
-                break;
-            case 2:
-                ImGui.TextWrapped("Step 2: Finalize configuration for version 1.2.0.");
-                // Add controls and logic for this step
-                break;
-            case 3:
-                ImGui.TextWrapped("Step 3: Additional options for version 1.2.0.");
-                // Add controls and logic for this step
+                ImGui.TextWrapped("Select if you want to see sellable items:");
+                ImGui.Checkbox("Show items eligible for sale", ref C.ShowSellables);
+                ImGui.Separator();
+                ImGui.TextWrapped("Select if you consider the following as collectable:");
+                foreach (CollectableType type in Enum.GetValues(typeof(CollectableType)))
+                {
+                    if (type != CollectableType.Mahjong) continue;
+                    string label = CollectableTypeLabels.TryGetValue(type, out var displayName) ? displayName : type.ToString();
+                    bool isSelected = C.SelectedCollectableTypes.Contains(type);
+                    if (ImGui.Checkbox($"##{type}", ref isSelected))
+                    {
+                        if (isSelected)
+                        {
+                            C.SelectedCollectableTypes.Add(type);
+                        }
+                        else
+                        {
+                            C.SelectedCollectableTypes.Remove(type);
+                        }
+                        P.spendingWindow.UpdateData();
+                        MainTab.update(true);
+                    }
+                    ImGui.SameLine();
+                    ImGui.Text(label);
+                }
+                ImGui.Separator();
+                ImGui.TextWrapped("Select if you want to see the following currencies:");
+                foreach (var cur in C.Currencies.Where(cur => cur.Child == false && cur.Enabled).ToList())
+                {
+                    if (cur.ItemId != 37549 && cur.ItemId != 37550) continue;
+                    bool isSelected = C.SelectedCurrencies.Contains(cur.ItemId);
+                    if (ImGui.Checkbox($"##{cur.ItemId}", ref isSelected))
+                    {
+                        if (isSelected)
+                        {
+                            C.SelectedCurrencies.Add(cur.ItemId);
+                        }
+                        else
+                        {
+                            C.SelectedCurrencies.Remove(cur.ItemId);
+                        }
+                        P.spendingWindow.UpdateData();
+                        MainTab.update(true);
+                    }
+                    ImGui.SameLine();
+                    ImGui.Text(cur.Name);
+                }
                 break;
         }
     }
@@ -172,6 +213,7 @@ internal class ConfigWizardWindow : Window
         return version switch
         {
             "1.1.0" => 2, // Number of steps for version 1.1.0
+            "1.1.2" => 1,
             //"1.2.0" => 3, // Number of steps for version 1.2.0
             _ => 0
         };
@@ -179,5 +221,6 @@ internal class ConfigWizardWindow : Window
     public void SetVersion(string version)
     {
         Version = version;
+        CalculateSteps();
     }
 }

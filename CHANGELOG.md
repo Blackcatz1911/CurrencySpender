@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.1.2
+### Added
+- A setting to toggle the display of sellable items on the marketboard.
+- Material coffers and Triple Triad card packs added to collectables.
+- Island cowries were added to the currencies.
+- The Mahjong vendor, and therefore a new collectable type, was added.
+- Added a context menu for items, allowing users to either link or copy the item name.
+### Fixed 
+- Unlock status of items should now be correctly reflected.
+### Changed
+- Adjustments to the Grand Company rankings to address issues with item display.
+
 ## 1.1.1
 ### Added
 - Tooltip for Map and Teleport Buttons.

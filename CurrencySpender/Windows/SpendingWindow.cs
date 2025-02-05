@@ -1,6 +1,7 @@
 using CurrencySpender.Classes;
 using CurrencySpender.Data;
 using Dalamud.Interface;
+using Dalamud.Interface.Utility.Raii;
 
 namespace CurrencySpender.Windows;
 internal class SpendingWindow : Window
@@ -46,12 +47,13 @@ internal class SpendingWindow : Window
             UiHelper.LeftAlign($"DEBUG: CollectableItems: {CollectableItems?.Count}");
             UiHelper.LeftAlign($"DEBUG: SellableItems: {SellableItems?.Count}");
             UiHelper.LeftAlign($"DEBUG: ItemsOfInterest: {ItemsOfInterest?.Count}");
+            UiHelper.LeftAlign($"DEBUG: Storm: {PlayerHelper.GCRanks[1]} Serpent: {PlayerHelper.GCRanks[2]} Flame: {PlayerHelper.GCRanks[3]}");
         }
         List<uint> ids = [20, 21, 22];
         if (ids.Contains(Currency.ItemId)) {
+            if(!PlayerHelper.GCRanksCreated) PlayerHelper.init();
             if (PlayerHelper.GCRanks[Currency.ItemId - 19] < 10)
             {
-                if (C.Debug) UiHelper.LeftAlign($"DEBUG: GCRank: {PlayerHelper.GCRanks[Currency.ItemId - 19]}/10");
                 UiHelper.WarningText("Some items cannot be purchased yet due to GC rankings... So they will not be displayed here.");
             }
         }
@@ -60,11 +62,11 @@ internal class SpendingWindow : Window
             UiHelper.WarningText("Some items cannot be purchased yet due to shared FATE rankings... So they will not be displayed here.");
         }
 
-        ImGui.Separator();
         try
         {
             if (C.ShowItemsOfInterest && ItemsOfInterest != null && ItemsOfInterest.Count > 0)
             {
+                ImGui.Separator();
                 UiHelper.LeftAlign($"Can buy items of interest:");
                 if (ImGui.BeginTable("##itemsofinterest", 4, ImGuiTableFlags.Borders | ImGuiTableFlags.SizingFixedFit | ImGuiTableFlags.Sortable))
                 {
@@ -124,6 +126,22 @@ internal class SpendingWindow : Window
                             UiHelper.LeftAlign($"ID: {item.Id}\nCat: {item.Category}\nShopId: {item.Shop.ShopId}\nNPCName: {item.Shop.NpcName}\nNPCID: {item.Shop.NpcId}");
                             ImGui.EndTooltip();
                         }
+                        using (var context = ImRaii.ContextPopupItem($"context##{item.Id}-{item.ShopId}-{item.Shop.NpcId}"))
+                        {
+                            if (context)
+                            {
+                                if (ImGui.Selectable("Copy item name"))
+                                {
+                                    ImGui.SetClipboardText(item.Name);
+                                    UiHelper.Notification("Copied item name to clipboard");
+                                }
+                                if (ImGui.Selectable("Create item link"))
+                                {
+                                    UiHelper.LinkItem(item.Id);
+                                    UiHelper.Notification("Item link created");
+                                }
+                            }
+                        }
                         if (item.Currency != Currency.ItemId)
                         {
                             var child_cur = C.Currencies.Where(cur => cur.ItemId == item.Currency).First();
@@ -151,11 +169,11 @@ internal class SpendingWindow : Window
                     //PluginLog.Verbose("Starting ImGui EndTable rendering...");
                     ImGui.EndTable();
                 }
-                ImGui.Separator();
             }
 
             if (C.ShowCollectables && CollectableItems != null && CollectableItems.Count > 0)
             {
+                ImGui.Separator();
                 UiHelper.LeftAlign("Selected collectables not yet registered:");
                 if (ImGui.BeginTable("##collectables", 4, ImGuiTableFlags.Borders | ImGuiTableFlags.SizingFixedFit | ImGuiTableFlags.Sortable))
                 {
@@ -209,7 +227,33 @@ internal class SpendingWindow : Window
                         //ImGui.TableNextColumn();
                         ImGui.TableSetColumnIndex(0);
                         //PluginLog.Verbose("Starting ImGui item.Name rendering...");
-                        UiHelper.LeftAlign(item.Name);
+                        
+                        if (ItemHelper.ContainerUnlocked.ContainsKey(item.Id))
+                        {
+                            if (ItemHelper.ContainerUnlocked.TryGetValue(item.Id, out (uint, uint) tuple))
+                            {
+                                UiHelper.LeftAlign(item.Name+" (" +tuple.Item1 + "/"+ tuple.Item2+")");
+                            }
+                        } else
+                        {
+                            UiHelper.LeftAlign(item.Name);
+                        }
+                        using (var context = ImRaii.ContextPopupItem($"context##{item.Id}-{item.ShopId}-{item.Shop.NpcId}"))
+                        {
+                            if (context)
+                            {
+                                if (ImGui.Selectable("Copy item name"))
+                                {
+                                    ImGui.SetClipboardText(item.Name);
+                                    UiHelper.Notification("Copied item name to clipboard");
+                                }
+                                if (ImGui.Selectable("Create item link"))
+                                {
+                                    UiHelper.LinkItem(item.Id);
+                                    UiHelper.Notification("Item link created");
+                                }
+                            }
+                        }
                         if (ImGui.IsItemHovered() && C.Debug)
                         {
                             // Display a tooltip or additional info
@@ -300,11 +344,11 @@ internal class SpendingWindow : Window
                     //PluginLog.Verbose("Starting ImGui EndTable rendering...");
                     ImGui.EndTable();
                 }
-                ImGui.Separator();
             }
 
             if (C.ShowVentures && Ventures != null && Ventures.Count > 0)
             {
+                ImGui.Separator();
                 UiHelper.LeftAlign($"Can buy ventures:");
                 if (ImGui.BeginTable("##ventures", 4, ImGuiTableFlags.Borders | ImGuiTableFlags.SizingFixedFit | ImGuiTableFlags.Sortable))
                 {
@@ -364,6 +408,22 @@ internal class SpendingWindow : Window
                             UiHelper.LeftAlign($"ID: {item.Id}\nCat: {item.Category}\nShopId: {item.Shop.ShopId}\nNPCName: {item.Shop.NpcName}\nNPCID: {item.Shop.NpcId}");
                             ImGui.EndTooltip();
                         }
+                        using (var context = ImRaii.ContextPopupItem($"context##{item.Id}-{item.ShopId}-{item.Shop.NpcId}"))
+                        {
+                            if (context)
+                            {
+                                if (ImGui.Selectable("Copy item name"))
+                                {
+                                    ImGui.SetClipboardText(item.Name);
+                                    UiHelper.Notification("Copied item name to clipboard");
+                                }
+                                if (ImGui.Selectable("Create item link"))
+                                {
+                                    UiHelper.LinkItem(item.Id);
+                                    UiHelper.Notification("Item link created");
+                                }
+                            }
+                        }
                         if (item.Currency != Currency.ItemId)
                         {
                             var child_cur = C.Currencies.Where(cur => cur.ItemId == item.Currency).First();
@@ -390,11 +450,11 @@ internal class SpendingWindow : Window
                     //PluginLog.Verbose("Starting ImGui EndTable rendering...");
                     ImGui.EndTable();
                 }
-                ImGui.Separator();
             }
 
-            if (SellableItems != null && SellableItems.Count > 0)
+            if (C.ShowSellables && SellableItems != null && SellableItems.Count > 0)
             {
+                ImGui.Separator();
                 UiHelper.LeftAlign($"Items eligible for sale on the marketboard:");
                 if (ImGui.BeginTable("##markettable", 7, ImGuiTableFlags.Borders | ImGuiTableFlags.SizingFixedFit | ImGuiTableFlags.Sortable))
                 {
@@ -469,18 +529,29 @@ internal class SpendingWindow : Window
                     {
                         item.Profit = item.CurrentPrice * item.AmountCanBuy;
                         ImGui.TableNextColumn();
-                        if (ImGui.Selectable(item.Name)) // Make the name clickable
-                        {
-                            ImGui.SetClipboardText(item.Name); // Copy the name to the clipboard
-                            Notify.Success("Name copied to clipboard");
-                            PluginLog.Verbose($"Copied '{item.Name}' to clipboard.");
-                        }
+                        UiHelper.LeftAlign(item.Name);
                         if (ImGui.IsItemHovered() && C.Debug)
                         {
                             // Display a tooltip or additional info
                             ImGui.BeginTooltip();
                             UiHelper.LeftAlign($"ID: {item.Id}\nName: {item.Name}\nCat: {item.Category}\nNPC:{item.Shop.NpcName}\nShop:{item.Shop.ShopId}\nNpcName: {item.Shop.NpcName}\nNpcId: {item.Shop.NpcId}");
                             ImGui.EndTooltip();
+                        }
+                        using (var context = ImRaii.ContextPopupItem($"context##{item.Id}-{item.ShopId}-{item.Shop.NpcId}"))
+                        {
+                            if (context)
+                            {
+                                if (ImGui.Selectable("Copy item name"))
+                                {
+                                    ImGui.SetClipboardText(item.Name);
+                                    UiHelper.Notification("Copied item name to clipboard");
+                                }
+                                if (ImGui.Selectable("Create item link"))
+                                {
+                                    UiHelper.LinkItem(item.Id);
+                                    UiHelper.Notification("Item link created");
+                                }
+                            }
                         }
                         ImGui.TableNextColumn();
                         UiHelper.RightAlign(item.HasSoldWeek.ToString(), true);

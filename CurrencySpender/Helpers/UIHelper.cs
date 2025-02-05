@@ -1,6 +1,11 @@
 using CurrencySpender.Classes;
+using Dalamud.Game.Text.SeStringHandling.Payloads;
+using Dalamud.Game.Text.SeStringHandling;
+using Dalamud.Game.Text;
 using Dalamud.Interface;
-using Dalamud.Interface.Textures.TextureWraps;
+using Dalamud.Interface.ImGuiNotification;
+using Lumina.Excel.Sheets;
+using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 
 namespace CurrencySpender.Helpers;
 
@@ -86,33 +91,83 @@ internal static unsafe class UiHelper
     {
         if (item.Shop.Location != null && item.Shop.Location != Location.locations[0])
         {
+            Location Baldin = Location.locations[0];
+            if(item.Shop.Location.TerritoryId == 1055)
+                Baldin = Location.locations.Where(loc => loc.NpcId == 1043621).First();
             if (ImGui.Button($"Flag##sellable-{item.Id}-{item.ShopId}-{item.Shop.NpcId}"))
             {
-                Service.GameGui.OpenMapWithMapLink(item.Shop.Location.GetMapMarker());
+                if(AgentMap.Instance()->CurrentTerritoryId == 1055 && item.Shop.Location.TerritoryId == 1055)
+                {
+                    Service.GameGui.OpenMapWithMapLink(item.Shop.Location.GetMapMarker());
+                }
+                else
+                {
+                    Service.GameGui.OpenMapWithMapLink(Baldin.GetMapMarker());
+                }
             }
             if (ImGui.IsItemHovered())
             {
                 // Display a tooltip or additional info
                 ImGui.BeginTooltip();
-                UiHelper.LeftAlign($"{item.Shop.Location.Zone}");
+                if (AgentMap.Instance()->CurrentTerritoryId != 1055 && item.Shop.Location.TerritoryId == 1055)
+                {
+                    UiHelper.LeftAlign($"The flag will only show up, if you are on your island.");
+                    UiHelper.LeftAlign($"{Baldin.Zone}");
+                }
+                else
+                    UiHelper.LeftAlign($"{item.Shop.Location.Zone}");
                 ImGui.EndTooltip();
             }
             ImGui.SameLine();
             if (ImGui.Button($"TP##sellable-{item.Id}-{item.ShopId}-{item.Shop.NpcId}"))
             {
                 item.Shop.Location.Teleport();
-                Service.GameGui.OpenMapWithMapLink(item.Shop.Location.GetMapMarker());
+                if (item.Shop.Location.TerritoryId == 1055)
+                    Service.GameGui.OpenMapWithMapLink(Baldin.GetMapMarker());
+                else
+                    Service.GameGui.OpenMapWithMapLink(item.Shop.Location.GetMapMarker());
             }
             if (ImGui.IsItemHovered())
             {
                 // Display a tooltip or additional info
                 ImGui.BeginTooltip();
-                UiHelper.LeftAlign($"{item.Shop.Location.Zone}");
+                if(item.Shop.Location.TerritoryId == 1055)
+                    UiHelper.LeftAlign($"{Baldin.Zone}");
+                else
+                    UiHelper.LeftAlign($"{item.Shop.Location.Zone}");
                 ImGui.EndTooltip();
             }
         } else if(C.Debug)
         {
             //DuoLog.Error("Missing location!");
         }
+    }
+    public static void Notification(string content, NotificationType type = NotificationType.Info, bool minimized = true)
+    {
+        Service.Notification.AddNotification(new Notification { Content = content, Type = type, Minimized = minimized });
+    }
+    public static void LinkItem(uint id)
+    {
+        Item item = Service.DataManager.GetExcelSheet<Item>().GetRow(id);
+        var payloadList = new List<Payload> {
+                new UIForegroundPayload((ushort) (0x223 + item.Rarity * 2)),
+                new UIGlowPayload((ushort) (0x224 + item.Rarity * 2)),
+                new ItemPayload(item.RowId, item.CanBeHq),
+                new UIForegroundPayload(500),
+                new UIGlowPayload(501),
+                new TextPayload($"{(char) SeIconChar.LinkMarker}"),
+                new UIForegroundPayload(0),
+                new UIGlowPayload(0),
+                new TextPayload(item.Name.ExtractText()),
+                new RawPayload(new byte[] {0x02, 0x27, 0x07, 0xCF, 0x01, 0x01, 0x01, 0xFF, 0x01, 0x03}),
+                new RawPayload(new byte[] {0x02, 0x13, 0x02, 0xEC, 0x03})
+            };
+
+        var payload = new SeString(payloadList);
+
+        Service.Chat.Print(new XivChatEntry
+        {
+            Message = payload
+        });
     }
 }

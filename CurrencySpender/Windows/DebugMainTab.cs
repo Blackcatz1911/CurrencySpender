@@ -32,7 +32,7 @@ internal class DebugMainTab
                 ImGui.Text($"{item.Id}");
                 ImGui.TableNextColumn();
                 //ImGui.Text("text2");
-                ImGui.Text($"{ItemHelper.CheckUnlockStatus(item.Id)}");
+                ImGui.Text($"{ItemHelper.IsUnlocked(item.Id)}");
             }
             //PluginLog.Verbose("Starting ImGui EndTable rendering...");
             ImGui.EndTable();

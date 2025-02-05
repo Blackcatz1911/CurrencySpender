@@ -27,7 +27,9 @@ public enum CollectableType
     RidingMap,
     Facewear,
     FramersKit,
-    TTCard
+    TTCard,
+    Mahjong,
+    Container
 }
 public unsafe class ShopItem
 {
@@ -43,6 +45,8 @@ public unsafe class ShopItem
 
     public bool Disabled = false;
     public uint? RequiredRank;
+
+    public List<int>? ContainerUnlocks { get; set; }
 
     public override string ToString()
     {

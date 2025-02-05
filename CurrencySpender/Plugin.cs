@@ -71,10 +71,11 @@ public sealed class Plugin : IDalamudPlugin
             PluginInterface.UiBuilder.OpenMainUi += delegate { mainTabWindow.IsOpen = true; };
             TaskManager = new() { };
             DataHelper.GenerateCurrencyList();
-            ItemHelper.initHairStyles();
             Generator.init();
             PlayerHelper.init();
             VersionHelper.CheckVersion();
+            //PluginLog.Debug($"unlocked: {ItemHelper.IsUnlocked(36636)}");
+            //mainTabWindow.IsOpen = true;
         });
         //PlayerHelper.init();
         //Generator.init();
@@ -82,6 +83,9 @@ public sealed class Plugin : IDalamudPlugin
         Version = VersionHelper.GetVersion();
         Service.ClientState.Login += OnLogin;
         Service.ClientState.Logout += OnLogout;
+        //PluginLog.Information($"Unlocked 38443: {ItemHelper.IsUnlocked(38443)}");
+        //PluginLog.Information($"Unlocked 15613: {ItemHelper.IsUnlocked(15613)}");
+
 #if HAS_LOCAL_CS
         FFXIVClientStructs.Interop.Generated.Addresses.Register();
         //Addresses.Register();
@@ -120,7 +124,7 @@ public sealed class Plugin : IDalamudPlugin
 
     public void ToggleSpendingUI(TrackedCurrency Currency)
     {
-        P.TaskManager.Enqueue(() => WebHelper.CheckAll(Currency.ItemId));
+        if(C.ShowSellables) P.TaskManager.Enqueue(() => WebHelper.CheckAll(Currency.ItemId));
         spendingWindow.GetData(Currency);
         spendingWindow.IsOpen = true;
     }
@@ -149,6 +153,7 @@ public sealed class Plugin : IDalamudPlugin
         { CollectableType.RidingMap, "Riding Maps" },
         { CollectableType.Facewear, "Facewear" },
         { CollectableType.FramersKit, "Framer's Kits" },
-        { CollectableType.TTCard, "Triple Triad Cards" }
+        { CollectableType.TTCard, "Triple Triad Cards" },
+        { CollectableType.Mahjong, "Mahjong Voices" },
     };
 }

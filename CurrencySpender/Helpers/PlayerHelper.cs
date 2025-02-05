@@ -56,7 +56,7 @@ namespace CurrencySpender.Helpers
         {
             if (PlayerState.Instance == null || PlayerState.Instance() == null || Service.ClientState.LocalPlayer == null)
             {
-                PluginLog.Information("populateGCRank not created");
+                PluginLog.Debug("populateGCRank not created");
                 return true;
             }
             if (PlayerState.Instance() != null)
@@ -72,7 +72,7 @@ namespace CurrencySpender.Helpers
                 };
                 if (GCRankMaelstrom != 99 && GCRankTwinAdders != 99 && GCRankImmortalFlames != 99)
                 {
-                    PluginLog.Information($"populateGCRank created: {GCRankMaelstrom}, {GCRankTwinAdders}, {GCRankImmortalFlames}");
+                    PluginLog.Debug($"populateGCRank created: {GCRankMaelstrom}, {GCRankTwinAdders}, {GCRankImmortalFlames}");
                     GCRanksCreated = true;
                     P.TaskManager.Enqueue(() => ItemGen.GCShops());
                     return true;

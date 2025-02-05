@@ -16,7 +16,9 @@ public class Service
     [PluginService] public static IGameGui GameGui { get; set; }
     [PluginService] public static IFramework Framework { get; set; }
     [PluginService] public static IAddonEventManager AddonEventManager { get; set; }
+    [PluginService] public static INotificationManager Notification { get; set; }
     [PluginService] public static IAddonLifecycle AddonLifecycle { get; set; }
     [PluginService] public static ICondition Condition { get; set; }
-    [PluginService] public static ISigScanner sigScanner { get; set; }
+    [PluginService] public static ISigScanner SigScanner { get; set; }
+    [PluginService] public static IChatGui Chat { get; set; }
 }

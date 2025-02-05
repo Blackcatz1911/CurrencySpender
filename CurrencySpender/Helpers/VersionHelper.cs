@@ -14,6 +14,7 @@ namespace CurrencySpender.Helpers
         public static void CheckVersion()
         {
             if (C.Version == "0.0.0.0") C.Version = "0.0.0";
+            //C.Version = "1.1.1";
             if (LowerVersionThan("1.1.0"))
             {
                 PluginLog.Information("Version below 1.1.0 found");
@@ -28,8 +29,24 @@ namespace CurrencySpender.Helpers
                 }
                 P.configWizard.IsOpen = true;
             }
+            if (LowerVersionThan("1.1.2"))
+            {
+                C.SelectedCollectableTypes.Add(CollectableType.Container);
+                C.SelectedCollectableTypes.Add(CollectableType.Mahjong);
+                C.SelectedCurrencies.Add(37549);
+                C.SelectedCurrencies.Add(37550);
+            }
+            if (LowerVersionThan(GetVersion()))
+            {
+                P.configWizard.IsOpen = true;
+            }
             P.configWizard.SetVersion(C.Version);
             C.Version = GetVersion();
+        }
+        public static void OpenConfigWizard()
+        {
+            P.configWizard.SetVersion(LastVersion());
+            P.configWizard.IsOpen = true;
         }
         public static string ToSemVer(string version)
         {
@@ -69,6 +86,32 @@ namespace CurrencySpender.Helpers
 
             // Compare patch versions
             return patch2 < patch1;
+        }
+        public static string LastVersion()
+        {
+            // Split the versions into major, minor, and patch components
+            var v1Parts = C.Version.Split('.');
+
+            // Parse components as integers
+            int major1 = int.Parse(v1Parts[0]);
+            int minor1 = int.Parse(v1Parts[1]);
+            int patch1 = int.Parse(v1Parts[2]);
+            patch1--;
+            if(patch1 < 0)
+            {
+                patch1 = 0;
+                minor1--;
+            }
+            if (minor1 < 0)
+            {
+                minor1 = 0;
+                major1--;
+            }
+            if (major1 < 0)
+            {
+                major1 = 0;
+            }
+            return major1 + "." + minor1 + "." + patch1;
         }
         public static bool LowerVersionThan(String version)
         {

@@ -1,112 +1,68 @@
 using CurrencySpender.Classes;
+using CurrencySpender.Data;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using FFXIVClientStructs.FFXIV.Component.Exd;
 using Lumina.Excel;
 using Lumina.Excel.Sheets;
+using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
+using static Dalamud.Interface.Utility.Raii.ImRaii;
 
 namespace CurrencySpender.Helpers
 {
     public class ItemHelper
     {
         public static bool Debug = false;
-        internal static List<uint> hairstyles = new List<uint>();
-        public static unsafe bool CheckUnlockStatus(uint id)
+
+        private static readonly Dictionary<uint, List<uint>> Containers = new()
         {
-            //return false;
-            var item = Service.DataManager.GetExcelSheet<Item>()!.GetRow(id);
-            if (Debug) PluginLog.Verbose("---");
-            if (Debug) PluginLog.Verbose("item.RowId: " + item.RowId.ToString());
-            var ItemUICategory = Service.DataManager.GetExcelSheet<ItemUICategory>()!.GetRow(item.ItemUICategory.RowId);
-            if(Debug) PluginLog.Verbose("ItemUICategory: " + item.ItemUICategory.RowId + " : " + ItemUICategory.Name.ToString());
-            if (item.RowId == 0)
-                return false;
-
-            if (Debug) PluginLog.Verbose("item.ItemAction.RowId: " + item.ItemAction.RowId.ToString());
-            //PluginLog.Verbose("item.ItemAction: " + item.ItemAction.);
-            //if (item.ItemAction.RowId == 0)
-            //    return false;
-
-            var action = item.ItemAction.Value;
-            var additionalData = item.AdditionalData.RowId;
-            var instance = UIState.Instance();
-            //var ItemUICategory = Service.DataManager.GetExcelSheet<HairMakeType>()!.GetRow(item.ItemUICategory.RowId);
-            //PluginLog.Verbose("Test: " + instance->IsTripleTriadCardUnlocked());
-
-            // Orchestration Rolls
-            if (item.ItemUICategory.RowId == 94 && instance->PlayerState.IsOrchestrionRollUnlocked(additionalData))
-            {
-                if (Debug) PluginLog.Verbose("IsOrchestrionRollUnlocked: " + instance->PlayerState.IsOrchestrionRollUnlocked(additionalData).ToString());
-                return true;
-            }
-
-            // Faded Copy of Orchestration Rolls
-            if (item.ItemUICategory.RowId == 94 && item.Name.ExtractText().Contains("Faded"))
-            {
-                if (Debug) PluginLog.Verbose("Item is Faded Copy of Orchestration Roll");
-                var new_name = item.Name.ExtractText().Replace("Faded Copy of ", "") + " Orchestrion Roll";
-                var row = GetItemIDFromString(new_name);
-                if (Debug) PluginLog.Verbose("new_name: '"+ new_name+"'");
-                if (Debug) PluginLog.Verbose("row: " + row.ToString());
-                if (row != 0)
+            // Bronze Triad Card 
+            { 10128, new List<uint> { 9782, 9809, 9797, 9796, 9779, 16762, 9783, 16760, 16759, 9776, 9798, 9775, 9795, 16765, 15621 } },
+            // Silver Triad Card 
+            { 10129, new List<uint> { 9785, 14199, 9813, 9814, 9811, 9786, 9788, 9828, 9827, 9792, 9787, 9790, 9812, 9821 } },
+            // Gold Triad Card
+            { 10130, new List<uint> { 9800, 9829, 9805, 14192, 9837, 9825, 9836, 9799, 9801, 9824, 9838, 9826, 9822, 9839, 9847 } },
+            // Mythril Triad Card 
+            { 13380, new List<uint> { 9843, 14193, 13368, 9810, 9823, 9841, 13372, 9844, 13367 } },
+            // Imperial Triad Card 
+            { 17702, new List<uint> { 17686, 16775, 17681, 17682, 16774, 13378 } },
+            // Dream Triad Card    
+            { 28652, new List<uint> { 28661, 26767, 28657, 28653, 28655, 26772, 28658, 28660, 26765, 26768, 26766 } },
+            // Platinum Triad Card 
+            { 10077, new List<uint> { 9830, 9842, 9840, 14208, 15872, 9828, 9851, 9831, 9834, 9826, 9822, 9848 } },
+            // Materiel Container 3.0 
+            { 36635, new List<uint>
                 {
-                    var new_item = Service.DataManager.GetExcelSheet<Item>()!.GetRow(row);
-                    var new_additionalData = new_item.AdditionalData.RowId;
-                    return instance->PlayerState.IsOrchestrionRollUnlocked(new_additionalData);
-                }
-            }
+                    9350, 12051, 6187, 15441, 6175, 7564, 6186, 6203, 6177, 17525, 15440, 14098, 6003, 12055, 6199, 6205,
+                    16570, 16568, 6189, 15447, 8193, 9347, 14103, 12054, 8194, 12061, 6191, 12069, 13279, 6179, 12058, 13283,
+                    12056, 9348, 7568, 6004, 8196, 8201, 7566, 10071, 6204, 6173, 14100, 9349, 8200, 8205, 16564, 8202, 12052,
+                    12057, 13275, 7559, 6192, 16572, 6208, 6195, 12062, 7567, 6188, 6174, 8199, 6185, 8195, 12053, 12049, 6005,
+                    6213, 6200, 6190, 16573, 17527, 14093, 13284, 13276, 14095, 6214, 15436, 15437, 14094, 6184, 14083, 6183, 6198,
+                    8192, 6209, 6178
+                } },
+            // Materiel Container 4.0 
+            { 36636, new List<uint>
+                {
+                    24902, 21921, 21063, 20529, 20530, 21920, 24002, 20524, 24635, 23027, 24001, 23023, 20533, 24219, 24630, 21052,
+                    20542, 24903, 20538, 21064, 20541, 21058, 20536, 23032, 23998, 20525, 21916, 20531, 21193, 23989, 24634, 21059,
+                    21922, 21919, 20528, 21911, 20547, 20539, 24000, 21918, 21055, 20544, 20546, 21915, 21060, 21917, 20537, 21057,
+                    23030, 21065, 20545, 23028, 24639, 23036, 24640
+                } }
+        };
 
-            // Emotes
-            if (item.ItemUICategory.RowId == 61 && instance->IsEmoteUnlocked(action.Data[2]))
-            {
-                if (Debug) PluginLog.Verbose("IsEmoteUnlocked: " + instance->IsEmoteUnlocked(action.Data[2]));
-                return true;
-            }
+        public static Dictionary<uint, (uint, uint)> ContainerUnlocked = new()
+        {
+            { 10128, (0,0) },
+            { 10129, (0,0) },
+            { 10130, (0,0) },
+            { 13380, (0,0) },
+            { 17702, (0,0) },
+            { 28652, (0,0) },
+            { 10077, (0,0) },
+            { 36635, (0,0) },
+            { 36636, (0,0) },
+        };
 
-            // Hairstyles
-            if (item.ItemUICategory.RowId == 61 && hairstyles.Contains(item.RowId))
-            {
-                if (Debug) PluginLog.Verbose("IsHairstyleUnlocked: " + hairstyles.Contains(item.RowId));
-                return true;
-            }
-
-            //Framer's Kit
-            if (item.ItemUICategory.RowId == 61 && item.Name.ExtractText().Contains("Framer's Kit") && instance->PlayerState.IsFramersKitUnlocked(additionalData))
-            {
-                if (Debug) PluginLog.Verbose("IsFramersKitUnlocked: " + instance->PlayerState.IsFramersKitUnlocked(additionalData));
-                return true;
-            }
-
-            // TT Card
-            if (item.ItemUICategory.RowId == 86 && instance->IsTripleTriadCardUnlocked(action.Data[0]))
-            {
-                if (Debug) PluginLog.Verbose("IsTripleTriadCardUnlocked: " + instance->IsTripleTriadCardUnlocked(action.Data[0]));
-                return true;
-            }
-
-            // Minion
-            if (item.ItemUICategory.RowId == 81 && instance->IsCompanionUnlocked(action.Data[0]))
-            {
-                if (Debug) PluginLog.Verbose("IsCompanionUnlocked: " + instance->IsCompanionUnlocked(action.Data[0]));
-                return true;
-            }
-
-            // Barding
-            if (item.ItemUICategory.RowId == 63 && item.Name.ExtractText().Contains("Barding") && instance->Buddy.CompanionInfo.IsBuddyEquipUnlocked(action.Data[0]))
-            {
-                if (Debug) PluginLog.Verbose("IsBuddyEquipUnlocked: " + instance->Buddy.CompanionInfo.IsBuddyEquipUnlocked(action.Data[0]));
-                return true;
-            }
-
-            //Mount
-            if (item.ItemUICategory.RowId == 63 && action.Type == 1322 && instance->PlayerState.IsMountUnlocked(action.Data[0]))
-            {
-                if (Debug) PluginLog.Verbose("IsMountUnlocked: " + instance->PlayerState.IsMountUnlocked(action.Data[0]));
-                return true;
-            }
-
-            if (Debug) PluginLog.Verbose("---");
-            return false;
-        }
         public static uint GetItemIDFromString(string arg)
         {
             var ret = Service.DataManager.GetExcelSheet<Item>().FirstOr0(x => x.Name == arg);
@@ -114,27 +70,33 @@ namespace CurrencySpender.Helpers
             return 0;
         }
 
-        public static void initHairStyles()
-        {
-            var yas = Service.DataManager.GetExcelSheet<CharaMakeCustomize>().AsParallel()
-            //ExcelCache<CharaMakeCustomize>.GetSheet().AsParallel()
-            .Where(entry => entry.IsPurchasable && (entry.RowId < 100 || (entry.RowId >= 2050 && entry.RowId < 2100)))
-            //.Select(entry => (ICollectible)CollectibleCache<HairstyleCollectible, CharaMakeCustomize>.Instance.GetObject(entry))
-            //.OrderByDescending(c => c.IsFavorite())
-            //.OrderByDescending(c => c)
-            .ToList();
-            foreach (var item in yas)
-            {
-                hairstyles.Add(item.HintItem.RowId);
-            }
-        }
-
         public static unsafe bool IsUnlocked(uint id)
         {
             Item item = Service.DataManager.GetExcelSheet<Item>().GetRow(id);
-            if (item.ItemAction.RowId == 0)
+            if(item.RowId == 44936) PluginLog.Debug($"{item.Name.ExtractText()} - {item.RowId}");
+            if (Containers.ContainsKey(id))
+            {
+                if (ContainerUnlocked.TryGetValue(id, out (uint, uint) tuple))
+                {
+                    if (tuple.Item2 > tuple.Item1) return false;
+                    if (tuple.Item2 != 0 && tuple.Item1 != 0 && tuple.Item2 == tuple.Item1) return true;
+                }
+                uint unlocked = 0;
+                uint max = 0;
+                if (Containers.TryGetValue(id, out List<uint>? values))
+                {
+                    foreach (var value in values)
+                    {
+                        if (IsUnlocked(value)) unlocked++;
+                        else PluginLog.Debug($"{value} not unlocked");
+                        max++;
+                    }
+                }
+                ContainerUnlocked[id] = (unlocked, max);
+                PluginLog.Debug($"{item.Name.ExtractText()} - {item.RowId} - {unlocked}/{max}");
+                if (max == unlocked) return true;
                 return false;
-
+            }
             if (item.ItemUICategory.RowId == 94 && item.Name.ExtractText().Contains("Faded"))
             {
                 if (Debug) PluginLog.Verbose("Item is Faded Copy of Orchestration Roll");
@@ -149,6 +111,9 @@ namespace CurrencySpender.Helpers
                     return UIState.Instance()->PlayerState.IsOrchestrionRollUnlocked(new_additionalData);
                 }
             }
+
+            if (item.ItemAction.RowId == 0)
+                return false;
 
             switch ((ItemActionType)item.ItemAction.Value.Type)
             {
@@ -165,6 +130,7 @@ namespace CurrencySpender.Helpers
                     return PlayerState.Instance()->IsSecretRecipeBookUnlocked(item.ItemAction.Value.Data[0]);
 
                 case ItemActionType.UnlockLink:
+                    // PluginLog.Information($"{item.Name.ExtractText()} - {item.ItemAction.RowId} - {(ItemActionType)item.ItemAction.Value.Type} - {UIState.Instance()->IsUnlockLinkUnlocked(item.ItemAction.Value.Data[0])}");
                     return UIState.Instance()->IsUnlockLinkUnlocked(item.ItemAction.Value.Data[0]);
 
                 case ItemActionType.TripleTriadCard when item.AdditionalData.Is<TripleTriadCard>():
@@ -205,28 +171,30 @@ namespace CurrencySpender.Helpers
             Glasses = 37312,
             CompanySealVouchers = 41120, // can use = is in grand company, is unlocked = always false
         }
-        public static ItemType GetItemTypes(RowRef<Item> item)
+        public static ItemType GetItemTypes(uint id)
         {
-            if (item.RowId == 21072) return ItemType.Venture;
-            var cat = item.Value.ItemUICategory.RowId;
-            var name = item.Value.Name.ExtractText();
-            var untradable = item.Value.IsUntradable;
-            ItemType curType = ItemType.None;
-            if(C.Currencies.Where(cur => cur.ItemId == item.RowId).ToList().Count > 0) curType |= ItemType.Currency;
-            if (cat == 61)
+            Item item = Service.DataManager.GetExcelSheet<Item>().GetRow(id);
+            if (item.RowId == 21072)
             {
-                if(name.Contains("Ballroom Etiquette") || name.Contains("Framer's Kit") || name.Contains("Battlefield Etiquette") ||
-                    name.Contains("The Faces We Wear") || name.Contains("Modern Aesthetics"))
-                {
-                    curType |= ItemType.Collectable;
-                }
+                return ItemType.Venture;
+            }
+            var cat = item.ItemUICategory.RowId;
+            var name = item.Name.ExtractText();
+            var untradable = item.IsUntradable;
+            ItemType curType = ItemType.None;
+            if (Containers.ContainsKey(id)) curType |= ItemType.Collectable;
+            //if (item_.ItemAction.RowId != 0) curType |= ItemType.Collectable;
+            if (C.Currencies.Where(cur => cur.ItemId == item.RowId).ToList().Count > 0) curType |= ItemType.Currency;
+            if(name.Contains("Ballroom Etiquette") || name.Contains("Framer's Kit") || name.Contains("Battlefield Etiquette") ||
+                name.Contains("The Faces We Wear") || name.Contains("Modern Aesthetics") || name.Contains("Maxims of Mahjong"))
+            {
+                curType |= ItemType.Collectable;
             }
             if(cat == 63)
             {
-                if(name.Contains("Barding") || item.Value.ItemAction.Value.Type == 1322 || item.Value.ItemAction.Value.Type == 29459 ||
-                    item.Value.ItemAction.Value.Type == 2633)
+                if(name.Contains("Barding") || item.ItemAction.Value.Type == 1322 || item.ItemAction.Value.Type == 29459 ||
+                    item.ItemAction.Value.Type == 2633) //2633 Riding Map
                 {
-                    //2633 Riding Map
                     curType |= ItemType.Collectable;
                 }
             }
@@ -243,16 +211,15 @@ namespace CurrencySpender.Helpers
             if (!item_types.HasFlag(ItemType.Collectable)) { return CollectableType.None; }
             var cat = item.Value.ItemUICategory.RowId;
             var name = item.Value.Name.ExtractText();
-            if (cat == 61)
+            if (Containers.ContainsKey(item.RowId)) return CollectableType.Container;
+            if (name.Contains("Ballroom Etiquette") || name.Contains("Battlefield Etiquette"))
             {
-                if (name.Contains("Ballroom Etiquette") || name.Contains("Battlefield Etiquette"))
-                {
-                    return CollectableType.Scroll;
-                }
-                if (name.Contains("Framer's Kit")) return CollectableType.FramersKit;
-                if (name.Contains("The Faces We Wear")) return CollectableType.Facewear;
-                if (name.Contains("Modern Aesthetics")) return CollectableType.Hairstyle;
+                return CollectableType.Scroll;
             }
+            if (name.Contains("Framer's Kit")) return CollectableType.FramersKit;
+            if (name.Contains("Maxims of Mahjong")) return CollectableType.Mahjong;
+            if (name.Contains("The Faces We Wear")) return CollectableType.Facewear;
+            if (name.Contains("Modern Aesthetics")) return CollectableType.Hairstyle;
             if (cat == 63)
             {
                 if (name.Contains("Barding")) return CollectableType.Barding;

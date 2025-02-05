@@ -106,6 +106,9 @@ namespace CurrencySpender.Data
                             { ListRange(1770551, 1770589), 1005244 }, // Mark Quartermaster
                             { new List<uint> { 1770888, 1770889 }, 1005244 }, // Mark Quartermaster
                             //{ new List<uint> { 1770041, 1770281, 1770301 }, 1031680 }, // Enie
+                            
+                            { new List<uint> { 1770601, 1770602, 1770659, 1770660 }, 1043463 }, // Horrendous Hoarder
+                            { new List<uint> { 1770604, 1770643, 1770662, 1770709 }, 1043465 }, // Produce Producer
 
                             { new List<uint> { 1769957 }, 1027998 }, // Gramsol
                             { new List<uint> { 1769958 }, 1027538 }, // Pedronille
@@ -115,6 +118,8 @@ namespace CurrencySpender.Data
                             { new List<uint> { 1769962 }, 1027665 }, // Sul Lad
                             { new List<uint> { 1769963 }, 1027709 }, // Nacille
                             { new List<uint> { 1769964 }, 1027766 }, // Goushs Ooan
+
+                            { new List<uint> { 1770904 }, 1044839 }, // Dibourdier
                         };
                         //DuoLog.Information($"{npcMapping[1013397]}");
                         if (EventShops.Contains(shop.RowId)) continue;
@@ -207,7 +212,6 @@ namespace CurrencySpender.Data
                 //list.Add((npc.Value.Singular.ExtractText(), rowRef.RowId, npcBase.RowId, ShopType.GCShop));
                 uint gc = 1; if (npcName.Contains("flame")) gc = 2; if (npcName.Contains("serpent")) gc = 3;
                 uint cur = gc + 19;
-                PluginLog.Information("GC Shop added");
 
                 Generator.shops.Add(new Shop { ShopId = rowRef.RowId, NpcId = npcBase.RowId, Type = ShopType.GCShop, Location = loc,
                     GC = gc, Currency = cur });

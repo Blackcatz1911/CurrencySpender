@@ -81,6 +81,7 @@ namespace CurrencySpender.Classes
             new Location { MapId = 196, TerritoryId = 0144, Postion = (5.1f,6.6f), NpcId =  1011039 }, // Gold Saucer Attendant
             new Location { MapId = 196, TerritoryId = 0144, Postion = (5.4f,6.5f), NpcId =  1011610 }, // Modern Aesthetics Saleswoman
             new Location { MapId = 196, TerritoryId = 0144, Postion = (5.0f,6.4f), NpcId =  1010478 }, // Triple Triad Trader
+            new Location { MapId = 196, TerritoryId = 0144, Postion = (7.1f,7.8f), NpcId =  1044839 }, // Dibourdier
 
             new Location { MapId = 197, TerritoryId = 0388, Postion = (7.7f,6.9f), NpcId =  1011595 }, // Minion Trader
 
@@ -115,7 +116,7 @@ namespace CurrencySpender.Classes
             
             //Bicolor Gemstones
             new Location { MapId = 491, TerritoryId = 813, Postion = (35.5f,20.6f), NpcId = 1027385 }, // Siulmet
-            new Location { MapId = 492, TerritoryId = 814, Postion = (11.8f,8.9f), NpcId = 1027497 }, // Zumutt
+            new Location { MapId = 492, TerritoryId = 814, Postion = (11.8f,08.9f), NpcId = 1027497 }, // Zumutt
             new Location { MapId = 493, TerritoryId = 815, Postion = (10.6f,17.1f), NpcId = 1027892, AetheryteId = 141 }, // Halden
             new Location { MapId = 494, TerritoryId = 816, Postion = (16.2f,30.6f), NpcId = 1027665 }, // Sul Lad
             new Location { MapId = 495, TerritoryId = 817, Postion = (27.9f,18.2f), NpcId = 1027709 }, // Nacille
@@ -140,6 +141,10 @@ namespace CurrencySpender.Classes
             new Location { MapId = 862, TerritoryId = 1192, Postion = (22.0f,37.5f), NpcId = 1049528 }, // Clerk PX-0029
             new Location { MapId = 855, TerritoryId = 1185, Postion = (12.8f,13.0f), NpcId = 1048383 }, // Kajeel Ja
             new Location { MapId = 856, TerritoryId = 1186, Postion = (08.4f,14.0f), NpcId = 1049082 }, // Beryl
+
+            new Location { MapId = 016, TerritoryId = 0135, Postion = (24.9f, 34.8f), NpcId = 1043621 }, // Baldin
+            new Location { MapId = 793, TerritoryId = 1055, Postion = (12.6f, 28.3f), NpcId = 1043463, AetheryteId = 10 }, // Horrendous Hoarder
+            new Location { MapId = 793, TerritoryId = 1055, Postion = (12.8f, 26.9f), NpcId = 1043465, AetheryteId = 10 }, // Produce Producer
         ];
 
         public override string ToString()
