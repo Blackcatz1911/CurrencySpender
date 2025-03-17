@@ -36,6 +36,7 @@ public sealed class Plugin : IDalamudPlugin
     public string Version;
     public bool Problem = false;
     internal TaskManager TaskManager;
+    public List<TrackedCurrency> Currencies;
     //private SpendingWindow SpendingWindow { get; init; }
 
     public Plugin(IDalamudPluginInterface pluginInterface)
@@ -70,13 +71,15 @@ public sealed class Plugin : IDalamudPlugin
             PluginInterface.UiBuilder.OpenConfigUi += delegate { configTabWindow.IsOpen = true; };
             PluginInterface.UiBuilder.OpenMainUi += delegate { mainTabWindow.IsOpen = true; };
             TaskManager = new() { };
-            DataHelper.GenerateCurrencyList();
+            Currencies = TrackedCurrency.GenerateCurrencyList();
             Generator.init();
+            //VersionHelper.CheckGameVersion();
             PlayerHelper.init();
             VersionHelper.CheckVersion();
             //PluginLog.Debug($"unlocked: {ItemHelper.IsUnlocked(36636)}");
             //mainTabWindow.IsOpen = true;
         });
+        
         //PlayerHelper.init();
         //Generator.init();
         FontHelper.SetupFonts();

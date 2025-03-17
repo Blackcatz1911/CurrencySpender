@@ -44,9 +44,8 @@ internal class SpendingWindow : Window
         if (C.Debug)
         {
             UiHelper.LeftAlign($"DEBUG: CurrencyId: {Currency.ItemId}");
-            UiHelper.LeftAlign($"DEBUG: CollectableItems: {CollectableItems?.Count}");
-            UiHelper.LeftAlign($"DEBUG: SellableItems: {SellableItems?.Count}");
-            UiHelper.LeftAlign($"DEBUG: ItemsOfInterest: {ItemsOfInterest?.Count}");
+            UiHelper.LeftAlign($"DEBUG: CollectableItems: {CollectableItems?.Count} | SellableItems: {SellableItems?.Count} | " +
+                $"ItemsOfInterest: {ItemsOfInterest?.Count}");
             UiHelper.LeftAlign($"DEBUG: Storm: {PlayerHelper.GCRanks[1]} Serpent: {PlayerHelper.GCRanks[2]} Flame: {PlayerHelper.GCRanks[3]}");
         }
         List<uint> ids = [20, 21, 22];
@@ -144,7 +143,7 @@ internal class SpendingWindow : Window
                         }
                         if (item.Currency != Currency.ItemId)
                         {
-                            var child_cur = C.Currencies.Where(cur => cur.ItemId == item.Currency).First();
+                            var child_cur = P.Currencies.Where(cur => cur.ItemId == item.Currency).First();
                             UiHelper.LeftAlign(child_cur.Name);
                             if (ImGui.IsItemHovered() && C.Debug)
                             {
@@ -263,7 +262,7 @@ internal class SpendingWindow : Window
                         }
                         if (item.Currency != Currency.ItemId)
                         {
-                            var child_cur = C.Currencies.Where(cur => cur.ItemId == item.Currency).First();
+                            var child_cur = P.Currencies.Where(cur => cur.ItemId == item.Currency).First();
                             var items = Generator.items.Where(cur => cur.Id == item.Currency).ToList();
                             foreach (var item_ in items)
                             {
@@ -287,7 +286,7 @@ internal class SpendingWindow : Window
                             UiHelper.RightAlignWithIcon(item.Price.ToString(), Currency.Icon.ImGuiHandle, true);
                         if (item.Currency != Currency.ItemId)
                         {
-                            var child_cur = C.Currencies.Where(cur => cur.ItemId == item.Currency).First();
+                            var child_cur = P.Currencies.Where(cur => cur.ItemId == item.Currency).First();
                             UiHelper.RightAlignWithIcon(item.Price.ToString(), child_cur.Icon.ImGuiHandle, true);
                             var items = Generator.items.Where(cur => cur.Id == item.Currency).ToList();
                             foreach (var item_ in items)
@@ -299,7 +298,7 @@ internal class SpendingWindow : Window
                             //UiHelper.LeftAlign(item.Price.ToString());
                             //    //UiHelper.Rightalign(item.Price.ToString(), true);
                             //    ImGui.SameLine();
-                            //    var child_cur = C.Currencies.Where(cur => cur.ItemId == item.Currency).First();
+                            //    var child_cur = P.Currencies.Where(cur => cur.ItemId == item.Currency).First();
                             //    ImGui.Image(child_cur.Icon.ImGuiHandle, new Vector2(20, 20));
                             //    UiHelper.LeftAlign((item.Price * child_cur.Price).ToString());
                             //    ImGui.SameLine();
@@ -321,7 +320,7 @@ internal class SpendingWindow : Window
                             //UiHelper.LeftAlign(item.Price.ToString());
                             //    //UiHelper.Rightalign(item.Price.ToString(), true);
                             //    ImGui.SameLine();
-                            //    var child_cur = C.Currencies.Where(cur => cur.ItemId == item.Currency).First();
+                            //    var child_cur = P.Currencies.Where(cur => cur.ItemId == item.Currency).First();
                             //    ImGui.Image(child_cur.Icon.ImGuiHandle, new Vector2(20, 20));
                             //    UiHelper.LeftAlign((item.Price * child_cur.Price).ToString());
                             //    ImGui.SameLine();
@@ -426,7 +425,7 @@ internal class SpendingWindow : Window
                         }
                         if (item.Currency != Currency.ItemId)
                         {
-                            var child_cur = C.Currencies.Where(cur => cur.ItemId == item.Currency).First();
+                            var child_cur = P.Currencies.Where(cur => cur.ItemId == item.Currency).First();
                             UiHelper.LeftAlign(child_cur.Name);
                             if (ImGui.IsItemHovered() && C.Debug)
                             {
@@ -562,7 +561,7 @@ internal class SpendingWindow : Window
                         }
                         else
                         {
-                            var child_cur = C.Currencies.Where(cur => cur.ItemId == item.Currency).First();
+                            var child_cur = P.Currencies.Where(cur => cur.ItemId == item.Currency).First();
                             UiHelper.RightAlignWithIcon(item.Price.ToString(), child_cur.Icon.ImGuiHandle, true);
                             UiHelper.RightAlignWithIcon((item.Price * child_cur.Price).ToString(), Currency.Icon.ImGuiHandle, true);
                         }

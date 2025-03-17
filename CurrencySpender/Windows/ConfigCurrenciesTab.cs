@@ -6,7 +6,7 @@ internal class ConfigCurrenciesTab
         ImGui.TextWrapped("If you don't want to see specific currencies you can deselect them here and they won't show up.");
         ImGui.Checkbox("Hide currencies you currently don't own", ref C.HideEmptyCurrencies);
         ImGui.TextWrapped("Select which currencies you want to see:");
-        foreach (var cur in C.Currencies.Where(cur => cur.Child == false && cur.Enabled).ToList() )
+        foreach (var cur in P.Currencies.Where(cur => cur.Child == false && cur.Enabled).ToList())
         {
             bool isSelected = C.SelectedCurrencies.Contains(cur.ItemId);
             if (ImGui.Checkbox($"##{cur.ItemId}", ref isSelected))

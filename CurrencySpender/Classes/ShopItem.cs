@@ -64,7 +64,7 @@ public unsafe class ShopItem
     }
     public uint CurrentPrice { get; set; }
     public uint LastChecked { get; set; }
-    public uint AmountCanBuy => (uint)Math.Floor((double)C.Currencies.First(cur => cur.ItemId == Currency).CurrentCount / Price);
+    public uint AmountCanBuy => (uint)Math.Floor((double)P.Currencies.First(cur => cur.ItemId == Currency).CurrentCount / Price);
     public uint Profit { get; set; }
     public uint HasSoldWeek { get; set; }
 

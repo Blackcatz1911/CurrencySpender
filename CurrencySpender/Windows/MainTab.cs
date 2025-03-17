@@ -10,7 +10,7 @@ internal class MainTab
     public static bool colored = false;
     internal static bool NotUpdated = true;
     internal static Dictionary<uint, int> MissingCollectables = new Dictionary<uint, int>();
-    public List<TrackedCurrency> sortedCurrencies = C.Currencies;
+    public List<TrackedCurrency> sortedCurrencies = P.Currencies;
     internal static unsafe void Draw()
     {
         update();
@@ -33,7 +33,7 @@ internal class MainTab
         //font.Scale = 1.1f; 
         //ImGuiEx.Text(ImGuiColors.DalamudGrey, font, "Test");
         //ImGui.PopFont();
-        //foreach (TrackedCurrency currency in C.Currencies)
+        //foreach (TrackedCurrency currency in P.Currencies)
         //{
         //    if (currency.Enabled && !currency.Child && C.SelectedCurrencies.Contains(currency.ItemId) &&
         //        (!C.HideEmptyCurrencies || currency.CurrentCount > 0))
@@ -82,7 +82,7 @@ internal class MainTab
             ImGui.TableSetupColumn("Actions", ImGuiTableColumnFlags.NoSort);
             ImGui.TableHeadersRow();
 
-            var sortedCurrencies = C.Currencies;
+            var sortedCurrencies = P.Currencies;
             ImGuiTableSortSpecsPtr sortSpecs = ImGui.TableGetSortSpecs();
             //List<ShopItem> SellableItems = ShopHelper.GetSellableItems(Currency);
 
@@ -98,8 +98,8 @@ internal class MainTab
                 {
                     case 0:
                         sortedCurrencies = ascending
-                            ? C.Currencies.ToList()
-                            : C.Currencies.ToList().AsEnumerable().Reverse().ToList();
+                            ? P.Currencies.ToList()
+                            : P.Currencies.ToList().AsEnumerable().Reverse().ToList();
                         break;
 
                     case 1:
@@ -116,7 +116,7 @@ internal class MainTab
                                 MissingCollectables.TryGetValue(c.ItemId, out int value) ? value : int.MinValue).ToList();
                         break;
                     default:
-                        sortedCurrencies = C.Currencies; // Use original list order
+                        sortedCurrencies = P.Currencies; // Use original list order
                         break; // Do nothing for unhandled columns
                 }
             }
@@ -167,18 +167,18 @@ internal class MainTab
         if (NotUpdated || Force)
         {
             MissingCollectables.Clear();
-            foreach (TrackedCurrency currency in C.Currencies)
+            foreach (TrackedCurrency currency in P.Currencies)
             {
                 if (currency.Enabled && !currency.Child)
                 {
                     var items_max = Generator.items
                         .Where(item => (item.Currency == currency.ItemId || (currency.Children != null && currency.Children.Contains(item.Currency))) && item.Type.HasFlag(ItemType.Collectable) && !item.Disabled && C.SelectedCollectableTypes.Contains((CollectableType)item.CollectableType))
-                        .GroupBy(item => item.Id) // Group by unique item.Id
+                        .GroupBy(item => item.Id) // Group by unique item.ItemId
                         .Select(group => group.First()) // Take the first item from each group
                         .ToList().Count();
                     var items_unlocked = Generator.items
                         .Where(item => (item.Currency == currency.ItemId || (currency.Children != null && currency.Children.Contains(item.Currency))) && item.Type.HasFlag(ItemType.Collectable) && !item.Disabled && C.SelectedCollectableTypes.Contains((CollectableType)item.CollectableType) && ItemHelper.IsUnlocked(item.Id))
-                        .GroupBy(item => item.Id) // Group by unique item.Id
+                        .GroupBy(item => item.Id) // Group by unique item.ItemId
                         .Select(group => group.First()) // Take the first item from each group
                         .ToList().Count();
                     MissingCollectables.Add(currency.ItemId, (items_max - items_unlocked));

@@ -79,7 +79,7 @@ namespace CurrencySpender.Data
                 var item_cost = shop.Item.First().ItemCosts.First().ItemCost.RowId;
                 //var converted_cur = ItemGen.ConvertCurrencyId(shop.RowId, item_cost, shop.UseCurrencyType);
                 //PluginLog.Information($"{converted_cur}");
-                if (C.Currencies.Where(cur => cur.Enabled && (cur.ItemId == item_cost || cur.ItemId == converted_cur)).ToList().Count > 0)
+                if (P.Currencies.Where(cur => cur.Enabled && (cur.ItemId == item_cost || cur.ItemId == converted_cur)).ToList().Count > 0)
                 {
                     var cur = ItemGen.ConvertCurrencyId(shop.RowId, shop.Item.First().ReceiveItems.First().Item.RowId, shop.UseCurrencyType);
                     if (Generator.shops.Where(s => s.ShopId == shop.RowId).ToList().Count == 0)

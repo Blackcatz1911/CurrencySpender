@@ -135,7 +135,36 @@ internal class ConfigWizardWindow : Window
                 ConfigCurrenciesTab.Draw();
                 break;
             case 2:
-                VersionHelper.DrawVersion110Step2();
+                ImGui.TextWrapped("Shows you if you can buy collectables with it.");
+                ImGui.Checkbox("Show collectables", ref C.ShowCollectables);
+                if (C.ShowCollectables)
+                {
+                    ImGui.TextWrapped("You can have a little info in the main window when you are still missing collectables from that currency.");
+                    ImGui.Checkbox("Show missing collectables in the main window", ref C.ShowMissingCollectables);
+                    ImGui.TextWrapped("If you don't want to see specific item you can deselect them here and they won't show up.");
+                    ImGui.TextWrapped("Select which items you see as collectables:");
+                    foreach (CollectableType type in Enum.GetValues(typeof(CollectableType)))
+                    {
+                        if (type == CollectableType.None) continue; // Skip 'None'
+                        string label = CollectableTypeLabels.TryGetValue(type, out var displayName) ? displayName : type.ToString();
+                        bool isSelected = C.SelectedCollectableTypes.Contains(type);
+                        if (ImGui.Checkbox($"##{type}", ref isSelected))
+                        {
+                            if (isSelected)
+                            {
+                                C.SelectedCollectableTypes.Add(type);
+                            }
+                            else
+                            {
+                                C.SelectedCollectableTypes.Remove(type);
+                            }
+                            P.spendingWindow.UpdateData();
+                            MainTab.update(true);
+                        }
+                        ImGui.SameLine();
+                        ImGui.Text(label);
+                    }
+                }
                 break;
         }
     }
@@ -172,7 +201,7 @@ internal class ConfigWizardWindow : Window
                 }
                 ImGui.Separator();
                 ImGui.TextWrapped("Select if you want to see the following currencies:");
-                foreach (var cur in C.Currencies.Where(cur => cur.Child == false && cur.Enabled).ToList())
+                foreach (var cur in P.Currencies.Where(cur => cur.Child == false && cur.Enabled).ToList())
                 {
                     if (cur.ItemId != 37549 && cur.ItemId != 37550) continue;
                     bool isSelected = C.SelectedCurrencies.Contains(cur.ItemId);

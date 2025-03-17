@@ -7,8 +7,8 @@ namespace CurrencySpender.Configuration;
 public class Config: IEzConfig
 {
     public string Version { get; set; } = "0.0.0";
+    public string GameVersion { get; set; } = "";
 
-    public List<TrackedCurrency> Currencies = [];
     public int Seperator = 0;
     //public Dictionary<uint, uint> FateRanks = [];
     public List<uint> ItemsOfInterest = [43554, 43555];

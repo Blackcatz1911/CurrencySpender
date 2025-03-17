@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.2.0
+### Added
+- A check to not start the config wizard, when the plugin is newly installed.
+### Changed
+- Sped up the initial loading of the shops/npcs/items.
+- Updated ECommons.
+
 ## 1.1.2
 ### Added
 - A setting to toggle the display of sellable items on the marketboard.

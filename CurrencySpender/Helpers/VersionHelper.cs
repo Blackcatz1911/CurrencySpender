@@ -1,9 +1,11 @@
+using System.Text;
 using CurrencySpender.Classes;
-using CurrencySpender.Windows;
+using CurrencySpender.Data;
+using FFXIVClientStructs.FFXIV.Client.System.Framework;
 
 namespace CurrencySpender.Helpers
 {
-    internal class VersionHelper
+    internal unsafe class VersionHelper
     {
         public static string GetVersion()
         {
@@ -22,12 +24,11 @@ namespace CurrencySpender.Helpers
                 {
                     C.SelectedCollectableTypes.Add(type);
                 }
-                foreach (var cur in C.Currencies.Where(cur => cur.Child == false && cur.Enabled).ToList())
+                foreach (var cur in P.Currencies.Where(cur => cur.Child == false).ToList())
                 {
                     if (!C.SelectedCurrencies.Contains(cur.ItemId))
                         C.SelectedCurrencies.Add(cur.ItemId);
                 }
-                P.configWizard.IsOpen = true;
             }
             if (LowerVersionThan("1.1.2"))
             {
@@ -36,6 +37,7 @@ namespace CurrencySpender.Helpers
                 C.SelectedCurrencies.Add(37549);
                 C.SelectedCurrencies.Add(37550);
             }
+            if (C.Version == "0.0.0") return;
             if (LowerVersionThan(GetVersion()))
             {
                 P.configWizard.IsOpen = true;
@@ -117,38 +119,18 @@ namespace CurrencySpender.Helpers
         {
             return LowerVersionThan(version, C.Version);
         }
-
-        internal static void DrawVersion110Step2()
+        public static string GameVersion()
         {
-            ImGui.TextWrapped("Shows you if you can buy collectables with it.");
-            ImGui.Checkbox("Show collectables", ref C.ShowCollectables);
-            if (C.ShowCollectables)
+            return Encoding.UTF8.GetString(Framework.Instance()->GameVersion);
+        }
+        public static void CheckGameVersion()
+        {
+            Generator.init();
+            PluginLog.Information($"GameVersion: {GameVersion()}");
+            if (C.GameVersion != GameVersion() || C.GameVersion == "" || C.Debug)
             {
-                ImGui.TextWrapped("You can have a little info in the main window when you are still missing collectables from that currency.");
-                ImGui.Checkbox("Show missing collectables in the main window", ref C.ShowMissingCollectables);
-                ImGui.TextWrapped("If you don't want to see specific item you can deselect them here and they won't show up.");
-                ImGui.TextWrapped("Select which items you see as collectables:");
-                foreach (CollectableType type in Enum.GetValues(typeof(CollectableType)))
-                {
-                    if (type == CollectableType.None) continue; // Skip 'None'
-                    string label = CollectableTypeLabels.TryGetValue(type, out var displayName) ? displayName : type.ToString();
-                    bool isSelected = C.SelectedCollectableTypes.Contains(type);
-                    if (ImGui.Checkbox($"##{type}", ref isSelected))
-                    {
-                        if (isSelected)
-                        {
-                            C.SelectedCollectableTypes.Add(type);
-                        }
-                        else
-                        {
-                            C.SelectedCollectableTypes.Remove(type);
-                        }
-                        P.spendingWindow.UpdateData();
-                        MainTab.update(true);
-                    }
-                    ImGui.SameLine();
-                    ImGui.Text(label);
-                }
+                Generator.init();
+                C.GameVersion = GameVersion();
             }
         }
     }

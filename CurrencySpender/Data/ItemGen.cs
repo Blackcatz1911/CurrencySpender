@@ -7,14 +7,9 @@ namespace CurrencySpender.Data
     {
         internal static bool FateShopsDone = false;
         internal static bool GCShopsDone = false;
-        public static List<uint> enabled_currencies = new List<uint>();
         public static void init()
         {
             PluginLog.Debug("ItemGen init");
-            foreach(var currency in C.Currencies)
-            {
-                if (currency.Enabled) enabled_currencies.Add(currency.ItemId);
-            }
             PluginLog.Debug($"SpecialShops: {Generator.shops.Where(shop => shop.Type == ShopType.SpecialShop).ToList().Count}");
             PluginLog.Debug($"GCShops: {Generator.shops.Where(shop => shop.Type == ShopType.GCShop).ToList().Count}");
             PluginLog.Debug($"FateShops: {Generator.shops.Where(shop => shop.Type == ShopType.FateShop).ToList().Count}");
@@ -73,14 +68,16 @@ namespace CurrencySpender.Data
                     if (itemCol_.ItemCosts[i].ItemCost.RowId == 0) continue;
                     if (itemCol_.ReceiveItems[i].Item.RowId == 0) continue;
 
+                    var costItemId = itemCol_.ItemCosts[i].ItemCost.RowId;
+                    var cur = ConvertCurrencyId(shop_.RowId, costItemId, shop_.UseCurrencyType);
+                    var cur_item = Service.DataManager.GetExcelSheet<Item>().GetRow(cur);
+                    if (P.Currencies.Where(c => c.Enabled && c.ItemId == cur).ToList().Count() == 0) continue;
+
                     var item_types = ItemHelper.GetItemTypes(itemCol_.ReceiveItems[i].Item.RowId);
                     var CollectableType = ItemHelper.GetCollectableType(itemCol_.ReceiveItems[i].Item, item_types);
                     //if (CollectableType == CollectableType.Container) PluginLog.Debug($"specialShop Container: {itemCol_.ReceiveItems[i].Item.RowId}, shop: {shop.NpcName}");
                     //if (CollectableType == CollectableType.Hairstyle) PluginLog.Debug($"specialShop Hairstyle: {itemCol_.ReceiveItems[i].Item.RowId}, shop: {shop.NpcName}");
                     //PluginLog.Verbose(types.ToString());
-                    var costItemId = itemCol_.ItemCosts[i].ItemCost.RowId;
-                    var cur = ConvertCurrencyId(shop_.RowId, costItemId, shop_.UseCurrencyType);
-                    var cur_item = Service.DataManager.GetExcelSheet<Item>().GetRow(cur);
                     //if (!enabled_currencies.Contains(cur)) continue;
                     //if(itemCol_.ReceiveItems[i].Item.RowId == 45002)
                     //    DuoLog.Information($"{cur}-{cur_item.Name}-{shop.NpcName}-{shop.ShopId}-CurrencyId:{costItemId}-{ itemCol_.ReceiveItems[i].Item.Value.Name.ToString()}");

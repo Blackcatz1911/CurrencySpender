@@ -73,7 +73,7 @@ namespace CurrencySpender.Helpers
         public static unsafe bool IsUnlocked(uint id)
         {
             Item item = Service.DataManager.GetExcelSheet<Item>().GetRow(id);
-            if(item.RowId == 44936) PluginLog.Debug($"{item.Name.ExtractText()} - {item.RowId}");
+            //if(item.RowId == 44936) PluginLog.Debug($"{item.Name.ExtractText()} - {item.RowId}");
             if (Containers.ContainsKey(id))
             {
                 if (ContainerUnlocked.TryGetValue(id, out (uint, uint) tuple))
@@ -184,7 +184,7 @@ namespace CurrencySpender.Helpers
             ItemType curType = ItemType.None;
             if (Containers.ContainsKey(id)) curType |= ItemType.Collectable;
             //if (item_.ItemAction.RowId != 0) curType |= ItemType.Collectable;
-            if (C.Currencies.Where(cur => cur.ItemId == item.RowId).ToList().Count > 0) curType |= ItemType.Currency;
+            if (P.Currencies.Where(cur => cur.ItemId == item.RowId).ToList().Count > 0) curType |= ItemType.Currency;
             if(name.Contains("Ballroom Etiquette") || name.Contains("Framer's Kit") || name.Contains("Battlefield Etiquette") ||
                 name.Contains("The Faces We Wear") || name.Contains("Modern Aesthetics") || name.Contains("Maxims of Mahjong"))
             {
