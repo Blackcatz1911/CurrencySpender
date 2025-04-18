@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.2.1
+### Changed
+- Updated for 7.2
+- Updated ECommons.
+
 ## 1.2.0
 ### Added
 - A check to not start the config wizard, when the plugin is newly installed.

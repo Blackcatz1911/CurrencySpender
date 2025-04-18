@@ -91,11 +91,16 @@ try:
 
     repo.git.checkout("main")
 
-    # Fetch latest changes from upstream (if needed)
+    # Fetch latest changes from origin
     print("Fetching latest origin changes...")
     repo.remotes.origin.fetch()
-    print("Fetching latest upstream changes...")
-    repo.remotes.upstream.fetch()
+
+    # Check if the upstream remote exists before fetching
+    if "upstream" in repo.remotes:
+        print("Fetching latest upstream changes...")
+        repo.remotes.upstream.fetch()
+    else:
+        print("No upstream remote found. Skipping upstream fetch.")
 
     with repo.config_writer() as config:
         config.set_value("user", "name", "Blackcatz1911")

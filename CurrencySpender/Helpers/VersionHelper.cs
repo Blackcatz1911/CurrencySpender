@@ -38,6 +38,7 @@ namespace CurrencySpender.Helpers
                 C.SelectedCurrencies.Add(37550);
             }
             if (C.Version == "0.0.0") return;
+            if (C.Version == "1.2.0" && GetVersion() == "1.2.1") return;
             if (LowerVersionThan(GetVersion()))
             {
                 P.configWizard.IsOpen = true;
