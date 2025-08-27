@@ -3,7 +3,7 @@ global using System;
 global using System.Collections.Generic;
 global using System.Linq;
 global using Dalamud.Plugin;
-global using ImGuiNET;
+global using Dalamud.Bindings.ImGui;
 global using Dalamud.Interface.Windowing;
 global using ECommons;
 global using System.Numerics;

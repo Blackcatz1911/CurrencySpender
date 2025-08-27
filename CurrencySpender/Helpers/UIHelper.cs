@@ -28,7 +28,7 @@ internal static unsafe class UiHelper
             ImGui.SetCursorPosX(posX);
         ImGui.Text(str);
     }
-    public static void RightAlignWithIcon(string text, nint icon, bool formatString = false)
+    public static void RightAlignWithIcon(string text, ImTextureID icon, bool formatString = false)
     {
         if (formatString)
             text = StringHelper.FormatString(text);

@@ -86,7 +86,7 @@ internal class MainTab
             ImGuiTableSortSpecsPtr sortSpecs = ImGui.TableGetSortSpecs();
             //List<ShopItem> SellableItems = ShopHelper.GetSellableItems(Currency);
 
-            if (sortSpecs.NativePtr != null && sortSpecs.SpecsCount > 0)
+            if (!sortSpecs.IsNull && sortSpecs.SpecsCount > 0)
             {
                 // Retrieve sorting specification
                 ImGuiTableColumnSortSpecsPtr spec = sortSpecs.Specs;
@@ -128,7 +128,7 @@ internal class MainTab
                     if (currency.ItemId == 26807 && P.Problem) continue;
                     ImGui.TableNextRow();
                     ImGui.TableNextColumn();
-                    ImGui.Image(currency.Icon.ImGuiHandle, new Vector2(36, 36));
+                    ImGui.Image(currency.Icon.Handle, new Vector2(36, 36));
                     if (ImGui.IsItemHovered())
                     {
                         // Display a tooltip or additional info

@@ -38,7 +38,7 @@ internal class SpendingWindow : Window
     {
         if(Currency == null) return;
         //WindowName = "SpendingGuide: " + this.CurrencyName;
-        ImGui.Image(Currency.Icon.ImGuiHandle, new Vector2(21, 21));
+        ImGui.Image(Currency.Icon.Handle, new Vector2(21, 21));
         ImGui.SameLine();
         UiHelper.LeftAlign($"{Currency.Name}: {Currency.CurrentCount}");
         if (C.Debug)
@@ -79,7 +79,7 @@ internal class SpendingWindow : Window
                     ImGuiTableSortSpecsPtr sortSpecs = ImGui.TableGetSortSpecs();
                     //List<ShopItem> SellableItems = ShopHelper.GetSellableItems(Currency);
 
-                    if (sortSpecs.NativePtr != null && sortSpecs.SpecsCount > 0)
+                    if (!sortSpecs.IsNull && sortSpecs.SpecsCount > 0)
                     {
                         // Retrieve sorting specification
                         ImGuiTableColumnSortSpecsPtr spec = sortSpecs.Specs;
@@ -155,7 +155,7 @@ internal class SpendingWindow : Window
                         }
                         ImGui.TableNextColumn();
                         //PluginLog.Verbose("Starting ImGui item.Price rendering...");
-                        UiHelper.RightAlignWithIcon(item.Price.ToString(), Currency.Icon.ImGuiHandle, true);
+                        UiHelper.RightAlignWithIcon(item.Price.ToString(), Currency.Icon.Handle, true);
                         //UiHelper.LeftAlign(item.Price.ToString());
                         ImGui.TableNextColumn();
                         UiHelper.LeftAlign(item.Shop.Location != null ? item.Shop.Location.Zone : "");
@@ -186,7 +186,7 @@ internal class SpendingWindow : Window
                     ImGuiTableSortSpecsPtr sortSpecs = ImGui.TableGetSortSpecs();
                     //List<ShopItem> SellableItems = ShopHelper.GetSellableItems(Currency);
 
-                    if (sortSpecs.NativePtr != null && sortSpecs.SpecsCount > 0)
+                    if (!sortSpecs.IsNull && sortSpecs.SpecsCount > 0)
                     {
                         // Retrieve sorting specification
                         ImGuiTableColumnSortSpecsPtr spec = sortSpecs.Specs;
@@ -283,15 +283,15 @@ internal class SpendingWindow : Window
                         //UiHelper.LeftAlign(item.Price.ToString());
                         //UiHelper.Rightalign(item.Price.ToString(), false);
                         if(item.Currency == Currency.ItemId)
-                            UiHelper.RightAlignWithIcon(item.Price.ToString(), Currency.Icon.ImGuiHandle, true);
+                            UiHelper.RightAlignWithIcon(item.Price.ToString(), Currency.Icon.Handle, true);
                         if (item.Currency != Currency.ItemId)
                         {
                             var child_cur = P.Currencies.Where(cur => cur.ItemId == item.Currency).First();
-                            UiHelper.RightAlignWithIcon(item.Price.ToString(), child_cur.Icon.ImGuiHandle, true);
+                            UiHelper.RightAlignWithIcon(item.Price.ToString(), child_cur.Icon.Handle, true);
                             var items = Generator.items.Where(cur => cur.Id == item.Currency).ToList();
                             foreach (var item_ in items)
                             {
-                                UiHelper.RightAlignWithIcon((item.Price * item_.Price).ToString(), Currency.Icon.ImGuiHandle, true);
+                                UiHelper.RightAlignWithIcon((item.Price * item_.Price).ToString(), Currency.Icon.Handle, true);
                             }
                             //UiHelper.LeftAlign("test2");
                             //UiHelper.Rightalign(item.Price.ToString(), Currency.Icon.ImGuiHandle, true);
@@ -361,7 +361,7 @@ internal class SpendingWindow : Window
                     ImGuiTableSortSpecsPtr sortSpecs = ImGui.TableGetSortSpecs();
                     //List<ShopItem> SellableItems = ShopHelper.GetSellableItems(Currency);
 
-                    if (sortSpecs.NativePtr != null && sortSpecs.SpecsCount > 0)
+                    if (!sortSpecs.IsNull && sortSpecs.SpecsCount > 0)
                     {
                         // Retrieve sorting specification
                         ImGuiTableColumnSortSpecsPtr spec = sortSpecs.Specs;
@@ -437,7 +437,7 @@ internal class SpendingWindow : Window
                         }
                         ImGui.TableNextColumn();
                         //PluginLog.Verbose("Starting ImGui item.Price rendering...");
-                        UiHelper.RightAlignWithIcon(item.Price.ToString(), Currency.Icon.ImGuiHandle, true);
+                        UiHelper.RightAlignWithIcon(item.Price.ToString(), Currency.Icon.Handle, true);
                         //UiHelper.LeftAlign(item.Price.ToString());
                         ImGui.TableNextColumn();
                         UiHelper.LeftAlign(item.Shop.Location != null ? item.Shop.Location.Zone : "");
@@ -472,7 +472,7 @@ internal class SpendingWindow : Window
                     ImGuiTableSortSpecsPtr sortSpecs = ImGui.TableGetSortSpecs();
                     //List<ShopItem> SellableItems = ShopHelper.GetSellableItems(Currency);
 
-                    if (sortSpecs.NativePtr != null && sortSpecs.SpecsCount > 0 && SellableItems.Count > 0)
+                    if (!sortSpecs.IsNull && sortSpecs.SpecsCount > 0 && SellableItems.Count > 0)
                     {
                         // Retrieve sorting specification
                         ImGuiTableColumnSortSpecsPtr spec = sortSpecs.Specs;
@@ -557,13 +557,13 @@ internal class SpendingWindow : Window
                         ImGui.TableNextColumn();
                         if (item.Currency == Currency.ItemId)
                         {
-                            UiHelper.RightAlignWithIcon(item.Price.ToString(), Currency.Icon.ImGuiHandle, true);
+                            UiHelper.RightAlignWithIcon(item.Price.ToString(), Currency.Icon.Handle, true);
                         }
                         else
                         {
                             var child_cur = P.Currencies.Where(cur => cur.ItemId == item.Currency).First();
-                            UiHelper.RightAlignWithIcon(item.Price.ToString(), child_cur.Icon.ImGuiHandle, true);
-                            UiHelper.RightAlignWithIcon((item.Price * child_cur.Price).ToString(), Currency.Icon.ImGuiHandle, true);
+                            UiHelper.RightAlignWithIcon(item.Price.ToString(), child_cur.Icon.Handle, true);
+                            UiHelper.RightAlignWithIcon((item.Price * child_cur.Price).ToString(), Currency.Icon.Handle, true);
                         }
                         ImGui.TableNextColumn();
                         if (item.Currency == Currency.ItemId)
