@@ -53,7 +53,7 @@ public static class KofiBanner
         var spaceWidth = ImGui.CalcTextSize(" ").X;
         ImGui.BeginDisabled();
         ImGui.PushStyleVar(ImGuiStyleVar.Alpha, 0f);
-        if (ImGuiEx.BeginTabItem(" ".Repeat((int)MathF.Ceiling(textWidth / spaceWidth)), ImGuiTabItemFlags.Trailing))
+        if (ImGui.BeginTabItem(" ".Repeat((int)MathF.Ceiling(textWidth / spaceWidth)), ImGuiTabItemFlags.Trailing))
         {
             ImGui.EndTabItem();
         }
