@@ -98,11 +98,11 @@ internal static unsafe class UiHelper
             {
                 if(AgentMap.Instance()->CurrentTerritoryId == 1055 && item.Shop.Location.TerritoryId == 1055)
                 {
-                    Service.GameGui.OpenMapWithMapLink(item.Shop.Location.GetMapMarker());
+                    Service.GameGui.OpenMapWithMapLink(Baldin.GetMapMarker());
                 }
                 else
                 {
-                    Service.GameGui.OpenMapWithMapLink(Baldin.GetMapMarker());
+                    Service.GameGui.OpenMapWithMapLink(item.Shop.Location.GetMapMarker());
                 }
             }
             if (ImGui.IsItemHovered())

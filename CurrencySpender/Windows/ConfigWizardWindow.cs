@@ -13,6 +13,7 @@ internal class ConfigWizardWindow : Window
     {
         { "1.1.0", DrawVersion1_1_0Steps },
         { "1.1.2", DrawVersion1_1_2Steps },
+        { "1.2.2", DrawVersion1_2_2Steps },
         //{ "1.2.0", DrawVersion120Steps }
     };
 
@@ -224,6 +225,35 @@ internal class ConfigWizardWindow : Window
                 break;
         }
     }
+    private static void DrawVersion1_2_2Steps(int step)
+    {
+        switch (step)
+        {
+            case 1:
+                ImGui.TextWrapped("Select if you want to see the following currencies:");
+                foreach (var cur in P.Currencies.Where(cur => cur.Child == false && cur.Enabled).ToList())
+                {
+                    if (cur.ItemId != 45690) continue;
+                    bool isSelected = C.SelectedCurrencies.Contains(cur.ItemId);
+                    if (ImGui.Checkbox($"##{cur.ItemId}", ref isSelected))
+                    {
+                        if (isSelected)
+                        {
+                            C.SelectedCurrencies.Add(cur.ItemId);
+                        }
+                        else
+                        {
+                            C.SelectedCurrencies.Remove(cur.ItemId);
+                        }
+                        P.spendingWindow.UpdateData();
+                        MainTab.update(true);
+                    }
+                    ImGui.SameLine();
+                    ImGui.Text(cur.Name);
+                }
+                break;
+        }
+    }
 
     private static void CalculateSteps()
     {
@@ -243,6 +273,7 @@ internal class ConfigWizardWindow : Window
         {
             "1.1.0" => 2, // Number of steps for version 1.1.0
             "1.1.2" => 1,
+            "1.2.2" => 1,
             //"1.2.0" => 3, // Number of steps for version 1.2.0
             _ => 0
         };

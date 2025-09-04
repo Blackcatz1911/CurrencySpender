@@ -37,9 +37,12 @@ namespace CurrencySpender.Classes
         {
             return locations.FirstOr0(loc => loc.NpcId == NpcId);
         }
-        public MapLinkPayload GetMapMarker()
+        public MapLinkPayload? GetMapMarker()
         {
-            if ((Zone == "Unknown" || Zone == "") && C.Debug) PluginLog.Error("Unknown location");
+            if (Zone == "Unknown" || Zone == "")
+            {
+                PluginLog.Error("Unknown location");
+            }
             return new MapLinkPayload(TerritoryId, MapId, Postion.Item1, Postion.Item2);
         }
 
@@ -88,7 +91,7 @@ namespace CurrencySpender.Classes
             new Location { MapId = 257, TerritoryId = 0478, Postion = (5.7f, 5.2f), NpcId = 1012228 },
             new Location { MapId = 366, TerritoryId = 0635, Postion = (13.9f, 11.6f), NpcId = 1019450 },
             new Location { MapId = 051, TerritoryId = 0250, Postion = (4.5f, 6.0f), NpcId = 1005244 },
-            new Location { MapId = 856, TerritoryId = 1186, Postion = (8.6f, 13.5f), NpcId = 1049079 },
+            new Location { MapId = 856, TerritoryId = 1186, Postion = (8.6f, 13.5f), NpcId = 1049079 }, // Zircon
             new Location { MapId = 694, TerritoryId = 0963, Postion = (10.8f, 10.4f), NpcId = 1037301 },
             new Location { MapId = 025, TerritoryId = 0156, Postion = (22.7f, 6.6f), NpcId = 1008119 },
             new Location { MapId = 014, TerritoryId = 0131, Postion = (12.5f,13.0f), NpcId = 1032254, AetheryteTerritoryId = 130 },
@@ -102,7 +105,7 @@ namespace CurrencySpender.Classes
             new Location { MapId = 554, TerritoryId = 0820, Postion = (11.0f,10.8f), NpcId = 1029975 },
             new Location { MapId = 693, TerritoryId = 0962, Postion = (11.8f,13.2f), NpcId = 1037059 },
             new Location { MapId = 694, TerritoryId = 0963, Postion = (10.5f,7.4f), NpcId = 1037312 },
-            new Location { MapId = 855, TerritoryId = 1185, Postion = (13.9f, 13.5f), NpcId = 1048387 },
+            new Location { MapId = 855, TerritoryId = 1185, Postion = (13.9f, 13.5f), NpcId = 1048387 }, // Ryobool Ja
             new Location { MapId = 370, TerritoryId = 0628, Postion = (10.3f,10.2f), NpcId = 1019007 },
             new Location { MapId = 370, TerritoryId = 0628, Postion = (10.4f,10.2f), NpcId = 1019008 },
             new Location { MapId = 366, TerritoryId = 0635, Postion = (13.0f,11.7f), NpcId = 1019454 },
@@ -145,6 +148,9 @@ namespace CurrencySpender.Classes
             new Location { MapId = 016, TerritoryId = 0135, Postion = (24.9f, 34.8f), NpcId = 1043621 }, // Baldin
             new Location { MapId = 793, TerritoryId = 1055, Postion = (12.6f, 28.3f), NpcId = 1043463, AetheryteId = 10 }, // Horrendous Hoarder
             new Location { MapId = 793, TerritoryId = 1055, Postion = (12.8f, 26.9f), NpcId = 1043465, AetheryteId = 10 }, // Produce Producer
+
+            new Location { MapId = 1031, TerritoryId = 1237, Postion = (28.6f, 13.5f), NpcId = 1052608, AetheryteId = 175 }, // Mesouaidonque (Sinus Ardorum)
+            new Location { MapId = 1068, TerritoryId = 1291, Postion = (28.6f, 13.5f), NpcId = 1052640, AetheryteId = 175 }, // Mesouaidonque (Phaenna)
         ];
 
         public override string ToString()

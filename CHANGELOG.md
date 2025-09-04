@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.2.2
+### Added
+- New NPC: Mesouaidonque on Sinus Ardorum and Phaenna.
+- New Currency: Cosmocredits.
+- Phaenna Credits as stub, because you cant buy anything of it yet.
+### Changed
+- Updated for 7.3
+- Updated ECommons.
+
 ## 1.2.1
 ### Changed
 - Updated for 7.2

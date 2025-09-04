@@ -48,11 +48,11 @@ namespace CurrencySpender.Data
         {
             var shop_ = Service.DataManager.GetExcelSheet<SpecialShop>().GetRow(shop.ShopId);
             shop.ShopName = shop_.Name.ExtractText();
+            // if(shop.ShopId == 1770770) PluginLog.Verbose($"SpecialShop: {shop.ShopId}-{shop.ShopName}-{shop.NpcName}");
             var itemCol = shop_.Item;
             foreach (var itemCol_ in itemCol)
             {
                 var temp = new List<(uint, uint)>();
-                //PluginLog.Verbose(itemCol_.ItemCosts.ToString());
                 foreach (var currency in itemCol_.ItemCosts)
                 {
                     if (currency.ItemCost.RowId == 0) continue;
@@ -60,7 +60,6 @@ namespace CurrencySpender.Data
                     var costItemId = currency.ItemCost.RowId;
                     costItemId = ConvertCurrencyId(shop_.RowId, costItemId, shop_.UseCurrencyType);
                     var costItem = Service.DataManager.GetExcelSheet<Item>().GetRow(costItemId);
-                    //DuoLog.Information($"Currency: {costItem.Name}, shop_.UseCurrencyType: {shop_.UseCurrencyType}");
                 }
                 for (int i = 0; i < itemCol_.ReceiveItems.Count; i++)
                 {
@@ -71,6 +70,9 @@ namespace CurrencySpender.Data
                     var costItemId = itemCol_.ItemCosts[i].ItemCost.RowId;
                     var cur = ConvertCurrencyId(shop_.RowId, costItemId, shop_.UseCurrencyType);
                     var cur_item = Service.DataManager.GetExcelSheet<Item>().GetRow(cur);
+
+                    // if (shop.ShopId == 1770770) PluginLog.Verbose($"SpecialShop Item: {itemCol_.ReceiveItems[i].Item.RowId}-{itemCol_.ReceiveItems[i].Item.Value.Name}-{cur}-{cur_item.Name}-{shop.NpcName}-{shop.ShopId}-CurrencyId:{costItemId}");
+
                     if (P.Currencies.Where(c => c.Enabled && c.ItemId == cur).ToList().Count() == 0) continue;
 
                     var item_types = ItemHelper.GetItemTypes(itemCol_.ReceiveItems[i].Item.RowId);
@@ -79,8 +81,8 @@ namespace CurrencySpender.Data
                     //if (CollectableType == CollectableType.Hairstyle) PluginLog.Debug($"specialShop Hairstyle: {itemCol_.ReceiveItems[i].Item.RowId}, shop: {shop.NpcName}");
                     //PluginLog.Verbose(types.ToString());
                     //if (!enabled_currencies.Contains(cur)) continue;
-                    //if(itemCol_.ReceiveItems[i].Item.RowId == 45002)
-                    //    DuoLog.Information($"{cur}-{cur_item.Name}-{shop.NpcName}-{shop.ShopId}-CurrencyId:{costItemId}-{ itemCol_.ReceiveItems[i].Item.Value.Name.ToString()}");
+                    //if(itemCol_.ReceiveItems[i].Item.RowId == 45988)
+                    //    PluginLog.Verbose($"{cur}-{cur_item.Name}-{shop.NpcName}-{shop.ShopId}-CurrencyId:{costItemId}-{ itemCol_.ReceiveItems[i].Item.Value.Name.ToString()}");
                     var existing_item = Generator.items.FirstOrDefault(it => it.Id == itemCol_.ReceiveItems[i].Item.RowId && it.Shop.NpcId == shop.NpcId); //it.Shop.NpcId == shop.NpcId);
                     if(existing_item == default)
                     {
@@ -372,8 +374,8 @@ namespace CurrencySpender.Data
         };
         private static Dictionary<uint, uint> TomeStones_Dict = new Dictionary<uint, uint>() {
             { 1, 28 },
-            { 2, 46 },
-            { 3, 47 },
+            { 2, Service.DataManager.GetExcelSheet<TomestonesItem>()!.First(item => item.Tomestones.RowId is 2).Item.RowId },
+            { 3, Service.DataManager.GetExcelSheet<TomestonesItem>()!.First(item => item.Tomestones.RowId is 3).Item.RowId },
         };
         public static uint ConvertCurrencyId(uint specialShopId, uint itemId, ushort useCurrencyType)
         {

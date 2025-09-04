@@ -132,6 +132,9 @@ public unsafe class TrackedCurrency
             new TrackedCurrency { Type = CurrencyType.Item, ItemId = 37549, Threshold = 9999999, MaxCount = 9999999 }, // Seafarer's Cowrie
             new TrackedCurrency { Type = CurrencyType.Item, ItemId = 37550, Threshold = 9999999, MaxCount = 9999999 }, // Islander's Cowrie
 
+            new TrackedCurrency { Type = CurrencyType.Item, ItemId = 45690, Threshold = 25000, MaxCount = 30000 }, // Cosmocredit
+            new TrackedCurrency { Type = CurrencyType.Item, ItemId = 48146, Threshold = 8000, MaxCount = 10000, Enabled = false }, // Phaenna Credit
+
         };
     }
 }

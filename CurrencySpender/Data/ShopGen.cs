@@ -1,7 +1,6 @@
-using Lumina.Excel.Sheets;
-using Lumina.Excel;
 using CurrencySpender.Classes;
-using System.Runtime.ConstrainedExecution;
+using Lumina.Excel;
+using Lumina.Excel.Sheets;
 
 namespace CurrencySpender.Data
 {
@@ -14,6 +13,7 @@ namespace CurrencySpender.Data
             1770283, 1770284, 1770336, 1770341, // Campaign Attendant
             1770596, 1770646, 1770730, // Seasonal Event 
             1769951, //Ironworks Vendor
+            1769802, 1769983, // Shee-Tatch, Gear Exchange
         ];
 
         public static List<uint> OldShops = new List<uint> ();
@@ -100,6 +100,7 @@ namespace CurrencySpender.Data
                             { ListRange(1770781, 1770794), 1003633 }, // Scrip Exchange
                             { ListRange(1770868, 1770882), 1003633 }, // Scrip Exchange
                             { ListRange(1770907, 1770907), 1003633 }, // Scrip Exchange
+                            { ListRange(1770943, 1770944), 1003633 }, // Scrip Exchange
                             { new List<uint> { 1769577, 1769578 }, 1012225 }, // Ardolain
                             { new List<uint> { 1769790, 1769791, 1769819, 1769814, 1769854, 1769883, 1769873, 1769940, 1769807 }, 1019451 }, // Eschina
                             { new List<uint> { 1769743, 1769744, 1770537 }, 1018655 }, // Disreputable Priest
@@ -120,6 +121,11 @@ namespace CurrencySpender.Data
                             { new List<uint> { 1769964 }, 1027766 }, // Goushs Ooan
 
                             { new List<uint> { 1770904 }, 1044839 }, // Dibourdier
+
+                            { ListRange(1770764, 1770765), 1048387 }, // Ryubool Ja
+
+                            { new List<uint> { 1770766 }, 1049079 }, // Zircon
+
                         };
                         //DuoLog.Information($"{npcMapping[1013397]}");
                         if (EventShops.Contains(shop.RowId)) continue;
@@ -129,6 +135,7 @@ namespace CurrencySpender.Data
                         if (NpcId != 0)
                         {
                             Location loc = Location.GetLocation(NpcId);
+
                             if(loc == Location.locations[0] && C.Debug) { PluginLog.Error($"Missing location: {NpcId}"); }
                             List<uint> blacklist_shops = [1770595, 1770645, 1770729];
                             if (!blacklist_shops.Contains(shop.RowId))
@@ -175,7 +182,7 @@ namespace CurrencySpender.Data
             ReadOnlySpan<Type> customTalkTypes = [typeof(FateShop), typeof(FccShop), typeof(SpecialShop), typeof(InclusionShop)];
             var customTalkTypeHash = RowRef.CreateTypeHash(customTalkTypes);
             var npcName = Service.DataManager.GetExcelSheet<ENpcResident>()!.GetRow(npcBase.RowId).Singular.ExtractText();
-            //List<string> names = ["Enie"];
+            //List<string> names = ["Zircon"];
             //if (names.Contains(npcName))
             //{
             //    if (C.Debug)
@@ -235,12 +242,14 @@ namespace CurrencySpender.Data
                 List<uint> blacklist_npcs = [1006004, 1006005, 1006006]; //Calamatiy Salvager
                 blacklist_npcs.Add(1028254); // Ironworks Vendor
                 blacklist_npcs.AddRange(new List<uint> { 1019797, 1026074, 1028250, 1034489, 1036894, 1042833, 1044880, 1046491 }); // Campaign Attendant
+
                 blacklist_npcs.AddRange(new List<uint> { 1016294, 1016296 }); // Triple Triad Trader
                 blacklist_npcs.Add(1031691); //Enie
+                blacklist_npcs.AddRange(new List<uint> { 1052588, 1052600, 1052607 }); // Mesouaidonque
                 List<uint> blacklist_shops = [1770595, 1770645, 1770729];
                 if (!blacklist_npcs.Contains(npcBase.RowId) && !blacklist_shops.Contains(rowRef.RowId))
                 {
-                    // if (rowRef.RowId == 1770477) DuoLog.Information("Found");
+                     //if (rowRef.RowId == 1770769) DuoLog.Information("Found");
                     Generator.shops.Add(new Shop { ShopId = rowRef.RowId, NpcId = npcBase.RowId, Type = ShopType.SpecialShop, Location = loc });
                 }
             }

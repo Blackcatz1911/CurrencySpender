@@ -2,7 +2,7 @@
 <Project Sdk="Dalamud.NET.Sdk/13.1.0">
   <PropertyGroup>
     <Authors>Blackcatz1911</Authors>
-    <Version>1.2.1.0</Version>
+    <Version>1.2.2.0</Version>
     <Description>Figure out what to do with all the ingame currencies.</Description>
     <PackageProjectUrl>https://github.com/Blackcatz1911/CurrencySpender</PackageProjectUrl>
     <RepoUrl>https://github.com/Blackcatz1911/CurrencySpender</RepoUrl>
