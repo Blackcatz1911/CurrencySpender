@@ -2,25 +2,24 @@
 <Project Sdk="Dalamud.NET.Sdk/13.1.0">
   <PropertyGroup>
     <Authors>Blackcatz1911</Authors>
-    <Version>1.2.2.0</Version>
+    <Version>1.2.3.0</Version>
     <Description>Figure out what to do with all the ingame currencies.</Description>
     <PackageProjectUrl>https://github.com/Blackcatz1911/CurrencySpender</PackageProjectUrl>
     <RepoUrl>https://github.com/Blackcatz1911/CurrencySpender</RepoUrl>
     <PackageLicenseExpression>AGPL-3.0-or-later</PackageLicenseExpression>
     <IsPackable>false</IsPackable>
     <Platforms>x64</Platforms>
-    <TargetFramework>net9.0-windows7.0</TargetFramework>
   </PropertyGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\ECommons\ECommons\ECommons.csproj" />
-  </ItemGroup>
   
   <ItemGroup>
     <Content Include="..\CHANGELOG.md">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <Visible>true</Visible>
     </Content>
+  </ItemGroup>
+  
+  <ItemGroup>
+    <PackageReference Include="ECommons" Version="3.0.1.13" />
   </ItemGroup>
 
    <ItemGroup Condition="!Exists('$(ProjectDir)..\FFXIVClientStructs')">

@@ -26,7 +26,7 @@ internal class AboutTab
         });
         ImGuiEx.LineCentered("About1-3", delegate
         {
-            ImGuiEx.TextWrapped("by Blackcatz1911");
+            ImGuiEx.TextWrapped("by Blackcatz1911/catz/Ayaya");
         });
         ImGui.Separator();
         List<String> thanks = ["The Dalamud Team", "FFXIVClientStructs", "Yuki", "Limiana", "Taurenkey", "MidoriKami", "CriticalImpact", "Haselnussbomber"];

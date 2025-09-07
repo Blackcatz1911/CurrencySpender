@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.2.3
+### Added
+- A new setting to automatically open Currency Spender together with the Currency window.
+- A new button on the Currency window.
+### Fixed
+- Incorrect check for Framer's Kits has been resolved.
+### Changed
+- ECommons is now used as a NuGet package.
+
 ## 1.2.2
 ### Added
 - New NPC: Mesouaidonque on Sinus Ardorum and Phaenna.

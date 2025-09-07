@@ -7,11 +7,17 @@ using ECommons.Schedulers;
 using ECommons.Automation.NeoTaskManager;
 using CurrencySpender.Data;
 using System.IO;
+using System.Net.Mime;
+using CurrencySpender.Hooks;
+using Dalamud.Game.Addon.Lifecycle;
+using Dalamud.Game.Addon.Lifecycle.AddonArgTypes;
 using Dalamud.Game.Command;
+using ECommons.Automation.UIInput;
+using FFXIVClientStructs.FFXIV.Component.GUI;
 
 namespace CurrencySpender;
 
-public sealed class Plugin : IDalamudPlugin
+public sealed unsafe class Plugin : IDalamudPlugin
 {
     public string Name => "Currency Spender";
     [PluginService] internal static IDalamudPluginInterface PluginInterface { get; private set; } = null!;
@@ -31,12 +37,17 @@ public sealed class Plugin : IDalamudPlugin
     internal SpendingWindow spendingWindow;
     internal DebugTabWindow debugTabWindow;
     internal ConfigWizardWindow configWizard;
+    internal CurrencyOverlay currencyOverlay;
 
     internal string? changelogPath;
     public string Version;
     public bool Problem = false;
     internal TaskManager TaskManager;
     public List<TrackedCurrency> Currencies;
+    
+    CurrencyNodeHooker nodeHooker;
+    
+    
     //private SpendingWindow SpendingWindow { get; init; }
 
     public Plugin(IDalamudPluginInterface pluginInterface)
@@ -67,6 +78,8 @@ public sealed class Plugin : IDalamudPlugin
             mainTabWindow = new();
             configTabWindow = new();
             configWizard = new();
+            currencyOverlay = new CurrencyOverlay();
+            
             PluginInterface.UiBuilder.Draw += ws.Draw;
             PluginInterface.UiBuilder.OpenConfigUi += delegate { configTabWindow.IsOpen = true; };
             PluginInterface.UiBuilder.OpenMainUi += delegate { mainTabWindow.IsOpen = true; };
@@ -79,6 +92,8 @@ public sealed class Plugin : IDalamudPlugin
             //PluginLog.Debug($"unlocked: {ItemHelper.IsUnlocked(36636)}");
             //mainTabWindow.IsOpen = true;
         });
+        // nodeHooker = new CurrencyNodeHooker();
+        // nodeHooker.Enable();
         
         //PlayerHelper.init();
         //Generator.init();
@@ -105,6 +120,7 @@ public sealed class Plugin : IDalamudPlugin
         PluginInterface.UiBuilder.Draw -= ws.Draw;
         ECommonsMain.Dispose();
         FontHelper.DisposeFonts();
+        nodeHooker?.Disable();
     }
 
     private void OnCommand(string command, string args)

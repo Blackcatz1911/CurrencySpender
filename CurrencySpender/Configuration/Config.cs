@@ -4,7 +4,7 @@ using ECommons.Configuration;
 namespace CurrencySpender.Configuration;
 
 [Serializable]
-public class Config: IEzConfig
+public class Config
 {
     public string Version { get; set; } = "0.0.0";
     public string GameVersion { get; set; } = "";
@@ -21,6 +21,8 @@ public class Config: IEzConfig
     public bool ShowItemsOfInterest = true;
     public bool ShowMissingCollectables = true;
     public bool ShowSellables = true;
+    
+    public bool OpenAutomatically = false;
 
     public bool Debug = false;
 }

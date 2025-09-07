@@ -14,6 +14,7 @@ internal class ConfigWizardWindow : Window
         { "1.1.0", DrawVersion1_1_0Steps },
         { "1.1.2", DrawVersion1_1_2Steps },
         { "1.2.2", DrawVersion1_2_2Steps },
+        { "1.2.3", DrawVersion1_2_3Steps },
         //{ "1.2.0", DrawVersion120Steps }
     };
 
@@ -255,6 +256,18 @@ internal class ConfigWizardWindow : Window
         }
     }
 
+    private static void DrawVersion1_2_3Steps(int step)
+    {
+        switch (step)
+        {
+            case 1:
+                ImGui.TextWrapped("Open Currency Spender automatically when you open the ingame Currency window:");
+                ImGui.Checkbox("Open automatically with the Currency window", ref C.ShowSellables);
+                break;
+
+        }
+    }
+
     private static void CalculateSteps()
     {
         MaxSteps = 0;
@@ -274,7 +287,7 @@ internal class ConfigWizardWindow : Window
             "1.1.0" => 2, // Number of steps for version 1.1.0
             "1.1.2" => 1,
             "1.2.2" => 1,
-            //"1.2.0" => 3, // Number of steps for version 1.2.0
+            "1.2.3" => 1,
             _ => 0
         };
     }

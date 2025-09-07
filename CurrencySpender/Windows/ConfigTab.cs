@@ -67,6 +67,8 @@ internal class ConfigTab
             ImGui.EndCombo();
         }
         ImGui.Separator();
+        ImGui.Checkbox("Open automatically with the Currency window", ref C.OpenAutomatically);
+        ImGui.Separator();
         ImGui.PushStyleColor(ImGuiCol.Text, new Vector4(1.0f, 0.25f, 0.25f, 1.0f)); // RGBA for red
         ImGui.TextWrapped("Dont turn it on, unless you know what you are doing...");
         ImGui.Checkbox("Debug Mode", ref C.Debug);
