@@ -24,7 +24,8 @@ def run_command(command, cwd=None):
 
 
 # Parse version and changelog from Changelog.md
-with open("Changelog.md", "r") as changelog_file:
+changelog_path = os.path.join(os.getcwd(), "CHANGELOG.md")
+with open(changelog_path, "r") as changelog_file:
     changelog_content = changelog_file.read()
 
 # Extract the latest version and changelog entry
