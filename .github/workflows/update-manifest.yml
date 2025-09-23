@@ -3,7 +3,8 @@ name: Update Plugin Manifest
 on:
   push:
     branches:
-      - main  # or master, depending on your default branch
+      - master
+  workflow_dispatch:
 
 jobs:
   update-manifest:
