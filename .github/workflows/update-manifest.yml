@@ -14,33 +14,34 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0  # to get full changelog history
-
+      
       - name: Extract Version and Changelog
         id: changelog
         run: |
-          # Extract latest version
-          VERSION=$(grep -m1 "^## [0-9]" CHANGELOG.md | head -1 | sed 's/## //')
-          if [ -z "$VERSION" ]; then
+            VERSION=$(grep -m1 "^## [0-9]" CHANGELOG.md | head -1 | sed 's/## //')
+            if [ -z "$VERSION" ]; then
             echo "Version not found in CHANGELOG.md"
             exit 1
-          fi
+            fi
 
-          # Extract changelog for that version
-          CHANGELOG=$(awk "/^## $VERSION$/,/^## [0-9]/" CHANGELOG.md | sed '1d;$d' | sed '/^$/d' | sed 's/"/\\"/g')
-          if [ -z "$CHANGELOG" ]; then
-            echo "Changelog for $VERSION not found"
+            CHANGELOG=$(awk -v ver="$VERSION" '
+                $0 ~ "^## " ver "$" { in_section=1; next }
+                in_section && /^## [0-9]/ { exit }
+                in_section && !/^## / { print }
+            ' CHANGELOG.md | sed '/^[[:space:]]*$/d' | sed 's/"/\\"/g')
+
+            if [ -z "$CHANGELOG" ]; then
+            echo "Changelog for $VERSION not found or empty"
             exit 1
-          fi
+            fi
 
-          # Get current commit
-          COMMIT=$(git rev-parse HEAD)
+            COMMIT=$(git rev-parse HEAD)
 
-          # Output for next steps
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "changelog<<EOF" >> $GITHUB_OUTPUT
-          echo "$CHANGELOG" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
-          echo "commit=$COMMIT" >> $GITHUB_OUTPUT
+            echo "version=$VERSION" >> $GITHUB_OUTPUT
+            echo "changelog<<EOF" >> $GITHUB_OUTPUT
+            echo "$CHANGELOG" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+            echo "commit=$COMMIT" >> $GITHUB_OUTPUT
 
       - name: Checkout DalamudPlugins Repo
         uses: actions/checkout@v4
