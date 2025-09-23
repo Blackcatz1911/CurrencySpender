@@ -46,31 +46,38 @@ jobs:
       - name: Checkout DalamudPlugins Repo
         uses: actions/checkout@v4
         with:
-          repository: Blackcatz1911/DalamudPluginsD17
-          token: ${{ secrets.GH_PAT }}  # Personal Access Token with repo permissions
-          path: dalamud-plugins
+            repository: Blackcatz1911/DalamudPluginsD17
+            token: ${{ secrets.GH_PAT }}
+            path: dalamud-plugins
+            ref: main  # explicitly check out main
+
+      - name: Add Upstream and Sync with Original Repo
+        working-directory: dalamud-plugins
+        run: |
+            git remote add upstream https://github.com/goatcorp/DalamudPlugins.git || true
+            git fetch upstream
+            git checkout main
+            git merge upstream/main --ff-only  # fast-forward only, safe
+            git push origin main  # update your fork's main
 
       - name: Set Repo Path
         id: paths
         run: |
-          REPO_PATH="stable/CurrencySpender"
-          echo "repo_path=$REPO_PATH" >> $GITHUB_OUTPUT
+            REPO_PATH="stable/CurrencySpender"
+            echo "repo_path=$REPO_PATH" >> $GITHUB_OUTPUT
 
       - name: Create Directories
         run: |
-          mkdir -p dalamud-plugins/${{ steps.paths.outputs.repo_path }}/images
+            mkdir -p dalamud-plugins/${{ steps.paths.outputs.repo_path }}/images
 
       - name: Download Icon
         run: |
-          curl -L "https://raw.githubusercontent.com/Blackcatz1911/CurrencySpender/refs/heads/master/Data/logo.png" \
+            curl -L "https://raw.githubusercontent.com/Blackcatz1911/CurrencySpender/refs/heads/master/Data/logo.png" \
             -o "dalamud-plugins/${{ steps.paths.outputs.repo_path }}/images/icon.png"
 
       - name: Generate manifest.toml
         run: |
-            # Escape backslashes and quotes for TOML multiline string
-            # Also ensure no triple quotes inside break the string
             ESCAPED_CHANGELOG=$(echo '${{ steps.changelog.outputs.changelog }}' | sed 's/\\/\\\\/g; s/"/\\"/g')
-
             cat > "dalamud-plugins/${{ steps.paths.outputs.repo_path }}/manifest.toml" << EOF
             [plugin]
             repository = "https://github.com/Blackcatz1911/CurrencySpender.git"
@@ -85,31 +92,17 @@ jobs:
             EOF
 
       - name: Configure Git
+        working-directory: dalamud-plugins
         run: |
-          cd dalamud-plugins
-          git config user.name "Blackcatz1911"
-          git config user.email "Blackcatz1911@users.noreply.github.com"
+            git config user.name "Blackcatz1911"
+            git config user.email "Blackcatz1911@users.noreply.github.com"
 
       - name: Create and Push Branch
         working-directory: dalamud-plugins
         run: |
-          BRANCH="update-manifest-CurrencySpender"
-          git checkout -B $BRANCH
-          git add .
-          git commit -m "Update manifest for CurrencySpender"
-          git push origin $BRANCH --force
-
-      - name: Create Pull Request (Optional)
-        uses: peter-evans/create-pull-request@v5
-        with:
-          token: ${{ secrets.GH_PAT }}
-          path: dalamud-plugins
-          branch: update-manifest-CurrencySpender
-          base: main
-          title: "Update manifest for CurrencySpender v${{ steps.changelog.outputs.version }}"
-          body: |
-            Auto-generated PR to update manifest for CurrencySpender.
-            Version: ${{ steps.changelog.outputs.version }}
-          labels: |
-            automated
-            plugin-update
+            BRANCH="update-manifest-CurrencySpender"
+            git checkout -B $BRANCH
+            git add .
+            git status  # 👈 DEBUG: See what’s being added
+            git commit -m "Update manifest for CurrencySpender"
+            git push origin $BRANCH --force
