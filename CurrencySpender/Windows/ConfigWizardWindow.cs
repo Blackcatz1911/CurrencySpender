@@ -15,6 +15,7 @@ internal class ConfigWizardWindow : Window
         { "1.1.2", DrawVersion1_1_2Steps },
         { "1.2.2", DrawVersion1_2_2Steps },
         { "1.2.3", DrawVersion1_2_3Steps },
+        { "1.2.4", DrawVersion1_2_4Steps },
         //{ "1.2.0", DrawVersion120Steps }
     };
 
@@ -267,6 +268,63 @@ internal class ConfigWizardWindow : Window
 
         }
     }
+    
+    private static void DrawVersion1_2_4Steps(int step)
+    {
+        switch (step)
+        {
+            case 1:
+                ImGui.TextWrapped("Minimum sales for the sellable table (0 = disable)");
+                ImGui.InputInt("Minimum sales", ref C.MinSales);
+                ImGui.TextWrapped("Select if you want to see the following currencies:");
+                foreach (var cur in P.Currencies.Where(cur => cur.Child == false && cur.Enabled).ToList())
+                {
+                    if (cur.ItemId != 45691 && cur.ItemId != 48146) continue;
+                    bool isSelected = C.SelectedCurrencies.Contains(cur.ItemId);
+                    if (ImGui.Checkbox($"##{cur.ItemId}", ref isSelected))
+                    {
+                        if (isSelected)
+                        {
+                            C.SelectedCurrencies.Add(cur.ItemId);
+                        }
+                        else
+                        {
+                            C.SelectedCurrencies.Remove(cur.ItemId);
+                        }
+                        P.spendingWindow.UpdateData();
+                        MainTab.update(true);
+                    }
+                    ImGui.SameLine();
+                    ImGui.Text(cur.Name);
+                    ImGui.Separator();
+                }
+                ImGui.Separator();
+                ImGui.TextWrapped("Select if you consider the following as collectable:");
+                foreach (CollectableType type in Enum.GetValues(typeof(CollectableType)))
+                {
+                    if (type != CollectableType.MasterRecipes) continue;
+                    string label = CollectableTypeLabels.TryGetValue(type, out var displayName) ? displayName : type.ToString();
+                    bool isSelected = C.SelectedCollectableTypes.Contains(type);
+                    if (ImGui.Checkbox($"##{type}", ref isSelected))
+                    {
+                        if (isSelected)
+                        {
+                            C.SelectedCollectableTypes.Add(type);
+                        }
+                        else
+                        {
+                            C.SelectedCollectableTypes.Remove(type);
+                        }
+                        P.spendingWindow.UpdateData();
+                        MainTab.update(true);
+                    }
+                    ImGui.SameLine();
+                    ImGui.Text(label);
+                }
+                break;
+
+        }
+    }
 
     private static void CalculateSteps()
     {
@@ -288,6 +346,7 @@ internal class ConfigWizardWindow : Window
             "1.1.2" => 1,
             "1.2.2" => 1,
             "1.2.3" => 1,
+            "1.2.4" => 1,
             _ => 0
         };
     }

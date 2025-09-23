@@ -1,0 +1,113 @@
+name: Update Plugin Manifest
+
+on:
+  push:
+    branches:
+      - main  # or master, depending on your default branch
+
+jobs:
+  update-manifest:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Plugin Repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # to get full changelog history
+
+      - name: Extract Version and Changelog
+        id: changelog
+        run: |
+          # Extract latest version
+          VERSION=$(grep -m1 "^## [0-9]" CHANGELOG.md | head -1 | sed 's/## //')
+          if [ -z "$VERSION" ]; then
+            echo "Version not found in CHANGELOG.md"
+            exit 1
+          fi
+
+          # Extract changelog for that version
+          CHANGELOG=$(awk "/^## $VERSION$/,/^## [0-9]/" CHANGELOG.md | sed '1d;$d' | sed '/^$/d' | sed 's/"/\\"/g')
+          if [ -z "$CHANGELOG" ]; then
+            echo "Changelog for $VERSION not found"
+            exit 1
+          fi
+
+          # Get current commit
+          COMMIT=$(git rev-parse HEAD)
+
+          # Output for next steps
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "changelog<<EOF" >> $GITHUB_OUTPUT
+          echo "$CHANGELOG" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+          echo "commit=$COMMIT" >> $GITHUB_OUTPUT
+
+      - name: Checkout DalamudPlugins Repo
+        uses: actions/checkout@v4
+        with:
+          repository: Blackcatz1911/DalamudPluginsD17
+          token: ${{ secrets.GH_PAT }}  # Personal Access Token with repo permissions
+          path: dalamud-plugins
+
+      - name: Set Repo Path
+        id: paths
+        run: |
+          REPO_PATH="stable/CurrencySpender"
+          echo "repo_path=$REPO_PATH" >> $GITHUB_OUTPUT
+
+      - name: Create Directories
+        run: |
+          mkdir -p dalamud-plugins/${{ steps.paths.outputs.repo_path }}/images
+
+      - name: Download Icon
+        run: |
+          curl -L "https://raw.githubusercontent.com/Blackcatz1911/CurrencySpender/refs/heads/master/Data/logo.png" \
+            -o "dalamud-plugins/${{ steps.paths.outputs.repo_path }}/images/icon.png"
+
+      - name: Generate manifest.toml
+        run: |
+            # Escape backslashes and quotes for TOML multiline string
+            # Also ensure no triple quotes inside break the string
+            ESCAPED_CHANGELOG=$(echo '${{ steps.changelog.outputs.changelog }}' | sed 's/\\/\\\\/g; s/"/\\"/g')
+
+            cat > "dalamud-plugins/${{ steps.paths.outputs.repo_path }}/manifest.toml" << EOF
+            [plugin]
+            repository = "https://github.com/Blackcatz1911/CurrencySpender.git"
+            owners = ["Blackcatz1911"]
+            project_path = "CurrencySpender"
+            commit = "${{ steps.changelog.outputs.commit }}"
+            changelog = \"""
+            ## ${{ steps.changelog.outputs.version }}
+            $ESCAPED_CHANGELOG
+            \"""
+            version = "${{ steps.changelog.outputs.version }}"
+            EOF
+
+      - name: Configure Git
+        run: |
+          cd dalamud-plugins
+          git config user.name "Blackcatz1911"
+          git config user.email "Blackcatz1911@users.noreply.github.com"
+
+      - name: Create and Push Branch
+        working-directory: dalamud-plugins
+        run: |
+          BRANCH="update-manifest-CurrencySpender"
+          git checkout -B $BRANCH
+          git add .
+          git commit -m "Update manifest for CurrencySpender"
+          git push origin $BRANCH --force
+
+      - name: Create Pull Request (Optional)
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GH_PAT }}
+          path: dalamud-plugins
+          branch: update-manifest-CurrencySpender
+          base: main
+          title: "Update manifest for CurrencySpender v${{ steps.changelog.outputs.version }}"
+          body: |
+            Auto-generated PR to update manifest for CurrencySpender.
+            Version: ${{ steps.changelog.outputs.version }}
+          labels: |
+            automated
+            plugin-update

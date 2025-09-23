@@ -89,16 +89,18 @@ internal static unsafe class UiHelper
 
     internal static void BuildMapButtons(ShopItem item)
     {
-        if (item.Shop.Location != null && item.Shop.Location != Location.locations[0])
+        if (item.Shop.Location != Location.locations[0])
         {
-            Location Baldin = Location.locations[0];
-            if(item.Shop.Location.TerritoryId == 1055)
-                Baldin = Location.locations.Where(loc => loc.NpcId == 1043621).First();
+            Location backupLocation = Location.locations[0];
+            if (item.Shop.Location.NeedsPresence && item.Shop.Location.BackupNpc != null)
+            {
+                backupLocation = Location.locations.Where(loc => loc.NpcId == item.Shop.Location.BackupNpc).First();
+            }
             if (ImGui.Button($"Flag##sellable-{item.Id}-{item.ShopId}-{item.Shop.NpcId}"))
             {
-                if(AgentMap.Instance()->CurrentTerritoryId == 1055 && item.Shop.Location.TerritoryId == 1055)
+                if(item.Shop.Location.NeedsPresence && AgentMap.Instance()->CurrentTerritoryId != item.Shop.Location.TerritoryId)
                 {
-                    Service.GameGui.OpenMapWithMapLink(Baldin.GetMapMarker());
+                    Service.GameGui.OpenMapWithMapLink(backupLocation.GetMapMarker());
                 }
                 else
                 {
@@ -107,13 +109,9 @@ internal static unsafe class UiHelper
             }
             if (ImGui.IsItemHovered())
             {
-                // Display a tooltip or additional info
                 ImGui.BeginTooltip();
-                if (AgentMap.Instance()->CurrentTerritoryId != 1055 && item.Shop.Location.TerritoryId == 1055)
-                {
-                    UiHelper.LeftAlign($"The flag will only show up, if you are on your island.");
-                    UiHelper.LeftAlign($"{Baldin.Zone}");
-                }
+                if(item.Shop.Location.NeedsPresence && AgentMap.Instance()->CurrentTerritoryId != item.Shop.Location.TerritoryId)
+                    UiHelper.LeftAlign($"The flag will only show up, if you are here: {item.Shop.Location.Zone}\nShowing teleport point instead: {backupLocation.Zone}");
                 else
                     UiHelper.LeftAlign($"{item.Shop.Location.Zone}");
                 ImGui.EndTooltip();
@@ -122,17 +120,16 @@ internal static unsafe class UiHelper
             if (ImGui.Button($"TP##sellable-{item.Id}-{item.ShopId}-{item.Shop.NpcId}"))
             {
                 item.Shop.Location.Teleport();
-                if (item.Shop.Location.TerritoryId == 1055)
-                    Service.GameGui.OpenMapWithMapLink(Baldin.GetMapMarker());
+                if(item.Shop.Location.NeedsPresence && AgentMap.Instance()->CurrentTerritoryId != item.Shop.Location.TerritoryId)
+                    Service.GameGui.OpenMapWithMapLink(backupLocation.GetMapMarker());
                 else
                     Service.GameGui.OpenMapWithMapLink(item.Shop.Location.GetMapMarker());
             }
             if (ImGui.IsItemHovered())
             {
-                // Display a tooltip or additional info
                 ImGui.BeginTooltip();
-                if(item.Shop.Location.TerritoryId == 1055)
-                    UiHelper.LeftAlign($"{Baldin.Zone}");
+                if(item.Shop.Location.NeedsPresence && AgentMap.Instance()->CurrentTerritoryId != item.Shop.Location.TerritoryId)
+                    UiHelper.LeftAlign($"You need to travel there first manually.\nWill teleport to nearest Aetheryte instead.");
                 else
                     UiHelper.LeftAlign($"{item.Shop.Location.Zone}");
                 ImGui.EndTooltip();

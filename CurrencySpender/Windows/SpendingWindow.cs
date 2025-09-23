@@ -257,7 +257,7 @@ internal class SpendingWindow : Window
                         {
                             // Display a tooltip or additional info
                             ImGui.BeginTooltip();
-                            UiHelper.LeftAlign($"ID: {item.Id}\nCat: {item.Category}\nShopId: {item.Shop.ShopId}\nNPCName: {item.Shop.NpcName}\nNPCID: {item.Shop.NpcId}\nShopType: {item.Shop.Type}");
+                            UiHelper.LeftAlign($"ID: {item.Id}\nCollectableType: {item.CollectableType}\nIsUnlocked: {ItemHelper.IsUnlocked(item.Id)}\nCat: {item.Category}\nShopId: {item.Shop.ShopId}\nNPCName: {item.Shop.NpcName}\nNPCID: {item.Shop.NpcId}\nShopType: {item.Shop.Type}");
                             ImGui.EndTooltip();
                         }
                         if (item.Currency != Currency.ItemId)
@@ -459,11 +459,11 @@ internal class SpendingWindow : Window
                 {
                     // Set up columns
                     ImGui.TableSetupColumn("Name", ImGuiTableColumnFlags.WidthStretch);
-                    ImGui.TableSetupColumn("Sales", ImGuiTableColumnFlags.None);
+                    ImGui.TableSetupColumn("Sales");
                     ImGui.TableSetupColumn("Price", ImGuiTableColumnFlags.WidthFixed, 100);
-                    ImGui.TableSetupColumn("Qty", ImGuiTableColumnFlags.None);
-                    ImGui.TableSetupColumn("Sells for", ImGuiTableColumnFlags.None);
-                    ImGui.TableSetupColumn("Total", ImGuiTableColumnFlags.None);
+                    ImGui.TableSetupColumn("Qty");
+                    ImGui.TableSetupColumn("Sells for");
+                    ImGui.TableSetupColumn("Total");
                     //ImGui.TableSetupColumn("Zone", ImGuiTableColumnFlags.NoSort);
                     ImGui.TableSetupColumn("Actions", ImGuiTableColumnFlags.NoSort);
                     ImGui.TableHeadersRow();
@@ -478,8 +478,7 @@ internal class SpendingWindow : Window
                         ImGuiTableColumnSortSpecsPtr spec = sortSpecs.Specs;
                         int columnIndex = spec.ColumnIndex;
                         bool ascending = spec.SortDirection == ImGuiSortDirection.Ascending;
-
-                        // Sort based on the column index
+                        
                         switch (columnIndex)
                         {
                             case 0: // Name

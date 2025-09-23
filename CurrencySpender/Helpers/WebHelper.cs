@@ -54,6 +54,7 @@ namespace CurrencySpender.Helpers
                     if (priceInfo != default)
                     {
                         item.CurrentPrice = priceInfo.WorldPrice;
+                        item.GilPerCur = item.CurrentPrice / item.Price;
                         item.LastChecked = (uint)DateTimeOffset.UtcNow.ToUnixTimeSeconds();
                         item.Type |= Classes.ItemType.Sellable;
                         //PluginLog.Verbose($"Item was changed: {item.Name}");
@@ -111,6 +112,7 @@ namespace CurrencySpender.Helpers
                         item.HasSoldWeek = priceInfo.Sales;
                     }
                 }
+                P.spendingWindow.UpdateData();
             }
             catch (Exception e) { PluginLog.Error(e.ToString()); }
         }

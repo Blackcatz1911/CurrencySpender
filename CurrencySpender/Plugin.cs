@@ -174,5 +174,6 @@ public sealed unsafe class Plugin : IDalamudPlugin
         { CollectableType.FramersKit, "Framer's Kits" },
         { CollectableType.TTCard, "Triple Triad Cards" },
         { CollectableType.Mahjong, "Mahjong Voices" },
+        { CollectableType.MasterRecipes, "Master Recipes" },
     };
 }

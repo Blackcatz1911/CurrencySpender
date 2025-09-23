@@ -88,7 +88,11 @@ namespace CurrencySpender.Helpers
                     foreach (var value in values)
                     {
                         if (IsUnlocked(value)) unlocked++;
-                        else PluginLog.Debug($"{value} not unlocked");
+                        else
+                        {
+                            var missingItem =  Service.DataManager.GetExcelSheet<Item>().GetRow(value);
+                            PluginLog.Debug($"{missingItem.Name} - {missingItem.RowId} not unlocked");
+                        }
                         max++;
                     }
                 }
@@ -178,6 +182,7 @@ namespace CurrencySpender.Helpers
             {
                 return ItemType.Venture;
             }
+
             var cat = item.ItemUICategory.RowId;
             var name = item.Name.ExtractText();
             var untradable = item.IsUntradable;
@@ -185,6 +190,10 @@ namespace CurrencySpender.Helpers
             if (Containers.ContainsKey(id)) curType |= ItemType.Collectable;
             //if (item_.ItemAction.RowId != 0) curType |= ItemType.Collectable;
             if (P.Currencies.Where(cur => cur.ItemId == item.RowId).ToList().Count > 0) curType |= ItemType.Currency;
+            
+            // if(item.RowId == 46321)
+            //     PluginLog.Information($"46321: {item.Name} cat:{cat} item.ItemAction.Value.Type:{item.ItemAction.Value.Type}");
+            
             if(name.Contains("Ballroom Etiquette") || name.Contains("Framer's Kit") || name.Contains("Battlefield Etiquette") ||
                 name.Contains("The Faces We Wear") || name.Contains("Modern Aesthetics") || name.Contains("Maxims of Mahjong"))
             {
@@ -193,7 +202,7 @@ namespace CurrencySpender.Helpers
             if(cat == 63)
             {
                 if(name.Contains("Barding") || item.ItemAction.Value.Type == 1322 || item.ItemAction.Value.Type == 29459 ||
-                    item.ItemAction.Value.Type == 2633) //2633 Riding Map
+                    item.ItemAction.Value.Type == 2633 || item.ItemAction.Value.Type == 2136) //2633 Riding Map
                 {
                     curType |= ItemType.Collectable;
                 }
@@ -226,6 +235,35 @@ namespace CurrencySpender.Helpers
                 if (item.Value.ItemAction.Value.Type == 1322) return CollectableType.Mount;
                 if (item.Value.ItemAction.Value.Type == 29459) return CollectableType.FramersKit;
                 if (item.Value.ItemAction.Value.Type == 2633) return CollectableType.RidingMap;
+                if (item.Value.ItemAction.Value.Type == 2136) return CollectableType.MasterRecipes;
+            }
+            if (cat == 81) return CollectableType.Minion;
+            if (cat == 86) return CollectableType.TTCard;
+            if (cat == 94) return CollectableType.Scroll;
+            if (Debug) DuoLog.Debug("Collectable Type not found!");
+            return CollectableType.None;
+        }
+        
+        public static CollectableType GetCollectableType(Item item, ItemType item_types)
+        {
+            if (!item_types.HasFlag(ItemType.Collectable)) { return CollectableType.None; }
+            var cat = item.ItemUICategory.RowId;
+            var name = item.Name.ExtractText();
+            if (Containers.ContainsKey(item.RowId)) return CollectableType.Container;
+            if (name.Contains("Ballroom Etiquette") || name.Contains("Battlefield Etiquette"))
+            {
+                return CollectableType.Scroll;
+            }
+            if (name.Contains("Framer's Kit")) return CollectableType.FramersKit;
+            if (name.Contains("Maxims of Mahjong")) return CollectableType.Mahjong;
+            if (name.Contains("The Faces We Wear")) return CollectableType.Facewear;
+            if (name.Contains("Modern Aesthetics")) return CollectableType.Hairstyle;
+            if (cat == 63)
+            {
+                if (name.Contains("Barding")) return CollectableType.Barding;
+                if (item.ItemAction.Value.Type == 1322) return CollectableType.Mount;
+                if (item.ItemAction.Value.Type == 29459) return CollectableType.FramersKit;
+                if (item.ItemAction.Value.Type == 2633) return CollectableType.RidingMap;
             }
             if (cat == 81) return CollectableType.Minion;
             if (cat == 86) return CollectableType.TTCard;

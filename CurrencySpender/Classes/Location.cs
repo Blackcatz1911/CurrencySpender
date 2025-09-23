@@ -12,6 +12,8 @@ namespace CurrencySpender.Classes
         public uint TerritoryId { get; set; }
         private uint? aetheryteTerritoryId;
         public uint? AetheryteId;
+        public bool NeedsPresence;
+        public uint? BackupNpc;
         public uint AetheryteTerritoryId
         {
             get => aetheryteTerritoryId ?? TerritoryId; // Default to TerritoryId if not explicitly set
@@ -146,11 +148,20 @@ namespace CurrencySpender.Classes
             new Location { MapId = 856, TerritoryId = 1186, Postion = (08.4f,14.0f), NpcId = 1049082 }, // Beryl
 
             new Location { MapId = 016, TerritoryId = 0135, Postion = (24.9f, 34.8f), NpcId = 1043621 }, // Baldin
-            new Location { MapId = 793, TerritoryId = 1055, Postion = (12.6f, 28.3f), NpcId = 1043463, AetheryteId = 10 }, // Horrendous Hoarder
-            new Location { MapId = 793, TerritoryId = 1055, Postion = (12.8f, 26.9f), NpcId = 1043465, AetheryteId = 10 }, // Produce Producer
-
-            new Location { MapId = 1031, TerritoryId = 1237, Postion = (28.6f, 13.5f), NpcId = 1052608, AetheryteId = 175 }, // Mesouaidonque (Sinus Ardorum)
-            new Location { MapId = 1068, TerritoryId = 1291, Postion = (28.6f, 13.5f), NpcId = 1052640, AetheryteId = 175 }, // Mesouaidonque (Phaenna)
+            new Location { MapId = 793, TerritoryId = 1055, Postion = (12.6f, 28.3f), NpcId = 1043463,
+                AetheryteId = 10, NeedsPresence = true, BackupNpc = 1043621 }, // Horrendous Hoarder
+            new Location { MapId = 793, TerritoryId = 1055, Postion = (12.8f, 26.9f), NpcId = 1043465,
+                AetheryteId = 10, NeedsPresence = true, BackupNpc = 1043621 }, // Produce Producer
+            
+            new Location { MapId = 0698, TerritoryId = 0959, Postion = (21.9f,13.2f), NpcId = 1052581 }, // Drivingway
+            new Location { MapId = 1031, TerritoryId = 1237, Postion = (21.8f, 21.8f), NpcId = 1052608,
+                AetheryteId = 175, NeedsPresence = true, BackupNpc = 1052581 }, // Mesouaidonque (Sinus Ardorum)
+            new Location { MapId = 1068, TerritoryId = 1291, Postion = (28.6f, 13.5f), NpcId = 1052640,
+                AetheryteId = 175, NeedsPresence = true, BackupNpc = 1052581 }, // Mesouaidonque (Phaenna)
+            new Location { MapId = 1031, TerritoryId = 1237, Postion = (21.8f, 21.1f), NpcId = 1052612,
+                AetheryteId = 175, NeedsPresence = true, BackupNpc = 1052581 }, // Orbitingway (Sinus Ardorum)
+            new Location { MapId = 1068, TerritoryId = 1291, Postion = (28.6f, 12.7f), NpcId = 1052642,
+                AetheryteId = 175, NeedsPresence = true, BackupNpc = 1052581 }, // Orbitingway (Phaenna)
         ];
 
         public override string ToString()

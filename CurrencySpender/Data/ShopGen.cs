@@ -24,6 +24,7 @@ namespace CurrencySpender.Data
             OldShops.AddRange(ListRange(1770434, 1770438)); // Aphorism & Astronomy
             OldShops.Add(1770446); // Astronomy
             OldShops.Add(1770267); // Astronomy
+            
             //if(C.Shops ==  null || C.Shops.Count == 0 || C.Debug)
             foreach (var fs in Service.DataManager.GetExcelSheet<FateShop>())
             {
@@ -175,6 +176,8 @@ namespace CurrencySpender.Data
                     }
                 }
             }
+            
+            
             PluginLog.Verbose("ShopGen init finished");
         }
         public static void EvalulateRowRef(ENpcBase npcBase, RowRef rowRef)

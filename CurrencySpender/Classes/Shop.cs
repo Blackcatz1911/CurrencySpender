@@ -10,7 +10,8 @@ public enum ShopType
     GilShop,
     SpecialShop,
     FateShop,
-    EmptyShop
+    EmptyShop,
+    CustomShop
 }
 
 public unsafe class Shop

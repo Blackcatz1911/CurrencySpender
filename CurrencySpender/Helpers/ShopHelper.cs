@@ -12,14 +12,15 @@ namespace CurrencySpender.Helpers
             {
                 SellableItems = Generator.items
                     .Where(item => (item.Currency == Currency.ItemId) && item.Type.HasFlag(ItemType.Tradeable)
-                    && !item.Disabled && !item.Shop.Disabled)
+                    && !item.Disabled && !item.Shop.Disabled && item.HasSoldWeek >= C.MinSales)
                     .ToList();
                 //PluginLog.Verbose($"{SellableItems.Count}");
             }
             else
             {
                 SellableItems = Generator.items
-                    .Where(item => (item.Currency == Currency.ItemId) && item.Type.HasFlag(ItemType.Tradeable) && !item.Disabled && !item.Shop.Disabled)
+                    .Where(item => (item.Currency == Currency.ItemId) && item.Type.HasFlag(ItemType.Tradeable) && !item.Disabled && !item.Shop.Disabled &&
+                                   item.HasSoldWeek >= C.MinSales)
                     .ToList();
                 //PluginLog.Verbose($"{SellableItems.Count}");
             }

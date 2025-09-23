@@ -21,6 +21,7 @@ public class Config
     public bool ShowItemsOfInterest = true;
     public bool ShowMissingCollectables = true;
     public bool ShowSellables = true;
+    public int MinSales = 0;
     
     public bool OpenAutomatically = false;
 

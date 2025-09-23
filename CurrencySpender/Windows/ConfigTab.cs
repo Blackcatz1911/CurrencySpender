@@ -47,7 +47,8 @@ internal class ConfigTab
         }
         ImGui.Separator();
         ImGui.Checkbox("Show items eligible for sale", ref C.ShowSellables);
-        ImGui.Separator();
+        ImGui.TextWrapped("Minimum sales for the sellable table (0 = disable)");
+        ImGui.InputInt("Minimum sales", ref C.MinSales);
         ImGui.TextWrapped("Select the thousand seperator");
         string[] items = { "None", "Seperator .", "Seperator ," };
         if (ImGui.BeginCombo("Select an Option", items[C.Seperator]))

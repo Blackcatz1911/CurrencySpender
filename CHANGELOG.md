@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.2.4
+### Added
+- New Currencies: Lunar Credits & Phaenna Credits.
+- New items: Everything in the Cosmic Fortunes.
+- New setting to set a minimum of sales for the sellable items to display.
+- Master Recipes can now be considered a collectable.
+### Fixed
+- NPC locations.
+### Changed
+- Flag/TP will now check if you need to be somewhere else or need to go there first.
+
 ## 1.2.3
 ### Added
 - A new setting to automatically open Currency Spender together with the Currency window.
@@ -11,9 +22,7 @@
 
 ## 1.2.2
 ### Added
-- New NPC: Mesouaidonque on Sinus Ardorum and Phaenna.
 - New Currency: Cosmocredits.
-- Phaenna Credits as stub, because you cant buy anything of it yet.
 ### Changed
 - Updated for 7.3
 - Updated ECommons.

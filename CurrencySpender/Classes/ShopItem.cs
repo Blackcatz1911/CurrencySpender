@@ -29,7 +29,8 @@ public enum CollectableType
     FramersKit,
     TTCard,
     Mahjong,
-    Container
+    Container,
+    MasterRecipes
 }
 public unsafe class ShopItem
 {
@@ -66,6 +67,7 @@ public unsafe class ShopItem
     public uint LastChecked { get; set; }
     public uint AmountCanBuy => (uint)Math.Floor((double)P.Currencies.First(cur => cur.ItemId == Currency).CurrentCount / Price);
     public uint Profit { get; set; }
+    public float GilPerCur { get; set; }
     public uint HasSoldWeek { get; set; }
 
     public unsafe bool IsUnlocked(Item item)

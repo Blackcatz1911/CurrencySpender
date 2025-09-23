@@ -1,4 +1,5 @@
 using CurrencySpender.Classes;
+using Lumina.Excel;
 using Lumina.Excel.Sheets;
 
 namespace CurrencySpender.Data
@@ -10,9 +11,21 @@ namespace CurrencySpender.Data
         public static void init()
         {
             PluginLog.Debug("ItemGen init");
+            
+            List<uint> npcIds = [1052612, 1052642];
+            foreach (uint npcId in npcIds)
+            {
+                Location location = Location.GetLocation(npcId);
+                Generator.shops.Add(new Shop
+                {
+                    ShopId = (420U * 100000U) + npcId, NpcId = npcId, Type = ShopType.CustomShop, Location = location,
+                });
+            }
+            
             PluginLog.Debug($"SpecialShops: {Generator.shops.Where(shop => shop.Type == ShopType.SpecialShop).ToList().Count}");
             PluginLog.Debug($"GCShops: {Generator.shops.Where(shop => shop.Type == ShopType.GCShop).ToList().Count}");
             PluginLog.Debug($"FateShops: {Generator.shops.Where(shop => shop.Type == ShopType.FateShop).ToList().Count}");
+            PluginLog.Debug($"CustomShops: {Generator.shops.Where(shop => shop.Type == ShopType.CustomShop).ToList().Count}");
             foreach (var shop in Generator.shops)
             {
                 if(shop.Type == ShopType.SpecialShop)
@@ -26,6 +39,10 @@ namespace CurrencySpender.Data
                 else if (shop.Type == ShopType.FateShop)
                 {
                     specialShop(shop);
+                }
+                else if (shop.Type == ShopType.CustomShop)
+                {
+                    customShop(shop);
                 }
                 //PluginLog.Verbose($"{shop}");
             }
@@ -339,6 +356,59 @@ namespace CurrencySpender.Data
             }
             GCShopsDone = true;
             PluginLog.Debug("GCShops init finished");
+        }
+        
+        internal static void customShop(Shop shop)
+        {
+            uint cur = 0;
+            shop.ShopName = "Orbitingway Gamba";
+            List<uint> items = [];
+            items =
+            [
+                47973, 44509, 46795, 46782, 47095, 47937, 46840, 48154, 48160, 46155, 48210, 48220,
+                48221
+            ];
+            if (shop.NpcId == 1052612) // Lunar Credit
+            {
+                cur = 45691;
+                items = [44505, 44509, 47966, 48154, 48160, 48210, 48220, 48221 ];
+            } else if (shop.NpcId == 1052642) // Phanea Credit
+            {
+                cur = 48146;
+                items = [47973, 46795, 46782, 46840, 46155];
+
+            }
+            foreach (uint item_id in items)
+            {
+                if (P.Currencies.Where(c => c.Enabled && c.ItemId == cur).ToList().Count() == 0) continue;
+
+                Item item = Service.DataManager.GetExcelSheet<Item>().GetRow(item_id);
+                var item_types = ItemHelper.GetItemTypes(item_id);
+                var CollectableType = ItemHelper.GetCollectableType(item, item_types);
+                // PluginLog.Debug($"item: {item.RowId}, shop: {shop.NpcName}, CollectableType:{CollectableType}");
+                // PluginLog.Verbose(item_types.ToString());
+                if(item.RowId == 45988)
+                    PluginLog.Verbose($"{cur}-{shop.NpcName}-{shop.ShopId}-CurrencyId:{cur}-{item.Name.ToString()}");
+                var existing_item = Generator.items.FirstOrDefault(it => it.Id == item.RowId && it.Shop.NpcId == shop.NpcId); //it.Shop.NpcId == shop.NpcId);
+                if(existing_item == default)
+                {
+                    ShopItem shopItem = new ShopItem
+                    {
+                        Id = item.RowId,
+                        ShopId = shop.ShopId,
+                        Price = 1000,
+                        Currency = cur,
+                        Category = item.ItemUICategory.RowId,
+                        Type = item_types,
+                        CollectableType = CollectableType,
+                        Shop = shop
+                    };
+                    Generator.items.Add(shopItem);
+                    shop.Items.Add(shopItem);
+                }
+                //PluginLog.Verbose($"{itemCol_.ToString()}");
+            }
+            //if(missingLoc && C.Debug) { DuoLog.Error($"Missing Location: NPC:{shop.NpcId} NPCName:{shop.NpcName} Shop:{shop.ShopId}"); }
         }
 
         private static Dictionary<uint, uint> Currencies_Dict = new Dictionary<uint, uint>()
