@@ -54,7 +54,7 @@ jobs:
       - name: Add Upstream and Sync with Original Repo
         working-directory: dalamud-plugins
         run: |
-            git remote add upstream https://github.com/goatcorp/DalamudPlugins.git || true
+            git remote add upstream https://github.com/goatcorp/DalamudPluginsD17.git || true
             git fetch upstream
             git checkout main
             git merge upstream/main --ff-only  # fast-forward only, safe
@@ -103,6 +103,6 @@ jobs:
             BRANCH="update-manifest-CurrencySpender"
             git checkout -B $BRANCH
             git add .
-            git status  # 👈 DEBUG: See what’s being added
+            git status  
             git commit -m "Update manifest for CurrencySpender"
             git push origin $BRANCH --force
