@@ -84,10 +84,10 @@ jobs:
             owners = ["Blackcatz1911"]
             project_path = "CurrencySpender"
             commit = "${{ steps.changelog.outputs.commit }}"
-            changelog = \"""
+            changelog = """
             ## ${{ steps.changelog.outputs.version }}
             $ESCAPED_CHANGELOG
-            \"""
+            """
             version = "${{ steps.changelog.outputs.version }}"
             EOF
 
