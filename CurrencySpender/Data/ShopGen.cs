@@ -24,6 +24,7 @@ namespace CurrencySpender.Data
             OldShops.AddRange(ListRange(1770434, 1770438)); // Aphorism & Astronomy
             OldShops.Add(1770446); // Astronomy
             OldShops.Add(1770267); // Astronomy
+            OldShops.AddRange(ListRange(1770767, 1770770)); // Heliometry
             
             //if(C.Shops ==  null || C.Shops.Count == 0 || C.Debug)
             foreach (var fs in Service.DataManager.GetExcelSheet<FateShop>())
@@ -37,8 +38,10 @@ namespace CurrencySpender.Data
                     var shop_ = fs.SpecialShop.ToList()[i];
                     if (shop_.RowId == 0) continue;
                     //PluginLog.Verbose(shop.RowId.ToString());
-                    Location loc_ = Location.GetLocation(fs.RowId);
-                    Generator.shops.Add(new Shop { ShopId = shop_.RowId, NpcId = fs.RowId, Type = ShopType.FateShop, Location = loc_ });
+                    Location? loc = Location.GetLocation(fs.RowId);
+                    if(loc == null || (loc.Position.X == 0 && loc.Position.Y == 0)) { PluginLog.Error($"Missing location: {fs.RowId}"); }
+                    // else PluginLog.Debug($"ShopGen: Location not found {loc}");
+                    Generator.shops.Add(new Shop { ShopId = shop_.RowId, NpcId = fs.RowId, Type = ShopType.FateShop, Location = loc });
                 }
                 //var shop = fs.SpecialShop.ToList()[fs.SpecialShop.Count - 1];
                 //if (shop.RowId == 0) continue;
@@ -102,6 +105,8 @@ namespace CurrencySpender.Data
                             { ListRange(1770868, 1770882), 1003633 }, // Scrip Exchange
                             { ListRange(1770907, 1770907), 1003633 }, // Scrip Exchange
                             { ListRange(1770943, 1770944), 1003633 }, // Scrip Exchange
+                            { ListRange(1771000, 1771001), 1003633 }, // Scrip Exchange
+                            
                             { new List<uint> { 1769577, 1769578 }, 1012225 }, // Ardolain
                             { new List<uint> { 1769790, 1769791, 1769819, 1769814, 1769854, 1769883, 1769873, 1769940, 1769807 }, 1019451 }, // Eschina
                             { new List<uint> { 1769743, 1769744, 1770537 }, 1018655 }, // Disreputable Priest
@@ -125,7 +130,7 @@ namespace CurrencySpender.Data
 
                             { ListRange(1770764, 1770765), 1048387 }, // Ryubool Ja
 
-                            { new List<uint> { 1770766 }, 1049079 }, // Zircon
+                            { new List<uint> { 1770766, 1770767 }, 1049079 }, // Zircon
 
                         };
                         //DuoLog.Information($"{npcMapping[1013397]}");
@@ -135,9 +140,8 @@ namespace CurrencySpender.Data
 
                         if (NpcId != 0)
                         {
-                            Location loc = Location.GetLocation(NpcId);
-
-                            if(loc == Location.locations[0] && C.Debug) { PluginLog.Error($"Missing location: {NpcId}"); }
+                            Location? loc = Location.GetLocation(NpcId);
+                            if(loc == null || (loc.Position.X == 0 && loc.Position.Y == 0)) { PluginLog.Error($"Missing location: {NpcId}"); }
                             List<uint> blacklist_shops = [1770595, 1770645, 1770729];
                             if (!blacklist_shops.Contains(shop.RowId))
                             {
@@ -202,7 +206,9 @@ namespace CurrencySpender.Data
             //        if (rowRef.Is<InclusionShop>()) DuoLog.Information($"InclusionShop: {rowRef.Is<InclusionShop>()} - {rowRef.RowId}");
             //    }
             //}
-            Location loc = Location.GetLocation(npcBase.RowId);
+            Location? loc = Location.GetLocation(npcBase.RowId);
+            // if(loc != Location.locations[0]) PluginLog.Error($"Found location for {npcBase.RowId}: {loc}");
+            // else PluginLog.Information($"Found location: {loc}");
             //var loc = Location.locations.FirstOrDefault(loc => loc.Name.Equals(npcName, StringComparison.OrdinalIgnoreCase));
             //if (loc == default) { loc = Location.locations[0]; }
             if (npcName.ToLower() == "mark quartermaster")
@@ -252,7 +258,6 @@ namespace CurrencySpender.Data
                 List<uint> blacklist_shops = [1770595, 1770645, 1770729];
                 if (!blacklist_npcs.Contains(npcBase.RowId) && !blacklist_shops.Contains(rowRef.RowId))
                 {
-                     //if (rowRef.RowId == 1770769) DuoLog.Information("Found");
                     Generator.shops.Add(new Shop { ShopId = rowRef.RowId, NpcId = npcBase.RowId, Type = ShopType.SpecialShop, Location = loc });
                 }
             }

@@ -76,7 +76,7 @@ namespace CurrencySpender.Helpers
                 HttpResponseMessage response = await client.GetAsync("https://universalis.app/api/v2/history/" + homeWorld + "/" + url);
                 if (!response.IsSuccessStatusCode)
                 {
-                    PluginLog.Error($"Request failed with status code {response.StatusCode}");
+                    PluginLog.Error($"Request failed with status code {response.StatusCode}: {url}");
                     return;
                 }
                 string responseBody = await response.Content.ReadAsStringAsync();

@@ -119,7 +119,7 @@ namespace CurrencySpender.Helpers
             if (item.ItemAction.RowId == 0)
                 return false;
 
-            switch ((ItemActionType)item.ItemAction.Value.Type)
+            switch ((ItemActionType)item.ItemAction.Value.Action.RowId)
             {
                 case ItemActionType.Companion:
                     return UIState.Instance()->IsCompanionUnlocked(item.ItemAction.Value.Data[0]);
@@ -183,6 +183,11 @@ namespace CurrencySpender.Helpers
                 return ItemType.Venture;
             }
 
+            if (item.RowId == 50058)
+            {
+                return ItemType.None;
+            }
+
             var cat = item.ItemUICategory.RowId;
             var name = item.Name.ExtractText();
             var untradable = item.IsUntradable;
@@ -201,8 +206,8 @@ namespace CurrencySpender.Helpers
             }
             if(cat == 63)
             {
-                if(name.Contains("Barding") || item.ItemAction.Value.Type == 1322 || item.ItemAction.Value.Type == 29459 ||
-                    item.ItemAction.Value.Type == 2633 || item.ItemAction.Value.Type == 2136) //2633 Riding Map
+                if(name.Contains("Barding") || item.ItemAction.Value.Action.RowId == 1322 || item.ItemAction.Value.Action.RowId == 29459 ||
+                    item.ItemAction.Value.Action.RowId == 2633 || item.ItemAction.Value.Action.RowId == 2136) //2633 Riding Map
                 {
                     curType |= ItemType.Collectable;
                 }
@@ -232,10 +237,10 @@ namespace CurrencySpender.Helpers
             if (cat == 63)
             {
                 if (name.Contains("Barding")) return CollectableType.Barding;
-                if (item.Value.ItemAction.Value.Type == 1322) return CollectableType.Mount;
-                if (item.Value.ItemAction.Value.Type == 29459) return CollectableType.FramersKit;
-                if (item.Value.ItemAction.Value.Type == 2633) return CollectableType.RidingMap;
-                if (item.Value.ItemAction.Value.Type == 2136) return CollectableType.MasterRecipes;
+                if (item.Value.ItemAction.Value.Action.RowId == 1322) return CollectableType.Mount;
+                if (item.Value.ItemAction.Value.Action.RowId == 29459) return CollectableType.FramersKit;
+                if (item.Value.ItemAction.Value.Action.RowId == 2633) return CollectableType.RidingMap;
+                if (item.Value.ItemAction.Value.Action.RowId == 2136) return CollectableType.MasterRecipes;
             }
             if (cat == 81) return CollectableType.Minion;
             if (cat == 86) return CollectableType.TTCard;
@@ -261,9 +266,9 @@ namespace CurrencySpender.Helpers
             if (cat == 63)
             {
                 if (name.Contains("Barding")) return CollectableType.Barding;
-                if (item.ItemAction.Value.Type == 1322) return CollectableType.Mount;
-                if (item.ItemAction.Value.Type == 29459) return CollectableType.FramersKit;
-                if (item.ItemAction.Value.Type == 2633) return CollectableType.RidingMap;
+                if (item.ItemAction.Value.Action.RowId == 1322) return CollectableType.Mount;
+                if (item.ItemAction.Value.Action.RowId == 29459) return CollectableType.FramersKit;
+                if (item.ItemAction.Value.Action.RowId == 2633) return CollectableType.RidingMap;
             }
             if (cat == 81) return CollectableType.Minion;
             if (cat == 86) return CollectableType.TTCard;

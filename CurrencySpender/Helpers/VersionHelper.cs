@@ -61,6 +61,11 @@ namespace CurrencySpender.Helpers
             P.configWizard.SetVersion(LastVersion());
             P.configWizard.IsOpen = true;
         }
+
+        public static bool IsNewVersion()
+        {
+            return LowerVersionThan(GetVersion());
+        }
         public static string ToSemVer(string version)
         {
             // Split the version into parts
@@ -132,17 +137,25 @@ namespace CurrencySpender.Helpers
         }
         public static string GameVersion()
         {
-            return Encoding.UTF8.GetString(Framework.Instance()->GameVersion);
-        }
-        public static void CheckGameVersion()
-        {
-            Generator.init();
-            PluginLog.Information($"GameVersion: {GameVersion()}");
-            if (C.GameVersion != GameVersion() || C.GameVersion == "" || C.Debug)
+            var gameVersionSpan = Framework.Instance()->GameVersion;
+            
+            var nullIndex = gameVersionSpan.IndexOf((byte)0);
+            if (nullIndex != -1)
             {
-                Generator.init();
-                C.GameVersion = GameVersion();
+                gameVersionSpan = gameVersionSpan[..nullIndex];
             }
+
+            return Encoding.UTF8.GetString(gameVersionSpan);
+        }
+        public static bool IsNewGameVersion()
+        {
+            PluginLog.Information($"GameVersion: {GameVersion()}");
+            if (C.GameVersion != GameVersion() || C.GameVersion == "")
+            {
+                C.GameVersion = GameVersion();
+                return true;
+            }
+            return false;
         }
     }
 }

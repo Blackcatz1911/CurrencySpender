@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.2.5
+### Changed
+- Updated for 7.4.
+- Updated ECommons.
+- Mathemathics, Heliometry & Mnemonics changes.
+
 ## 1.2.4
 ### Added
 - New Currencies: Lunar Credits & Phaenna Credits.
@@ -24,12 +30,12 @@
 ### Added
 - New Currency: Cosmocredits.
 ### Changed
-- Updated for 7.3
+- Updated for 7.3.
 - Updated ECommons.
 
 ## 1.2.1
 ### Changed
-- Updated for 7.2
+- Updated for 7.2.
 - Updated ECommons.
 
 ## 1.2.0

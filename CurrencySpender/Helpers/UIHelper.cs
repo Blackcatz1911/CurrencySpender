@@ -89,54 +89,58 @@ internal static unsafe class UiHelper
 
     internal static void BuildMapButtons(ShopItem item)
     {
-        if (item.Shop.Location != Location.locations[0])
+        Location backupLocation = new Location();
+        if (item?.Shop?.Location == null) 
         {
-            Location backupLocation = Location.locations[0];
-            if (item.Shop.Location.NeedsPresence && item.Shop.Location.BackupNpc != null)
-            {
-                backupLocation = Location.locations.Where(loc => loc.NpcId == item.Shop.Location.BackupNpc).First();
-            }
-            if (ImGui.Button($"Flag##sellable-{item.Id}-{item.ShopId}-{item.Shop.NpcId}"))
-            {
-                if(item.Shop.Location.NeedsPresence && AgentMap.Instance()->CurrentTerritoryId != item.Shop.Location.TerritoryId)
-                {
-                    Service.GameGui.OpenMapWithMapLink(backupLocation.GetMapMarker());
-                }
-                else
-                {
-                    Service.GameGui.OpenMapWithMapLink(item.Shop.Location.GetMapMarker());
-                }
-            }
-            if (ImGui.IsItemHovered())
-            {
-                ImGui.BeginTooltip();
-                if(item.Shop.Location.NeedsPresence && AgentMap.Instance()->CurrentTerritoryId != item.Shop.Location.TerritoryId)
-                    UiHelper.LeftAlign($"The flag will only show up, if you are here: {item.Shop.Location.Zone}\nShowing teleport point instead: {backupLocation.Zone}");
-                else
-                    UiHelper.LeftAlign($"{item.Shop.Location.Zone}");
-                ImGui.EndTooltip();
-            }
-            ImGui.SameLine();
-            if (ImGui.Button($"TP##sellable-{item.Id}-{item.ShopId}-{item.Shop.NpcId}"))
-            {
-                item.Shop.Location.Teleport();
-                if(item.Shop.Location.NeedsPresence && AgentMap.Instance()->CurrentTerritoryId != item.Shop.Location.TerritoryId)
-                    Service.GameGui.OpenMapWithMapLink(backupLocation.GetMapMarker());
-                else
-                    Service.GameGui.OpenMapWithMapLink(item.Shop.Location.GetMapMarker());
-            }
-            if (ImGui.IsItemHovered())
-            {
-                ImGui.BeginTooltip();
-                if(item.Shop.Location.NeedsPresence && AgentMap.Instance()->CurrentTerritoryId != item.Shop.Location.TerritoryId)
-                    UiHelper.LeftAlign($"You need to travel there first manually.\nWill teleport to nearest Aetheryte instead.");
-                else
-                    UiHelper.LeftAlign($"{item.Shop.Location.Zone}");
-                ImGui.EndTooltip();
-            }
-        } else if(C.Debug)
+            PluginLog.Error($"{item} {item?.Shop} Location not found!");
+            return; // or continue with default location
+        }
+        if (item.Shop.Location.NeedsPresence && item.Shop.Location.BackupNpc != null)
         {
-            //DuoLog.Error("Missing location!");
+            PluginLog.Debug("Back up location triggered");
+            backupLocation = Location.locations.Where(loc => loc.NpcId == item.Shop.Location.BackupNpc).First();
+        }
+        if (ImGui.Button($"Flag##sellable-{item.Id}-{item.ShopId}-{item.Shop.NpcId}"))
+        {
+            if(item.Shop.Location.NeedsPresence && AgentMap.Instance()->CurrentTerritoryId != item.Shop.Location.TerritoryId)
+            {
+                PluginLog.Debug($"Back up location triggered: {backupLocation}");
+                Service.GameGui.OpenMapWithMapLink(backupLocation.GetMapMarker());
+            }
+            else
+            {
+                PluginLog.Debug($"Normal location triggered: {item.Shop.Location}");
+                var loc = item.Shop.Location;
+                PluginLog.Information($"DEBUG: NpcId={loc.NpcId}, Position={loc.Position?.X}, {loc.Position?.Y}, HasPosition={loc.Position != null}");
+                Service.GameGui.OpenMapWithMapLink(item.Shop.Location.GetMapMarker());
+            }
+        }
+        if (ImGui.IsItemHovered())
+        {
+            ImGui.BeginTooltip();
+            if(item.Shop.Location.NeedsPresence && AgentMap.Instance()->CurrentTerritoryId != item.Shop.Location.TerritoryId)
+                UiHelper.LeftAlign($"The flag will only show up, if you are here: {item.Shop.Location.Zone}\nShowing teleport point instead: {backupLocation.Zone}");
+            else
+                UiHelper.LeftAlign($"{item.Shop.Location.Zone}");
+            ImGui.EndTooltip();
+        }
+        ImGui.SameLine();
+        if (ImGui.Button($"TP##sellable-{item.Id}-{item.ShopId}-{item.Shop.NpcId}"))
+        {
+            item.Shop.Location.Teleport();
+            if(item.Shop.Location.NeedsPresence && AgentMap.Instance()->CurrentTerritoryId != item.Shop.Location.TerritoryId)
+                Service.GameGui.OpenMapWithMapLink(backupLocation.GetMapMarker());
+            else
+                Service.GameGui.OpenMapWithMapLink(item.Shop.Location.GetMapMarker());
+        }
+        if (ImGui.IsItemHovered())
+        {
+            ImGui.BeginTooltip();
+            if(item.Shop.Location.NeedsPresence && AgentMap.Instance()->CurrentTerritoryId != item.Shop.Location.TerritoryId)
+                UiHelper.LeftAlign($"You need to travel there first manually.\nWill teleport to nearest Aetheryte instead.");
+            else
+                UiHelper.LeftAlign($"{item.Shop.Location.Zone}");
+            ImGui.EndTooltip();
         }
     }
     public static void Notification(string content, NotificationType type = NotificationType.Info, bool minimized = true)

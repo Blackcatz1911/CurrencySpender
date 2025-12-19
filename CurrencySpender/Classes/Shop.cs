@@ -16,10 +16,10 @@ public enum ShopType
 
 public unsafe class Shop
 {
-    public required ShopType Type { get; set; }
-    public uint ShopId { get; set; }
+    public required ShopType Type { get; init; }
+    public uint ShopId { get; init; }
     public string? ShopName { get; set; }
-    public uint NpcId { get; set; }
+    public uint NpcId { get; init; }
     public List<uint>? NpcVariants { get; set; }
     public string NpcName
     {
@@ -44,7 +44,7 @@ public unsafe class Shop
     public uint? RequiredLevel;
     public uint? CurrentLevel;
     public bool Disabled = false;
-    public List<ShopItem> Items = new List<ShopItem>();
+    public List<ShopItem> Items = new ();
     public int ItemCount => Items.Count;
     public override string ToString()
     {

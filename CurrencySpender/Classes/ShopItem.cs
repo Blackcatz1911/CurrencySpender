@@ -75,46 +75,46 @@ public unsafe class ShopItem
         if (item.ItemAction.RowId == 0)
             return false;
 
-        switch ((ItemActionType)item.ItemAction.Value.Type)
+        switch ((ItemActionAction)item.ItemAction.Value.Action.RowId)
         {
-            case ItemActionType.Companion:
+            case ItemActionAction.Companion:
                 return UIState.Instance()->IsCompanionUnlocked(item.ItemAction.Value.Data[0]);
 
-            case ItemActionType.BuddyEquip:
+            case ItemActionAction.BuddyEquip:
                 return UIState.Instance()->Buddy.CompanionInfo.IsBuddyEquipUnlocked(item.ItemAction.Value.Data[0]);
 
-            case ItemActionType.Mount:
+            case ItemActionAction.Mount:
                 return PlayerState.Instance()->IsMountUnlocked(item.ItemAction.Value.Data[0]);
 
-            case ItemActionType.SecretRecipeBook:
+            case ItemActionAction.SecretRecipeBook:
                 return PlayerState.Instance()->IsSecretRecipeBookUnlocked(item.ItemAction.Value.Data[0]);
 
-            case ItemActionType.UnlockLink:
+            case ItemActionAction.UnlockLink:
                 return UIState.Instance()->IsUnlockLinkUnlocked(item.ItemAction.Value.Data[0]);
 
-            case ItemActionType.TripleTriadCard when item.AdditionalData.Is<TripleTriadCard>():
+            case ItemActionAction.TripleTriadCard when item.AdditionalData.Is<TripleTriadCard>():
                 return UIState.Instance()->IsTripleTriadCardUnlocked((ushort)item.AdditionalData.RowId);
 
-            case ItemActionType.FolkloreTome:
+            case ItemActionAction.FolkloreTome:
                 return PlayerState.Instance()->IsFolkloreBookUnlocked(item.ItemAction.Value.Data[0]);
 
-            case ItemActionType.OrchestrionRoll when item.AdditionalData.Is<Orchestrion>():
+            case ItemActionAction.OrchestrionRoll when item.AdditionalData.Is<Orchestrion>():
                 return PlayerState.Instance()->IsOrchestrionRollUnlocked(item.AdditionalData.RowId);
 
-            case ItemActionType.FramersKit:
+            case ItemActionAction.FramersKit:
                 return PlayerState.Instance()->IsFramersKitUnlocked(item.ItemAction.Value.Data[0]);
 
-            case ItemActionType.Ornament:
+            case ItemActionAction.Ornament:
                 return PlayerState.Instance()->IsOrnamentUnlocked(item.ItemAction.Value.Data[0]);
 
-            case ItemActionType.Glasses:
+            case ItemActionAction.Glasses:
                 return PlayerState.Instance()->IsGlassesUnlocked((ushort)item.AdditionalData.RowId);
         }
 
         var row = ExdModule.GetItemRowById(item.RowId);
         return row != null && UIState.Instance()->IsItemActionUnlocked(row) == 1;
     }
-    public enum ItemActionType : ushort
+    public enum ItemActionAction : ushort
     {
         Companion = 853,
         BuddyEquip = 1013,

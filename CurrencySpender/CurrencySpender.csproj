@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Project Sdk="Dalamud.NET.Sdk/13.1.0">
+<Project Sdk="Dalamud.NET.Sdk/14.0.1">
   <PropertyGroup>
     <Authors>Blackcatz1911</Authors>
-    <Version>1.2.3.0</Version>
+    <Version>1.2.5.0</Version>
     <Description>Figure out what to do with all the ingame currencies.</Description>
     <PackageProjectUrl>https://github.com/Blackcatz1911/CurrencySpender</PackageProjectUrl>
     <RepoUrl>https://github.com/Blackcatz1911/CurrencySpender</RepoUrl>
     <PackageLicenseExpression>AGPL-3.0-or-later</PackageLicenseExpression>
     <IsPackable>false</IsPackable>
     <Platforms>x64</Platforms>
-    <AssemblyVersion>1.2.4.0</AssemblyVersion>
+    <AssemblyVersion>1.2.5.0</AssemblyVersion>
   </PropertyGroup>
   
   <ItemGroup>
@@ -20,7 +20,7 @@
   </ItemGroup>
   
   <ItemGroup>
-    <PackageReference Include="ECommons" Version="3.0.1.13" />
+    <PackageReference Include="ECommons" Version="3.1.0.5" />
   </ItemGroup>
 
    <ItemGroup Condition="!Exists('$(ProjectDir)..\FFXIVClientStructs')">
