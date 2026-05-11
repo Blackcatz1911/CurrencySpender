@@ -56,16 +56,16 @@ namespace CurrencySpender.Helpers
         }
         public static bool populateGCRank()
         {
-            if (PlayerState.Instance == null || PlayerState.Instance() == null || Service.ClientState.LocalPlayer == null)
+            if (PlayerState.Instance == null || PlayerState.Instance() == null || ClientStateExtensions.LocalPlayer == null)
             {
                 PluginLog.Debug("populateGCRank not created");
                 return true;
             }
             if (PlayerState.Instance() != null)
             {
-                GCRankMaelstrom = PlayerState.Instance()->GCRankMaelstrom;
-                GCRankTwinAdders = PlayerState.Instance()->GCRankTwinAdders;
-                GCRankImmortalFlames = PlayerState.Instance()->GCRankImmortalFlames;
+                GCRankMaelstrom = PlayerState.Instance()->GCRanks[0];
+                GCRankTwinAdders = PlayerState.Instance()->GCRanks[1];
+                GCRankImmortalFlames = PlayerState.Instance()->GCRanks[2];
                 GCRanks = new Dictionary<uint, uint>
                 {
                     { 1, GCRankMaelstrom },

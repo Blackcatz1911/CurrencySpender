@@ -21,6 +21,7 @@
   
   <ItemGroup>
     <PackageReference Include="ECommons" Version="3.1.0.5" />
+    <PackageReference Update="DalamudPackager" Version="15.0.0" />
   </ItemGroup>
 
    <ItemGroup Condition="!Exists('$(ProjectDir)..\FFXIVClientStructs')">

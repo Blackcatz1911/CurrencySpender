@@ -8,7 +8,7 @@ namespace CurrencySpender.Managers
     {
         public static bool Teleport(TeleportInfo info)
         {
-            if (Service.ClientState.LocalPlayer == null)
+            if (ClientStateExtensions.LocalPlayer == null)
                 return false;
             var status = ActionManager.Instance()->GetActionStatus(ActionType.Action, 5);
             if (status != 0)
@@ -17,7 +17,7 @@ namespace CurrencySpender.Managers
                 return false;
             }
 
-            if (Service.ClientState.LocalPlayer.CurrentWorld.RowId != Service.ClientState.LocalPlayer.HomeWorld.RowId)
+            if (ClientStateExtensions.LocalPlayer.CurrentWorld.RowId != ClientStateExtensions.LocalPlayer.HomeWorld.RowId)
             {
                 if (AetheryteManager.IsHousingAetheryte(info.AetheryteId, info.Plot, info.Ward, info.SubIndex))
                 {

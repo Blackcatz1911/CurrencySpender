@@ -70,7 +70,7 @@ namespace CurrencySpender.Managers
 
         public static unsafe bool UpdateAvailableAetherytes()
         {
-            if (Service.ClientState.LocalPlayer == null)
+            if (ClientStateExtensions.LocalPlayer == null)
                 return false;
             try
             {

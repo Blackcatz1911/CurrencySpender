@@ -1,4 +1,5 @@
 using Dalamud.Game;
+using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.IoC;
 using Dalamud.Plugin.Services;
 
@@ -21,4 +22,11 @@ public class Service
     [PluginService] public static ICondition Condition { get; set; }
     [PluginService] public static ISigScanner SigScanner { get; set; }
     [PluginService] public static IChatGui Chat { get; set; }
+    [PluginService] public static IObjectTable ObjectTable { get; set; }
 }
+
+public static class ClientStateExtensions
+{
+    public static IPlayerCharacter? LocalPlayer => Service.ObjectTable.LocalPlayer;
+}
+
