@@ -1,13 +1,12 @@
 using System.IO;
 
-namespace CurrencySpender.Windows;
+namespace CurrencySpender.Windows.Config;
 
 internal class ChangelogTab
 {
-    internal static bool rendered = false;
     internal static void Draw()
     {
-        if (P != null && P.changelogPath != null && File.Exists(P.changelogPath))
+        if (P.changelogPath != null && File.Exists(P.changelogPath))
         {
             using (StreamReader reader = new StreamReader(P.changelogPath))
             {

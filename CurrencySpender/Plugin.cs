@@ -33,9 +33,9 @@ public sealed unsafe class Plugin : IDalamudPlugin
 
     internal WindowSystem ws;
     internal MainTabWindow mainTabWindow;
-    internal ConfigTabWindow configTabWindow;
+    internal ConfigWindow ConfigWindow;
     internal SpendingWindow spendingWindow;
-    internal DebugTabWindow debugTabWindow;
+    internal DebugWindow DebugWindow;
     internal ConfigWizardWindow configWizard;
     internal CurrencyOverlay currencyOverlay;
 
@@ -74,14 +74,14 @@ public sealed unsafe class Plugin : IDalamudPlugin
             config = EzConfig.Init<Config>();
             ws = new();
             spendingWindow = new();
-            debugTabWindow = new();
+            DebugWindow = new();
             mainTabWindow = new();
-            configTabWindow = new();
+            ConfigWindow = new();
             configWizard = new();
             currencyOverlay = new CurrencyOverlay();
             
             PluginInterface.UiBuilder.Draw += ws.Draw;
-            PluginInterface.UiBuilder.OpenConfigUi += delegate { configTabWindow.IsOpen = true; };
+            PluginInterface.UiBuilder.OpenConfigUi += delegate { ConfigWindow.IsOpen = true; };
             PluginInterface.UiBuilder.OpenMainUi += delegate { mainTabWindow.IsOpen = true; };
             TaskManager = new() { };
             Currencies = TrackedCurrency.GenerateCurrencyList();
@@ -127,12 +127,12 @@ public sealed unsafe class Plugin : IDalamudPlugin
     {
         if (args.EqualsIgnoreCase("debug") || args.EqualsIgnoreCase("d"))
         {
-            debugTabWindow.IsOpen = true;
+            DebugWindow.IsOpen = true;
         }
         else if (args.EqualsIgnoreCase("config") || args.EqualsIgnoreCase("c")
             || args.EqualsIgnoreCase("settings") || args.EqualsIgnoreCase("s"))
         {
-            configTabWindow.IsOpen = true;
+            ConfigWindow.IsOpen = true;
         }
         else
         {
@@ -175,5 +175,6 @@ public sealed unsafe class Plugin : IDalamudPlugin
         { CollectableType.TTCard, "Triple Triad Cards" },
         { CollectableType.Mahjong, "Mahjong Voices" },
         { CollectableType.MasterRecipes, "Master Recipes" },
+        { CollectableType.FashionAccessory, "Fashion Accessories" },
     };
 }

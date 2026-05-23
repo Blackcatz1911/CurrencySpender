@@ -1,5 +1,4 @@
 using CurrencySpender.Classes;
-using ECommons.Configuration;
 
 namespace CurrencySpender.Configuration;
 
@@ -9,9 +8,10 @@ public class Config
     public string Version { get; set; } = "0.0.0";
     public string GameVersion { get; set; } = "";
 
-    public int Seperator = 0;
+    public int Separator = 0;
     //public Dictionary<uint, uint> FateRanks = [];
-    public List<uint> ItemsOfInterest = [43554, 43555];
+    public List<uint> ItemsOfInterest = [];
+    public bool AddUpgradeItems = true;
 
     public bool ShowVentures = true;
     public bool ShowCollectables = true;
@@ -22,8 +22,13 @@ public class Config
     public bool ShowMissingCollectables = true;
     public bool ShowSellables = true;
     public int MinSales = 0;
-    
+
+    public bool ShowButton = true;
     public bool OpenAutomatically = false;
+    public bool HideInLoadingScreens = true;
+    public bool HideInDuties = true;
+    public bool HideInCombat = true;
+    public bool HideInCutscenes = true;
 
     public bool Debug = false;
 }

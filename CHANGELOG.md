@@ -1,10 +1,20 @@
 # Changelog
 
+## 1.2.6
+### Added
+- Fashion accessories can now be considered a collectable.
+- Setting to automatically add the current upgrade materials to items of interest.
+- Settings to hide the UI in various scenarios.
+### Fixed
+- Spelling errors.
+### Removed
+- Kofi Banner.
+
 ## 1.2.5
 ### Changed
 - Updated for 7.4.
 - Updated ECommons.
-- Mathemathics, Heliometry & Mnemonics changes.
+- Mathematics, Heliometry & Mnemonics changes.
 
 ## 1.2.4
 ### Added
@@ -47,7 +57,7 @@
 
 ## 1.1.2
 ### Added
-- A setting to toggle the display of sellable items on the marketboard.
+- A setting to toggle the display of sellable items on the market board.
 - Material coffers and Triple Triad card packs added to collectables.
 - Island cowries were added to the currencies.
 - The Mahjong vendor, and therefore a new collectable type, was added.

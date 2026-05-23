@@ -44,7 +44,7 @@ internal unsafe class CurrencyOverlay : Window
     public override bool DrawConditions()
     {
         return GenericHelpers.TryGetAddonByName<AtkUnitBase>("Currency", out var addon) &&
-               GenericHelpers.IsAddonReady(addon);
+               GenericHelpers.IsAddonReady(addon) && C.ShowButton;
     }
 
     public override void PreDraw()

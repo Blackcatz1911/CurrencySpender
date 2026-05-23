@@ -2,7 +2,7 @@ using CurrencySpender.Classes;
 using CurrencySpender.Data;
 using Lumina.Excel.Sheets;
 
-namespace CurrencySpender.Windows;
+namespace CurrencySpender.Windows.Config;
 
 internal class ItemsTab
 {

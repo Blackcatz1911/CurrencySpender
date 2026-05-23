@@ -34,6 +34,12 @@ internal class SpendingWindow : Window
         }
         P.ws.AddWindow(this);
     }
+    
+    public override bool DrawConditions()
+    {
+        return UiHelper.DrawConditions();
+    }
+    
     public unsafe override void Draw()
     {
         if(Currency == null) return;

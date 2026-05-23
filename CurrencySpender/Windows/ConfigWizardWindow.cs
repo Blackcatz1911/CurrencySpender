@@ -1,4 +1,5 @@
 using CurrencySpender.Classes;
+using CurrencySpender.Windows.Config;
 using Dalamud.Interface;
 
 namespace CurrencySpender.Windows;
@@ -135,7 +136,7 @@ internal class ConfigWizardWindow : Window
         switch (step)
         {
             case 1:
-                ConfigCurrenciesTab.Draw();
+                CurrenciesTab.Draw();
                 break;
             case 2:
                 ImGui.TextWrapped("Shows you if you can buy collectables with it.");

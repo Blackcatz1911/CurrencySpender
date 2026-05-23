@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Dalamud.NET.Sdk/14.0.1">
   <PropertyGroup>
-    <Authors>Blackcatz1911</Authors>
+    <Author>Blackcatz1911</Author>
     <Version>1.2.5.0</Version>
+    <AssemblyVersion>1.2.5.0</AssemblyVersion>
     <Description>Figure out what to do with all the ingame currencies.</Description>
     <PackageProjectUrl>https://github.com/Blackcatz1911/CurrencySpender</PackageProjectUrl>
     <RepoUrl>https://github.com/Blackcatz1911/CurrencySpender</RepoUrl>
     <PackageLicenseExpression>AGPL-3.0-or-later</PackageLicenseExpression>
     <IsPackable>false</IsPackable>
     <Platforms>x64</Platforms>
-    <AssemblyVersion>1.2.5.0</AssemblyVersion>
   </PropertyGroup>
   
   <ItemGroup>
@@ -20,7 +20,7 @@
   </ItemGroup>
   
   <ItemGroup>
-    <PackageReference Include="ECommons" Version="3.1.0.5" />
+    <PackageReference Include="ECommons" Version="3.1.0.10" />
   </ItemGroup>
 
    <ItemGroup Condition="!Exists('$(ProjectDir)..\FFXIVClientStructs')">
@@ -39,10 +39,6 @@
     <ProjectReference Include="..\FFXIVClientStructs\InteropGenerator\InteropGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
     <ProjectReference Include="..\FFXIVClientStructs\FFXIVClientStructs\FFXIVClientStructs.csproj" Private="True" />
     <ProjectReference Include="..\FFXIVClientStructs\InteropGenerator.Runtime\InteropGenerator.Runtime.csproj" Private="True" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Update="DotNet.ReproducibleBuilds" Version="1.2.25" />
   </ItemGroup>
 
   <Target Name="Message" BeforeTargets="BeforeBuild">

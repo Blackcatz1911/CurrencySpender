@@ -15,11 +15,16 @@ internal class MainTabWindow : Window
         P.ws.AddWindow(this);
         TitleBarButtons.Add(new()
         {
-            Click = (m) => { if (m == ImGuiMouseButton.Left) P.configTabWindow.IsOpen = true; },
+            Click = (m) => { if (m == ImGuiMouseButton.Left) P.ConfigWindow.IsOpen = true; },
             Icon = FontAwesomeIcon.Cog,
             IconOffset = new(2, 2),
             ShowTooltip = () => ImGui.SetTooltip("Open settings window"),
         });
+    }
+    
+    public override bool DrawConditions()
+    {
+        return UiHelper.DrawConditions();
     }
 
     public override void PreDraw()
@@ -29,7 +34,6 @@ internal class MainTabWindow : Window
 
     public override void Draw()
     {
-        KofiBanner.DrawRight();
         ImGuiEx.EzTabBar("tabbar", [
             ("Currencies", MainTab.Draw, null, true),
             ("Instructions", InstructionsTab.Draw, null, true),

@@ -218,61 +218,54 @@ namespace CurrencySpender.Helpers
             }
             if(!untradable)
                 curType |= ItemType.Tradeable;
+            if (curType == ItemType.None && item.ItemAction.Value.Action.RowId == 20086)
+            {
+                curType |= ItemType.Collectable;
+            }
             return curType;
         }
-        public static CollectableType GetCollectableType(RowRef<Item> item, ItemType item_types)
+        public static CollectableType GetCollectableType(Item item, ItemType itemTypes)
         {
-            if (!item_types.HasFlag(ItemType.Collectable)) { return CollectableType.None; }
-            var cat = item.Value.ItemUICategory.RowId;
-            var name = item.Value.Name.ExtractText();
-            if (Containers.ContainsKey(item.RowId)) return CollectableType.Container;
-            if (name.Contains("Ballroom Etiquette") || name.Contains("Battlefield Etiquette"))
-            {
-                return CollectableType.Scroll;
-            }
-            if (name.Contains("Framer's Kit")) return CollectableType.FramersKit;
-            if (name.Contains("Maxims of Mahjong")) return CollectableType.Mahjong;
-            if (name.Contains("The Faces We Wear")) return CollectableType.Facewear;
-            if (name.Contains("Modern Aesthetics")) return CollectableType.Hairstyle;
-            if (cat == 63)
-            {
-                if (name.Contains("Barding")) return CollectableType.Barding;
-                if (item.Value.ItemAction.Value.Action.RowId == 1322) return CollectableType.Mount;
-                if (item.Value.ItemAction.Value.Action.RowId == 29459) return CollectableType.FramersKit;
-                if (item.Value.ItemAction.Value.Action.RowId == 2633) return CollectableType.RidingMap;
-                if (item.Value.ItemAction.Value.Action.RowId == 2136) return CollectableType.MasterRecipes;
-            }
-            if (cat == 81) return CollectableType.Minion;
-            if (cat == 86) return CollectableType.TTCard;
-            if (cat == 94) return CollectableType.Scroll;
-            if (Debug) DuoLog.Debug("Collectable Type not found!");
-            return CollectableType.None;
+            return GetCollectableTypeInternal(item, itemTypes);
         }
-        
-        public static CollectableType GetCollectableType(Item item, ItemType item_types)
+
+        public static CollectableType GetCollectableType(RowRef<Item> item, ItemType itemTypes)
         {
-            if (!item_types.HasFlag(ItemType.Collectable)) { return CollectableType.None; }
+            return GetCollectableTypeInternal(item.Value, itemTypes);
+        }
+
+        private static CollectableType GetCollectableTypeInternal(Item item, ItemType itemTypes)
+        {
+            if (!itemTypes.HasFlag(ItemType.Collectable)) { return CollectableType.None; }
+    
             var cat = item.ItemUICategory.RowId;
             var name = item.Name.ExtractText();
+    
             if (Containers.ContainsKey(item.RowId)) return CollectableType.Container;
+    
             if (name.Contains("Ballroom Etiquette") || name.Contains("Battlefield Etiquette"))
             {
                 return CollectableType.Scroll;
             }
+    
             if (name.Contains("Framer's Kit")) return CollectableType.FramersKit;
             if (name.Contains("Maxims of Mahjong")) return CollectableType.Mahjong;
             if (name.Contains("The Faces We Wear")) return CollectableType.Facewear;
             if (name.Contains("Modern Aesthetics")) return CollectableType.Hairstyle;
+    
             if (cat == 63)
             {
                 if (name.Contains("Barding")) return CollectableType.Barding;
                 if (item.ItemAction.Value.Action.RowId == 1322) return CollectableType.Mount;
                 if (item.ItemAction.Value.Action.RowId == 29459) return CollectableType.FramersKit;
                 if (item.ItemAction.Value.Action.RowId == 2633) return CollectableType.RidingMap;
+                if (item.ItemAction.Value.Action.RowId == 2136) return CollectableType.MasterRecipes;
             }
+            if (item.ItemAction.Value.Action.RowId == 20086) return CollectableType.FashionAccessory;
             if (cat == 81) return CollectableType.Minion;
             if (cat == 86) return CollectableType.TTCard;
             if (cat == 94) return CollectableType.Scroll;
+    
             if (Debug) DuoLog.Debug("Collectable Type not found!");
             return CollectableType.None;
         }

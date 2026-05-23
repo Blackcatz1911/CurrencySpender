@@ -2,7 +2,7 @@ using Dalamud.Interface.Colors;
 using Dalamud.Interface;
 using ECommons.DalamudServices;
 
-namespace CurrencySpender.Windows;
+namespace CurrencySpender.Windows.Config;
 
 internal class AboutTab
 {

@@ -1,6 +1,6 @@
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 
-namespace CurrencySpender.Windows;
+namespace CurrencySpender.Windows.Config;
 
 internal class DebugTab
 {
@@ -21,7 +21,7 @@ internal class DebugTab
         }
         if (ImGuiEx.Button("Open Debug Window"))
         {
-            P.debugTabWindow.IsOpen = true;
+            P.DebugWindow.IsOpen = true;
         }
     }
 }

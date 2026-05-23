@@ -54,11 +54,15 @@ namespace CurrencySpender.Data
             if (PlayerHelper.GCRanksCreated) GCShops();
             PluginLog.Debug("ItemGen init finished");
 
-            //foreach (var item in Generator.items)
-            //{
-            //    if (item.Id == 44173)
-            //        DuoLog.Information($"{item.Name}-{item.Shop.NpcName}-{item.Shop.ShopId}");
-            //}
+            // foreach (var item in Generator.items) // TODO
+            // {
+            //     if (item.Id == 36342)
+            //     {
+            //         DuoLog.Information(
+            //             $"{item.Name}-{item.Shop.NpcName}-{item.Shop.NpcId}-{item.Shop.ShopId}-{item.Shop.Location.Zone}");
+            //         DuoLog.Information($"{item}");
+            //     }
+            // }
         }
 
         internal static void specialShop(Shop shop)

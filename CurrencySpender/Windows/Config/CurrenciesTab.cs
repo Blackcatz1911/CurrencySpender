@@ -1,5 +1,5 @@
-namespace CurrencySpender.Windows;
-internal class ConfigCurrenciesTab
+namespace CurrencySpender.Windows.Config;
+internal class CurrenciesTab
 {
     internal static void Draw()
     {

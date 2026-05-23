@@ -1,8 +1,10 @@
+using CurrencySpender.Windows.Config;
+
 namespace CurrencySpender.Windows;
 
-unsafe internal class ConfigTabWindow : Window
+internal class ConfigWindow : Window
 {
-    public ConfigTabWindow() : base($"ConfigTabWindow")
+    public ConfigWindow() : base($"ConfigTabWindow")
     {
         this.SizeConstraints = new()
         {
@@ -11,18 +13,24 @@ unsafe internal class ConfigTabWindow : Window
         };
         P.ws.AddWindow(this);
     }
+    
+    public override bool DrawConditions()
+    {
+        return UiHelper.DrawConditions();
+    }
 
     public override void PreDraw()
     {
-        WindowName = $"{P.Name} Settings {P.Version}###ConfigTabWindow";
+        WindowName = $"{P.Name} Settings {P.Version}###ConfigWindow";
     }
 
     public override void Draw()
     {
         ImGuiEx.EzTabBar("tabbar", [
-            ("Settings", ConfigTab.Draw, null, true),
-            ("Currencies", ConfigCurrenciesTab.Draw, null, true),
+            ("General", GeneralTab.Draw, null, true),
+            ("Currencies", CurrenciesTab.Draw, null, true),
             ("Items", ItemsTab.Draw, null, true),
+            ("Display", DisplayTab.Draw, null, true),
             ("Changelog", ChangelogTab.Draw, null, true),
             ("About", AboutTab.Draw, null, true),
             (C.Debug?"Debug":null, DebugTab.Draw, null, true),

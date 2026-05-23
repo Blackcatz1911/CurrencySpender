@@ -1,9 +1,11 @@
 using CurrencySpender.Classes;
+using Dalamud.Game.ClientState.Conditions;
 using Dalamud.Game.Text.SeStringHandling.Payloads;
 using Dalamud.Game.Text.SeStringHandling;
 using Dalamud.Game.Text;
 using Dalamud.Interface;
 using Dalamud.Interface.ImGuiNotification;
+using Dalamud.Plugin.Services;
 using Lumina.Excel.Sheets;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 
@@ -97,8 +99,7 @@ internal static unsafe class UiHelper
         }
         if (item.Shop.Location.NeedsPresence && item.Shop.Location.BackupNpc != null)
         {
-            PluginLog.Debug("Back up location triggered");
-            backupLocation = Location.locations.Where(loc => loc.NpcId == item.Shop.Location.BackupNpc).First();
+            backupLocation = Location.Locations.Where(loc => loc.NpcId == item.Shop.Location.BackupNpc).First();
         }
         if (ImGui.Button($"Flag##sellable-{item.Id}-{item.ShopId}-{item.Shop.NpcId}"))
         {
@@ -170,5 +171,28 @@ internal static unsafe class UiHelper
         {
             Message = payload
         });
+    }
+
+    public static bool DrawConditions()
+    {
+        return
+            (C.HideInLoadingScreens && !Service.Condition.IsBetweenAreas()) &&
+            (C.HideInDuties && !Service.Condition.IsBoundByDuty()) &&
+            (C.HideInCutscenes && !Service.Condition.IsInCutscene()) &&
+            (C.HideInCombat && !Service.Condition.IsInCombat());
+    }
+    extension(ICondition condition)
+    {
+        public bool IsBoundByDuty() 
+            => condition.Any(ConditionFlag.BoundByDuty, ConditionFlag.BoundByDuty56, ConditionFlag.BoundByDuty95);
+
+        public bool IsInCombat()
+            => condition.Any(ConditionFlag.InCombat);
+
+        public bool IsInCutscene()
+            => condition.Any(ConditionFlag.OccupiedInCutSceneEvent, ConditionFlag.WatchingCutscene, ConditionFlag.WatchingCutscene78);
+
+        public bool IsBetweenAreas()
+            => condition.Any(ConditionFlag.BetweenAreas);
     }
 }

@@ -1,8 +1,8 @@
 using CurrencySpender.Classes;
 
-namespace CurrencySpender.Windows;
+namespace CurrencySpender.Windows.Config;
 
-internal class ConfigTab
+internal class GeneralTab
 {
     internal static void Draw()
     {
@@ -49,16 +49,16 @@ internal class ConfigTab
         ImGui.Checkbox("Show items eligible for sale", ref C.ShowSellables);
         ImGui.TextWrapped("Minimum sales for the sellable table (0 = disable)");
         ImGui.InputInt("Minimum sales", ref C.MinSales);
-        ImGui.TextWrapped("Select the thousand seperator");
-        string[] items = { "None", "Seperator .", "Seperator ," };
-        if (ImGui.BeginCombo("Select an Option", items[C.Seperator]))
+        ImGui.TextWrapped("Select the thousand separator");
+        string[] items = { "None", "Separator .", "Separator ," };
+        if (ImGui.BeginCombo("Select an Option", items[C.Separator]))
         {
             for (int i = 0; i < items.Length; i++)
             {
-                bool isSelected = (C.Seperator == i);
+                bool isSelected = (C.Separator == i);
                 if (ImGui.Selectable(items[i], isSelected))
                 {
-                    C.Seperator = i; // Update the selected item
+                    C.Separator = i; // Update the selected item
                 }
 
                 // Set the initial focus when opening the combo box

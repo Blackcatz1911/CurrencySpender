@@ -1,8 +1,8 @@
 namespace CurrencySpender.Windows;
 
-unsafe internal class DebugTabWindow : Window
+internal class DebugWindow : Window
 {
-    public DebugTabWindow() : base("DebugTabWindow")
+    public DebugWindow() : base("DebugTabWindow")
     {
         this.SizeConstraints = new()
         {
@@ -10,6 +10,11 @@ unsafe internal class DebugTabWindow : Window
             MaximumSize = new(9999, 9999)
         };
         P.ws.AddWindow(this);
+    }
+    
+    public override bool DrawConditions()
+    {
+        return UiHelper.DrawConditions();
     }
 
     public override void PreDraw()

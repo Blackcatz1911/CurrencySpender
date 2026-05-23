@@ -12,7 +12,7 @@ namespace CurrencySpender.Helpers
             var sb = new StringBuilder();
             int count = 0;
             string[] items = { "", ".", "," };
-            string insert = items[C.Seperator];
+            string insert = items[C.Separator];
 
             // Iterate the string in reverse to add separators
             for (int i = str.Length - 1; i >= 0; i--)
