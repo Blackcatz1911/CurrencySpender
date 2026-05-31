@@ -22,7 +22,6 @@
   <ItemGroup>
     <PackageReference Include="ECommons" Version="3.2.1.6" />
     <PackageReference Remove="DotNet.ReproducibleBuilds" />
-    <PackageReference Remove="DalamudPackager" />
   </ItemGroup>
 
   <Target Name="Message" BeforeTargets="BeforeBuild">
