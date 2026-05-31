@@ -14,7 +14,7 @@ internal class MainTab
     internal static unsafe void Draw()
     {
         update();
-        if(Service.ClientState.LocalPlayer == null)
+        if(Service.ObjectTable.LocalPlayer == null)
         {
             UiHelper.WarningText("Please login before using this Plugin!");
             return;

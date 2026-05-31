@@ -17,7 +17,7 @@ internal class ConfigWizardWindow : Window
         { "1.2.2", DrawVersion1_2_2Steps },
         { "1.2.3", DrawVersion1_2_3Steps },
         { "1.2.4", DrawVersion1_2_4Steps },
-        //{ "1.2.0", DrawVersion120Steps }
+        { "1.2.6", DrawVersion1_2_6Steps },
     };
 
     public ConfigWizardWindow() : base("ConfigWizardWindow")
@@ -326,6 +326,49 @@ internal class ConfigWizardWindow : Window
 
         }
     }
+    
+    private static void DrawVersion1_2_6Steps(int step)
+    {
+        switch (step)
+        {
+            case 1:
+                ImGui.TextWrapped("Will hide all windows when in a loading screen.");
+                ImGui.Checkbox("Hide in loading screens", ref C.HideInLoadingScreens);
+                ImGui.Separator();
+                ImGui.TextWrapped("Will hide all windows when in a duty.");
+                ImGui.Checkbox("Hide in duties", ref C.HideInDuties);
+                ImGui.Separator();
+                ImGui.TextWrapped("Will hide all windows when in combat.");
+                ImGui.Checkbox("Hide in combat", ref C.HideInCombat);
+                ImGui.Separator();
+                ImGui.TextWrapped("Will hide all windows when in a cutscene.");
+                ImGui.Checkbox("Hide in cutscenes", ref C.HideInCutscenes);
+                ImGui.Separator();
+                ImGui.TextWrapped("Select if you consider the following as collectable:");
+                foreach (CollectableType type in Enum.GetValues(typeof(CollectableType)))
+                {
+                    if (type != CollectableType.FashionAccessory) continue;
+                    string label = CollectableTypeLabels.TryGetValue(type, out var displayName) ? displayName : type.ToString();
+                    bool isSelected = C.SelectedCollectableTypes.Contains(type);
+                    if (ImGui.Checkbox($"##{type}", ref isSelected))
+                    {
+                        if (isSelected)
+                        {
+                            C.SelectedCollectableTypes.Add(type);
+                        }
+                        else
+                        {
+                            C.SelectedCollectableTypes.Remove(type);
+                        }
+                        P.spendingWindow.UpdateData();
+                        MainTab.update(true);
+                    }
+                    ImGui.SameLine();
+                    ImGui.Text(label);
+                }
+                break;
+        }
+    }
 
     private static void CalculateSteps()
     {
@@ -343,11 +386,13 @@ internal class ConfigWizardWindow : Window
     {
         return version switch
         {
-            "1.1.0" => 2, // Number of steps for version 1.1.0
+            // Number of steps for each version
+            "1.1.0" => 2,
             "1.1.2" => 1,
             "1.2.2" => 1,
             "1.2.3" => 1,
             "1.2.4" => 1,
+            "1.2.6" => 1,
             _ => 0
         };
     }

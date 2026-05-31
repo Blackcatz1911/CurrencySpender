@@ -12,29 +12,19 @@ namespace CurrencySpender.Helpers
         {
             LargeFont = PluginInterface.UiBuilder.FontAtlas.NewDelegateFontHandle(e =>
             {
-                e.OnPreBuild(tk => tk.AddDalamudAssetFont(Dalamud.DalamudAsset.NotoSansJpMedium, new()
-                {
-                    SizePx = 24 // Small font size
-                }));
+                e.OnPreBuild(tk => tk.AddDalamudDefaultFont(24));
             });
 
             LargerFont = PluginInterface.UiBuilder.FontAtlas.NewDelegateFontHandle(e =>
             {
-                e.OnPreBuild(tk => tk.AddDalamudAssetFont(Dalamud.DalamudAsset.NotoSansJpMedium, new()
-                {
-                    SizePx = 28 // Large font size
-                }));
+                e.OnPreBuild(tk => tk.AddDalamudDefaultFont(28));
             });
             LargestFont = PluginInterface.UiBuilder.FontAtlas.NewDelegateFontHandle(e =>
             {
-                e.OnPreBuild(tk => tk.AddDalamudAssetFont(Dalamud.DalamudAsset.NotoSansJpMedium, new()
-                {
-                    SizePx = 32 // Large font size
-                }));
+                e.OnPreBuild(tk => tk.AddDalamudDefaultFont(32));
             });
         }
-
-        // Example usage during ImGui rendering
+        
         public static void LargestText(string uidText)
         {
             LargestFont.Push();

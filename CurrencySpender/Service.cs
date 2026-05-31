@@ -21,4 +21,5 @@ public class Service
     [PluginService] public static ICondition Condition { get; set; }
     [PluginService] public static ISigScanner SigScanner { get; set; }
     [PluginService] public static IChatGui Chat { get; set; }
+    [PluginService] public static IObjectTable ObjectTable { get; set; }
 }

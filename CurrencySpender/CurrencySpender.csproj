@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Project Sdk="Dalamud.NET.Sdk/14.0.1">
+<Project Sdk="Dalamud.NET.Sdk/15.0.0">
   <PropertyGroup>
-    <Author>Blackcatz1911</Author>
-    <Version>1.2.5.0</Version>
-    <AssemblyVersion>1.2.5.0</AssemblyVersion>
+    <Authors>Blackcatz1911</Authors>
+    <Version>1.2.6.0</Version>
     <Description>Figure out what to do with all the ingame currencies.</Description>
     <PackageProjectUrl>https://github.com/Blackcatz1911/CurrencySpender</PackageProjectUrl>
     <RepoUrl>https://github.com/Blackcatz1911/CurrencySpender</RepoUrl>
     <PackageLicenseExpression>AGPL-3.0-or-later</PackageLicenseExpression>
     <IsPackable>false</IsPackable>
     <Platforms>x64</Platforms>
+    <AssemblyVersion>1.2.6.0</AssemblyVersion>
   </PropertyGroup>
   
   <ItemGroup>
@@ -20,25 +20,9 @@
   </ItemGroup>
   
   <ItemGroup>
-    <PackageReference Include="ECommons" Version="3.1.0.10" />
-  </ItemGroup>
-
-   <ItemGroup Condition="!Exists('$(ProjectDir)..\FFXIVClientStructs')">
-    <Reference Include="InteropGenerator.Runtime" Private="false" />
-    <Reference Include="FFXIVClientStructs" Private="false" />
-  </ItemGroup>
-
-  <PropertyGroup Condition="Exists('$(ProjectDir)..\FFXIVClientStructs')">
-    <Use_Dalamud_FFXIVClientStructs>false</Use_Dalamud_FFXIVClientStructs>
-    <InteropGenerator_InteropNamespace>CurrencySpender</InteropGenerator_InteropNamespace>
-    <DefineConstants>HAS_LOCAL_CS</DefineConstants>
-  </PropertyGroup>
-
-  <ItemGroup Condition="Exists('$(ProjectDir)..\FFXIVClientStructs')">
-    <CompilerVisibleProperty Include="InteropGenerator_InteropNamespace" />
-    <ProjectReference Include="..\FFXIVClientStructs\InteropGenerator\InteropGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
-    <ProjectReference Include="..\FFXIVClientStructs\FFXIVClientStructs\FFXIVClientStructs.csproj" Private="True" />
-    <ProjectReference Include="..\FFXIVClientStructs\InteropGenerator.Runtime\InteropGenerator.Runtime.csproj" Private="True" />
+    <PackageReference Include="ECommons" Version="3.2.1.6" />
+    <PackageReference Remove="DotNet.ReproducibleBuilds" />
+    <PackageReference Remove="DalamudPackager" />
   </ItemGroup>
 
   <Target Name="Message" BeforeTargets="BeforeBuild">

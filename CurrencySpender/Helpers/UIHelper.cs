@@ -176,10 +176,10 @@ internal static unsafe class UiHelper
     public static bool DrawConditions()
     {
         return
-            (C.HideInLoadingScreens && !Service.Condition.IsBetweenAreas()) &&
-            (C.HideInDuties && !Service.Condition.IsBoundByDuty()) &&
-            (C.HideInCutscenes && !Service.Condition.IsInCutscene()) &&
-            (C.HideInCombat && !Service.Condition.IsInCombat());
+            (!C.HideInLoadingScreens || !Service.Condition.IsBetweenAreas()) &&
+            (!C.HideInDuties || !Service.Condition.IsBoundByDuty()) &&
+            (!C.HideInCutscenes || !Service.Condition.IsInCutscene()) &&
+            (!C.HideInCombat || !Service.Condition.IsInCombat());
     }
     extension(ICondition condition)
     {

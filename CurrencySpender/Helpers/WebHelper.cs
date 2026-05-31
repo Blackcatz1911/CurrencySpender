@@ -168,16 +168,16 @@ namespace CurrencySpender.Helpers
 
         public static bool preCheck()
         {
-            if (Service.ClientState.LocalPlayer == null)
+            if (Service.ObjectTable.LocalPlayer == null)
             {
                 PluginLog.Verbose("WebHelper early return");
-                PluginLog.Verbose("LocalPlayer: " + (Service.ClientState.LocalPlayer == null));
+                PluginLog.Verbose("LocalPlayer: " + (Service.ObjectTable.LocalPlayer == null));
                 return false;
             }
-            if (Service.ClientState.LocalPlayer != null)
+            if (Service.ObjectTable.LocalPlayer != null)
             {
                 homeWorld = Service.DataManager.Excel.GetSheet<Lumina.Excel.Sheets.World>().GetRow(
-                    Service.ClientState.LocalPlayer.CurrentWorld.RowId).Name.ExtractText();
+                    Service.ObjectTable.LocalPlayer.CurrentWorld.RowId).Name.ExtractText();
                 if (homeWorld == "")
                 {
                     PluginLog.Verbose("WebHelper early return");

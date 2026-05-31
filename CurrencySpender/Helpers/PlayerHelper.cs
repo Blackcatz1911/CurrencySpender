@@ -5,6 +5,7 @@ using FFXIVClientStructs.FFXIV.Client.UI;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using System.Text;
+using ECommons.DalamudServices.Legacy;
 
 namespace CurrencySpender.Helpers
 {
@@ -33,8 +34,8 @@ namespace CurrencySpender.Helpers
             }
             else
             {
-                P.TaskManager.Enqueue(() => populateGCRank());
-                P.TaskManager.Enqueue(() => populateFateRanks());
+                P.TaskManager.Enqueue(() => PopulateGcRank());
+                P.TaskManager.Enqueue(() => PopulateFateRanks());
             }
         }
         public static bool reset()
@@ -54,18 +55,18 @@ namespace CurrencySpender.Helpers
             SharedFateRanksMax = true;
             return true;
         }
-        public static bool populateGCRank()
+        private static bool PopulateGcRank()
         {
-            if (PlayerState.Instance == null || PlayerState.Instance() == null || Service.ClientState.LocalPlayer == null)
+            if (PlayerState.Instance() == null || PlayerState.Instance() == null || Service.ObjectTable.LocalPlayer == null)
             {
                 PluginLog.Debug("populateGCRank not created");
                 return true;
             }
             if (PlayerState.Instance() != null)
             {
-                GCRankMaelstrom = PlayerState.Instance()->GCRankMaelstrom;
-                GCRankTwinAdders = PlayerState.Instance()->GCRankTwinAdders;
-                GCRankImmortalFlames = PlayerState.Instance()->GCRankImmortalFlames;
+                GCRankMaelstrom = PlayerState.Instance()->GCRanks[0];
+                GCRankTwinAdders = PlayerState.Instance()->GCRanks[1];
+                GCRankImmortalFlames = PlayerState.Instance()->GCRanks[2];
                 GCRanks = new Dictionary<uint, uint>
                 {
                     { 1, GCRankMaelstrom },
@@ -84,9 +85,10 @@ namespace CurrencySpender.Helpers
             //EzThrottler.Throttle("AutoRetainerGenericThrottle", 200, true);
             return true;
         }
-        public static bool populateFateRanks()
+
+        private static bool PopulateFateRanks()
         {
-            if (AgentFateProgress.Instance == null || AgentFateProgress.Instance() == null)
+            if (AgentFateProgress.Instance() == null || AgentFateProgress.Instance() == null)
             {
                 PluginLog.Error("populateFateRanks: Instance is null");
                 return false;
@@ -144,7 +146,7 @@ namespace CurrencySpender.Helpers
             {
                 UIModule.Instance()->ExecuteMainCommand(84);
                 P.TaskManager.Enqueue(() => checkRefresh());
-                P.TaskManager.Enqueue(() => populateFateRanks());
+                P.TaskManager.Enqueue(() => PopulateFateRanks());
                 P.TaskManager.Enqueue(() => ItemGen.fateShops());
             }
         }
@@ -152,7 +154,7 @@ namespace CurrencySpender.Helpers
         {
             if (GenericHelpers.TryGetAddonByName<AtkUnitBase>("FateProgress", out var addon) && GenericHelpers.IsAddonReady(addon))
             {
-                if (((AtkValue*)(nint)(&addon->AtkValues[54]))->Bool == false) return true;
+                if (!((AtkValue*)(nint)(&addon->AtkValues[54]))->Bool) return true;
             }
             return false;
         }

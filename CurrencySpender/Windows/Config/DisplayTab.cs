@@ -17,10 +17,10 @@ public class DisplayTab
         ImGui.Checkbox("Hide in duties", ref C.HideInDuties);
         ImGui.Separator();
         ImGui.TextWrapped("Will hide all windows when in combat.");
-        ImGui.Checkbox("Hide in duties", ref C.HideInCombat);
+        ImGui.Checkbox("Hide in combat", ref C.HideInCombat);
         ImGui.Separator();
         ImGui.TextWrapped("Will hide all windows when in a cutscene.");
-        ImGui.Checkbox("Hide in duties", ref C.HideInCutscenes);
+        ImGui.Checkbox("Hide in cutscenes", ref C.HideInCutscenes);
         ImGui.Separator();
     }
 }

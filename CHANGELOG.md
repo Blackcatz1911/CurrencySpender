@@ -3,10 +3,13 @@
 ## 1.2.6
 ### Added
 - Fashion accessories can now be considered a collectable.
-- Setting to automatically add the current upgrade materials to items of interest.
 - Settings to hide the UI in various scenarios.
+- Lifestream support for various locations.
 ### Fixed
 - Spelling errors.
+### Changed
+- Updated for Dalamud API v15.
+- Updated ECommons.
 ### Removed
 - Kofi Banner.
 
@@ -119,7 +122,7 @@
 ### Added
 - Currency icon is now displayed in the table.
 - Collectables and purchasable items are now displayed when another currency can be bought with it.
-- Thousand separator setting.
+- A thousand separator setting.
 ### Removed
 - Local FFXIVClientStructs.
 
