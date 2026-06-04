@@ -4,7 +4,6 @@
 ### Added
 - Fashion accessories can now be considered a collectable.
 - Settings to hide the UI in various scenarios.
-- Lifestream support for various locations.
 ### Fixed
 - Spelling errors.
 ### Changed
