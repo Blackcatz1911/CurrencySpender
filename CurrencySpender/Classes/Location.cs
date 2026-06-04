@@ -3,7 +3,6 @@ using Dalamud.Game.Text.SeStringHandling.Payloads;
 using CurrencySpender.Managers;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using System.Reflection;
-using Newtonsoft.Json;
 
 namespace CurrencySpender.Classes
 {
@@ -11,7 +10,7 @@ namespace CurrencySpender.Classes
     {
         public uint MapId { get; init; }
         public uint TerritoryId { get; init; }
-        private uint? aetheryteTerritoryId;
+        private readonly uint? aetheryteTerritoryId;
         public uint? AetheryteId;
         public bool NeedsPresence;
         public uint? BackupNpc;
@@ -64,7 +63,7 @@ namespace CurrencySpender.Classes
             else
             {
                 TeleportInfo info;
-                bool found = false;
+                Boolean found = false;
                 if (AetheryteId != null)
                 {
                     found = AetheryteManager.TryFindAetheryteById(AetheryteId, out info);
@@ -87,9 +86,9 @@ namespace CurrencySpender.Classes
         }
 
         public static readonly List<Location> Locations = [
-            new Location { MapId = 011, TerritoryId = 0128, Position = new Pos(13.1f, 12.7f), NpcId = 1002387, AetheryteTerritoryId = 129, Lsc="Aftcastle" }, // Maelstrom Command
-            new Location { MapId = 002, TerritoryId = 0132, Position = new Pos(9.8f, 11.0f), NpcId = 1002390 },
-            new Location { MapId = 013, TerritoryId = 0130, Position = new Pos(8.3f, 9.0f), NpcId =  1002393 },
+            new Location { MapId = 011, TerritoryId = 0128, Position = new Pos(13.1f, 12.7f), NpcId = 1002387, AetheryteTerritoryId = 129, Lsc="gc Maelstrom" }, // Maelstrom
+            new Location { MapId = 002, TerritoryId = 0132, Position = new Pos(9.8f, 11.0f), NpcId = 1002390, Lsc="gc Twin" }, // TwinAdders
+            new Location { MapId = 013, TerritoryId = 0130, Position = new Pos(8.3f, 9.0f), NpcId =  1002393, Lsc="gc Flame" }, // Immortal Flames
 
             new Location { MapId = 012, TerritoryId = 0129, Position = new Pos(06.0f, 11.9f), NpcId = 1003633, Lsc="Hawkers' Alley"}, // Scrip Exchange Limsa
             new Location { MapId = 014, TerritoryId = 0131, Position = new Pos(14.2f, 10.8f), NpcId = 1001617, AetheryteTerritoryId = 130 }, // Scrip Exchange Uldah
