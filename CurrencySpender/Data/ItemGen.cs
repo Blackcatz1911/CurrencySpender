@@ -54,23 +54,23 @@ namespace CurrencySpender.Data
             if (PlayerHelper.GCRanksCreated) GCShops();
             PluginLog.Debug("ItemGen init finished");
 
-            foreach (var item in Generator.items) // TODO
-            {
+            // foreach (var item in Generator.items)
+            // {
                 
-                if (item.Id == 38808)
-                {
-                    DuoLog.Information(
-                        $"{item.Name}-{item.Shop.NpcName}-{item.Shop.NpcId}-{item.Shop.ShopId}-{item.Shop.Location.Zone}");
-                    DuoLog.Information($"{item}");
-                }
-            }
+            //     if (item.Id == 38808)
+            //     {
+            //         DuoLog.Information(
+            //             $"{item.Name}-{item.Shop.NpcName}-{item.Shop.NpcId}-{item.Shop.ShopId}-{item.Shop.Location.Zone}");
+            //         DuoLog.Information($"{item}");
+            //     }
+            // }
         }
 
         internal static void specialShop(Shop shop)
         {
             var shop_ = Service.DataManager.GetExcelSheet<SpecialShop>().GetRow(shop.ShopId);
             shop.ShopName = shop_.Name.ExtractText();
-            if(shop.ShopId == 1770638) PluginLog.Verbose($"SpecialShop: {shop.ShopId}-{shop.ShopName}-{shop.NpcName}");
+            // if(shop.ShopId == 1770638) PluginLog.Verbose($"SpecialShop: {shop.ShopId}-{shop.ShopName}-{shop.NpcName}");
             var itemCol = shop_.Item;
             foreach (var itemCol_ in itemCol)
             {
@@ -93,7 +93,7 @@ namespace CurrencySpender.Data
                     var cur = ConvertCurrencyId(shop_.RowId, costItemId, shop_.UseCurrencyType);
                     var cur_item = Service.DataManager.GetExcelSheet<Item>().GetRow(cur);
 
-                    if (shop.ShopId == 1770638) PluginLog.Verbose($"SpecialShop Item: {itemCol_.ReceiveItems[i].Item.RowId}-{itemCol_.ReceiveItems[i].Item.Value.Name}-Cur:{cur}-Cur{cur_item.Name}-{shop.NpcName}-{shop.ShopId}-CurrencyId:{costItemId}");
+                    // if (shop.ShopId == 1770638) PluginLog.Verbose($"SpecialShop Item: {itemCol_.ReceiveItems[i].Item.RowId}-{itemCol_.ReceiveItems[i].Item.Value.Name}-Cur:{cur}-Cur{cur_item.Name}-{shop.NpcName}-{shop.ShopId}-CurrencyId:{costItemId}");
 
                     if (P.Currencies.Where(c => c.Enabled && c.ItemId == cur).ToList().Count() == 0) continue;
 
