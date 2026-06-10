@@ -66,7 +66,9 @@ internal class SpendingWindow : Window
         {
             UiHelper.WarningText("Some items cannot be purchased yet due to shared FATE rankings... So they will not be displayed here.");
         }
-
+        if(CollectableItems?.Count == 0 && SellableItems?.Count == 0 && ItemsOfInterest?.Count == 0)
+            UiHelper.WarningText("Nothing can be displayed. Please check your settings. Especially the minimum sales.");
+        
         try
         {
             if (C.ShowItemsOfInterest && ItemsOfInterest != null && ItemsOfInterest.Count > 0)
@@ -263,7 +265,7 @@ internal class SpendingWindow : Window
                         {
                             // Display a tooltip or additional info
                             ImGui.BeginTooltip();
-                            UiHelper.LeftAlign($"ID: {item.Id}\nCollectableType: {item.CollectableType}\nIsUnlocked: {ItemHelper.IsUnlocked(item.Id)}\nCat: {item.Category}\nShopId: {item.Shop.ShopId}\nNPCName: {item.Shop.NpcName}\nNPCID: {item.Shop.NpcId}\nShopType: {item.Shop.Type}");
+                            UiHelper.LeftAlign($"ID: {item.Id}\nCollectableType: {item.CollectableType}\nIsUnlocked: {ItemHelper.IsUnlocked(item.Id)}\nCat: {item.Category}\nShopId: {item.Shop.ShopId}\nNPCName: {item.Shop.NpcName}\nNPCID: {item.Shop.NpcId}\nShopType: {item.Shop.Type}\nShopName: {item.Shop.ShopName}");
                             ImGui.EndTooltip();
                         }
                         if (item.Currency != Currency.ItemId)
@@ -288,8 +290,11 @@ internal class SpendingWindow : Window
                         ImGui.TableSetColumnIndex(1);
                         //UiHelper.LeftAlign(item.Price.ToString());
                         //UiHelper.Rightalign(item.Price.ToString(), false);
-                        if(item.Currency == Currency.ItemId)
-                            UiHelper.RightAlignWithIcon(item.Price.ToString(), Currency.Icon.Handle, true);
+                        if (item.Currency == Currency.ItemId)
+                        {
+                            UiHelper.RightAlignWithIcon(item.Price.ToString(), Currency.Icon.Handle, true, gamba: item.Gamba);
+                        }
+
                         if (item.Currency != Currency.ItemId)
                         {
                             var child_cur = P.Currencies.Where(cur => cur.ItemId == item.Currency).First();

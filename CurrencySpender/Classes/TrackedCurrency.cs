@@ -135,6 +135,8 @@ public unsafe class TrackedCurrency
             new TrackedCurrency { Type = CurrencyType.Item, ItemId = 45690, Threshold = 25000, MaxCount = 30000 }, // Cosmocredit
             new TrackedCurrency { Type = CurrencyType.Item, ItemId = 45691, Threshold = 8000, MaxCount = 10000 }, // Lunar Credit
             new TrackedCurrency { Type = CurrencyType.Item, ItemId = 48146, Threshold = 8000, MaxCount = 10000 }, // Phaenna Credit
+            new TrackedCurrency { Type = CurrencyType.Item, ItemId = 48147, Threshold = 8000, MaxCount = 10000 }, // Oizys Credit
+            new TrackedCurrency { Type = CurrencyType.Item, ItemId = 48148, Threshold = 8000, MaxCount = 10000 }, // Auxesia Credit
         };
     }
 }

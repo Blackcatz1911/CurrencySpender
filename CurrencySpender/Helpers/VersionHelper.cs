@@ -54,6 +54,11 @@ namespace CurrencySpender.Helpers
                 C.SelectedCurrencies.Add(45691);
                 C.SelectedCurrencies.Add(48146);
             }
+            if (LowerVersionThan("1.2.7"))
+            {
+                C.SelectedCurrencies.Add(48147);
+                C.SelectedCurrencies.Add(48148);
+            }
             if (C.Version == "0.0.0") return;
             if (LowerVersionThan(GetVersion()))
             {

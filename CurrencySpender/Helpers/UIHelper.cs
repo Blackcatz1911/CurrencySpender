@@ -30,10 +30,12 @@ internal static unsafe class UiHelper
             ImGui.SetCursorPosX(posX);
         ImGui.Text(str);
     }
-    public static void RightAlignWithIcon(string text, ImTextureID icon, bool formatString = false)
+    public static void RightAlignWithIcon(string text, ImTextureID icon, bool formatString = false, bool gamba = false)
     {
         if (formatString)
             text = StringHelper.FormatString(text);
+        if (gamba)
+            text = "? x " + text;
 
         // Get current column width
         float columnWidth = ImGui.GetColumnWidth();
@@ -61,6 +63,13 @@ internal static unsafe class UiHelper
 
         // Render text
         ImGui.Text(text);
+        if (ImGui.IsItemHovered() && gamba)
+        {
+            // Display a tooltip or additional info
+            ImGui.BeginTooltip();
+            UiHelper.LeftAlign($"You need to spin the wheel to get the items.");
+            ImGui.EndTooltip();
+        }
 
         // Render icon next to the text
         ImGui.SameLine();
@@ -114,6 +123,8 @@ internal static unsafe class UiHelper
                 var loc = item.Shop.Location;
                 PluginLog.Information($"DEBUG: NpcId={loc.NpcId}, Position={loc.Position?.X}, {loc.Position?.Y}, HasPosition={loc.Position != null}");
                 Service.GameGui.OpenMapWithMapLink(item.Shop.Location.GetMapMarker());
+                Service.HighlightNpc.SetNpcId(item.Shop.NpcId);
+                Service.HighlightMenu.SetItemInfo(item);
             }
         }
         if (ImGui.IsItemHovered())
@@ -129,10 +140,19 @@ internal static unsafe class UiHelper
         if (ImGui.Button($"TP##sellable-{item.Id}-{item.ShopId}-{item.Shop.NpcId}"))
         {
             item.Shop.Location.Teleport();
-            if(item.Shop.Location.NeedsPresence && AgentMap.Instance()->CurrentTerritoryId != item.Shop.Location.TerritoryId)
+            if (item.Shop.Location.NeedsPresence &&
+                AgentMap.Instance()->CurrentTerritoryId != item.Shop.Location.TerritoryId)
+            {
                 Service.GameGui.OpenMapWithMapLink(backupLocation.GetMapMarker());
+                Service.HighlightNpc.SetNpcId(item.Shop.NpcId);
+                Service.HighlightMenu.SetItemInfo(item);
+            }
             else
+            {
                 Service.GameGui.OpenMapWithMapLink(item.Shop.Location.GetMapMarker());
+                Service.HighlightNpc.SetNpcId(item.Shop.NpcId);
+                Service.HighlightMenu.SetItemInfo(item);
+            }
         }
         if (ImGui.IsItemHovered())
         {

@@ -98,7 +98,7 @@ namespace CurrencySpender.Classes
 
             new Location { MapId = 196, TerritoryId = 0144, Position = new Pos(5.1f,6.6f), NpcId =  1011039 }, // Gold Saucer Attendant
             new Location { MapId = 196, TerritoryId = 0144, Position = new Pos(5.4f,6.5f), NpcId =  1011610 }, // Modern Aesthetics Saleswoman
-            new Location { MapId = 196, TerritoryId = 0144, Position = new Pos(5.0f,6.4f), NpcId =  1010478 }, // Triple Triad Trader
+            new Location { MapId = 196, TerritoryId = 0144, Position = new Pos(5.0f,6.4f), NpcId =  1016294 }, // Triple Triad Trader
             new Location { MapId = 196, TerritoryId = 0144, Position = new Pos(7.1f,7.8f), NpcId =  1044839, Lsc="Wonder Square East" }, // Dibourdier
 
             new Location { MapId = 197, TerritoryId = 0388, Position = new Pos(7.7f,6.9f), NpcId =  1011595 }, // Minion Trader
@@ -167,14 +167,24 @@ namespace CurrencySpender.Classes
                 AetheryteId = 10, NeedsPresence = true, BackupNpc = 1043621 }, // Produce Producer
             
             new Location { MapId = 0698, TerritoryId = 0959, Position = new Pos(21.9f,13.2f), NpcId = 1052581 }, // Drivingway
+            
             new Location { MapId = 1031, TerritoryId = 1237, Position = new Pos(21.8f, 21.8f), NpcId = 1052608,
                 AetheryteId = 175, NeedsPresence = true, BackupNpc = 1052581 }, // Mesouaidonque (Sinus Ardorum)
             new Location { MapId = 1068, TerritoryId = 1291, Position = new Pos(28.6f, 13.5f), NpcId = 1052640,
                 AetheryteId = 175, NeedsPresence = true, BackupNpc = 1052581 }, // Mesouaidonque (Phaenna)
+            new Location { MapId = 1160, TerritoryId = 1310, Position = new Pos(17.4f, 24.5f), NpcId = 1052650,
+                AetheryteId = 175, NeedsPresence = true, BackupNpc = 1052581 }, // Mesouaidonque (Oizys)
+            new Location { MapId = 1260, TerritoryId = 1319, Position = new Pos(27.8f, 29.0f), NpcId = 1056824,
+                AetheryteId = 175, NeedsPresence = true, BackupNpc = 1052581 }, // Mesouaidonque (Auxesia)
+            
             new Location { MapId = 1031, TerritoryId = 1237, Position = new Pos(21.8f, 21.1f), NpcId = 1052612,
                 AetheryteId = 175, NeedsPresence = true, BackupNpc = 1052581 }, // Orbitingway (Sinus Ardorum)
             new Location { MapId = 1068, TerritoryId = 1291, Position = new Pos(28.6f, 12.7f), NpcId = 1052642,
                 AetheryteId = 175, NeedsPresence = true, BackupNpc = 1052581 }, // Orbitingway (Phaenna)
+            new Location { MapId = 1160, TerritoryId = 1310, Position = new Pos(18.2f, 24.5f), NpcId = 1052652,
+                AetheryteId = 175, NeedsPresence = true, BackupNpc = 1052581 }, // Orbitingway (Oizys)
+            new Location { MapId = 1260, TerritoryId = 1319, Position = new Pos(27.3f, 28.4f), NpcId = 1056826,
+                AetheryteId = 175, NeedsPresence = true, BackupNpc = 1052581 }, // Orbitingway (Auxesia)
         ];
 
         public override string ToString()

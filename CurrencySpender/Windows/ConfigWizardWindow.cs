@@ -18,6 +18,7 @@ internal class ConfigWizardWindow : Window
         { "1.2.3", DrawVersion1_2_3Steps },
         { "1.2.4", DrawVersion1_2_4Steps },
         { "1.2.6", DrawVersion1_2_6Steps },
+        { "1.2.7", DrawVersion1_2_7Steps },
     };
 
     public ConfigWizardWindow() : base("ConfigWizardWindow")
@@ -369,6 +370,61 @@ internal class ConfigWizardWindow : Window
                 break;
         }
     }
+    
+    private static void DrawVersion1_2_7Steps(int step)
+    {
+        switch (step)
+        {
+            case 1:
+                ImGui.TextWrapped("Will highlight the NPC when marking the flag or teleporting.");
+                ImGui.Checkbox("Hightlight NPC", ref C.HighlightNpc);
+                ImGui.Separator();
+                ImGui.TextWrapped("Will highlight the menus where to find the item when marking the flag or teleporting.");
+                ImGui.Checkbox("Hightlight Menus", ref C.HighlightMenu);
+                ImGui.Separator();
+                ImGui.TextWrapped("Automatically add newest upgrade items and remove old ones to the \"Items of Interest\"");
+                ImGui.Checkbox($"Automatically add/remove upgrade items", ref C.AddUpgradeItems);
+                ImGui.Separator();
+                if (C.AddUpgradeItems)
+                {
+                    List<uint> oldItems = [43554, 43555, 46730, 46731];
+                    List<uint> newItems = [49758, 49759];
+                    if (C.ItemsOfInterest.ContainsAny(oldItems))
+                    {
+                        foreach (var oldItem in  oldItems )
+                            C.ItemsOfInterest.Remove(oldItem);
+                    }
+                    if (!C.ItemsOfInterest.ContainsAll(newItems))
+                    {
+                        foreach (var newItem in newItems)
+                            C.ItemsOfInterest.Add(newItem);
+                    }
+                }
+                ImGui.TextWrapped("Select if you want to see the following currencies:");
+                foreach (var cur in P.Currencies.Where(cur => cur.Child == false && cur.Enabled).ToList())
+                {
+                    if (cur.ItemId != 48147 && cur.ItemId != 48148) continue;
+                    bool isSelected = C.SelectedCurrencies.Contains(cur.ItemId);
+                    if (ImGui.Checkbox($"##{cur.ItemId}", ref isSelected))
+                    {
+                        if (isSelected)
+                        {
+                            C.SelectedCurrencies.Add(cur.ItemId);
+                        }
+                        else
+                        {
+                            C.SelectedCurrencies.Remove(cur.ItemId);
+                        }
+                        P.spendingWindow.UpdateData();
+                        MainTab.update(true);
+                    }
+                    ImGui.SameLine();
+                    ImGui.Text(cur.Name);
+                    ImGui.Separator();
+                }
+                break;
+        }
+    }
 
     private static void CalculateSteps()
     {
@@ -393,6 +449,7 @@ internal class ConfigWizardWindow : Window
             "1.2.3" => 1,
             "1.2.4" => 1,
             "1.2.6" => 1,
+            "1.2.7" => 1,
             _ => 0
         };
     }

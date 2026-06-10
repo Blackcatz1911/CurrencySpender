@@ -13,6 +13,24 @@ internal class ItemsTab
         ImGui.TextWrapped("Displays table if you can buy items of interest with current currency:");
         ImGui.Checkbox($"Show items of interest", ref C.ShowItemsOfInterest);
         ImGui.Separator();
+        ImGui.TextWrapped("Automatically add newest upgrade items and remove old ones.");
+        ImGui.Checkbox($"Automatically add/remove upgrade items", ref C.AddUpgradeItems);
+        ImGui.Separator();
+        if (C.AddUpgradeItems)
+        {
+            List<uint> oldItems = [43554, 43555, 46730, 46731];
+            List<uint> newItems = [49758, 49759];
+            if (C.ItemsOfInterest.ContainsAny(oldItems))
+            {
+                foreach (var oldItem in  oldItems )
+                    C.ItemsOfInterest.Remove(oldItem);
+            }
+            if (!C.ItemsOfInterest.ContainsAll(newItems))
+            {
+                foreach (var newItem in newItems)
+                    C.ItemsOfInterest.Add(newItem);
+            }
+        }
         ImGui.TextWrapped("Items to add to the list:");
         if (ImGui.InputText("##Search", ref SearchQuery, 100))
         {

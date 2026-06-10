@@ -61,6 +61,51 @@ namespace CurrencySpender.Data
             //    if (shop.RowId == 0) continue;
             //    PluginLog.Information();
             //}
+            Dictionary<List<uint>, uint> npcMapping = new()
+            {
+                { ListRange(1770112, 1770114), 1003633 }, // Scrip Exchange
+                { ListRange(1770183, 1770196), 1003633 }, // Scrip Exchange
+                { ListRange(1770264, 1770268), 1003633 }, // Scrip Exchange
+                { ListRange(1770272, 1770278), 1003633 }, // Scrip Exchange
+                { ListRange(1770420, 1770431), 1003633 }, // Scrip Exchange
+
+                { ListRange(1770477, 1770510), 1003633 }, // Scrip Exchange
+                { ListRange(1770518, 1770535), 1003633 }, // Scrip Exchange
+                { ListRange(1770625, 1770631), 1003633 }, // Scrip Exchange
+                { ListRange(1770706, 1770707), 1003633 }, // Scrip Exchange
+                { ListRange(1770781, 1770794), 1003633 }, // Scrip Exchange
+                { ListRange(1770868, 1770882), 1003633 }, // Scrip Exchange
+                { ListRange(1770907, 1770907), 1003633 }, // Scrip Exchange
+                { ListRange(1770943, 1770944), 1003633 }, // Scrip Exchange
+                { ListRange(1771000, 1771001), 1003633 }, // Scrip Exchange
+                
+                { [1769577, 1769578], 1012225 }, // Ardolain
+                { new List<uint> { 1769790, 1769791, 1769819, 1769814, 1769854, 1769883, 1769873, 1769940, 1769807 }, 1019451 }, // Eschina
+                { new List<uint> { 1769743, 1769744, 1770537 }, 1018655 }, // Disreputable Priest
+                { ListRange(1770551, 1770589), 1005244 }, // Mark Quartermaster
+                { new List<uint> { 1770888, 1770889 }, 1005244 }, // Mark Quartermaster
+                { new List<uint> { 1770637, 1770638 }, 1045069 }, // Quinnana
+                //{ new List<uint> { 1770041, 1770281, 1770301 }, 1031680 }, // Enie
+                
+                { new List<uint> { 1770601, 1770602, 1770659, 1770660 }, 1043463 }, // Horrendous Hoarder
+                { new List<uint> { 1770604, 1770643, 1770662, 1770709 }, 1043465 }, // Produce Producer
+
+                { new List<uint> { 1769957 }, 1027998 }, // Gramsol
+                { new List<uint> { 1769958 }, 1027538 }, // Pedronille
+                { new List<uint> { 1769959 }, 1027385 }, // Siulmet
+                { new List<uint> { 1769960 }, 1027497 }, // Zumutt
+                { new List<uint> { 1769961 }, 1027892 }, // Halden
+                { new List<uint> { 1769962 }, 1027665 }, // Sul Lad
+                { new List<uint> { 1769963 }, 1027709 }, // Nacille
+                { new List<uint> { 1769964 }, 1027766 }, // Goushs Ooan
+
+                { new List<uint> { 1770904 }, 1044839 }, // Dibourdier
+
+                { ListRange(1770764, 1770765), 1048387 }, // Ryubool Ja
+
+                { new List<uint> { 1770766, 1770767 }, 1049079 }, // Zircon
+
+            };
             foreach (var shop in Service.DataManager.GetExcelSheet<SpecialShop>())
             {
                 if (shop.Item[0].ReceiveItems[0].Item.RowId == 4551 && shop.Item[1].ReceiveItems[0].Item.RowId == 0) continue;
@@ -89,54 +134,16 @@ namespace CurrencySpender.Data
                     if (Generator.shops.Where(s => s.ShopId == shop.RowId).ToList().Count == 0)
                     {
                         uint NpcId = 0;
-                        Dictionary<List<uint>, uint> npcMapping = new()
-                        {
-                            { ListRange(1770112, 1770114), 1003633 }, // Scrip Exchange
-                            { ListRange(1770183, 1770196), 1003633 }, // Scrip Exchange
-                            { ListRange(1770264, 1770268), 1003633 }, // Scrip Exchange
-                            { ListRange(1770272, 1770278), 1003633 }, // Scrip Exchange
-                            { ListRange(1770420, 1770431), 1003633 }, // Scrip Exchange
-
-                            { ListRange(1770477, 1770510), 1003633 }, // Scrip Exchange
-                            { ListRange(1770518, 1770535), 1003633 }, // Scrip Exchange
-                            { ListRange(1770625, 1770631), 1003633 }, // Scrip Exchange
-                            { ListRange(1770706, 1770707), 1003633 }, // Scrip Exchange
-                            { ListRange(1770781, 1770794), 1003633 }, // Scrip Exchange
-                            { ListRange(1770868, 1770882), 1003633 }, // Scrip Exchange
-                            { ListRange(1770907, 1770907), 1003633 }, // Scrip Exchange
-                            { ListRange(1770943, 1770944), 1003633 }, // Scrip Exchange
-                            { ListRange(1771000, 1771001), 1003633 }, // Scrip Exchange
-                            
-                            { new List<uint> { 1769577, 1769578 }, 1012225 }, // Ardolain
-                            { new List<uint> { 1769790, 1769791, 1769819, 1769814, 1769854, 1769883, 1769873, 1769940, 1769807 }, 1019451 }, // Eschina
-                            { new List<uint> { 1769743, 1769744, 1770537 }, 1018655 }, // Disreputable Priest
-                            { ListRange(1770551, 1770589), 1005244 }, // Mark Quartermaster
-                            { new List<uint> { 1770888, 1770889 }, 1005244 }, // Mark Quartermaster
-                            //{ new List<uint> { 1770041, 1770281, 1770301 }, 1031680 }, // Enie
-                            
-                            { new List<uint> { 1770601, 1770602, 1770659, 1770660 }, 1043463 }, // Horrendous Hoarder
-                            { new List<uint> { 1770604, 1770643, 1770662, 1770709 }, 1043465 }, // Produce Producer
-
-                            { new List<uint> { 1769957 }, 1027998 }, // Gramsol
-                            { new List<uint> { 1769958 }, 1027538 }, // Pedronille
-                            { new List<uint> { 1769959 }, 1027385 }, // Siulmet
-                            { new List<uint> { 1769960 }, 1027497 }, // Zumutt
-                            { new List<uint> { 1769961 }, 1027892 }, // Halden
-                            { new List<uint> { 1769962 }, 1027665 }, // Sul Lad
-                            { new List<uint> { 1769963 }, 1027709 }, // Nacille
-                            { new List<uint> { 1769964 }, 1027766 }, // Goushs Ooan
-
-                            { new List<uint> { 1770904 }, 1044839 }, // Dibourdier
-
-                            { ListRange(1770764, 1770765), 1048387 }, // Ryubool Ja
-
-                            { new List<uint> { 1770766, 1770767 }, 1049079 }, // Zircon
-
-                        };
-                        //DuoLog.Information($"{npcMapping[1013397]}");
                         if (EventShops.Contains(shop.RowId)) continue;
 
                         NpcId = npcMapping.FirstOrDefault(kv => kv.Key.Contains(shop.RowId)).Value;
+
+                        // if (NpcId == 1045069)
+                        // {
+                        //     if (C.Debug) PluginLog.Information($"Missing NpcId: {shop.RowId}-{shop.Name}-{converted_cur_item.Name}-{converted_cur}");
+                        //     if (C.Debug) PluginLog.Information($"First Item: {shop.Item.First().ReceiveItems.First().Item.RowId}-{shop.Item.First().ReceiveItems.First().Item.Value.Name}");
+                        //     if (C.Debug) PluginLog.Information($"Second Item: {shop.Item[1].ReceiveItems.First().Item.RowId}-{shop.Item[1].ReceiveItems.First().Item.Value.Name}");
+                        // }
 
                         if (NpcId != 0)
                         {
@@ -189,34 +196,34 @@ namespace CurrencySpender.Data
             ReadOnlySpan<Type> customTalkTypes = [typeof(FateShop), typeof(FccShop), typeof(SpecialShop), typeof(InclusionShop)];
             var customTalkTypeHash = RowRef.CreateTypeHash(customTalkTypes);
             var npcName = Service.DataManager.GetExcelSheet<ENpcResident>()!.GetRow(npcBase.RowId).Singular.ExtractText();
-            //List<string> names = ["Zircon"];
-            //if (names.Contains(npcName))
-            //{
-            //    if (C.Debug)
-            //    {
-            //        if (rowRef.Is<SpecialShop>() || rowRef.Is<FccShop>() || rowRef.Is<GilShop>() || rowRef.Is<InclusionShop>() ||
-            //            rowRef.Is<CustomTalk>() || rowRef.Is<TopicSelect>() || rowRef.Is<PreHandler>())
-            //            DuoLog.Information($"FOUND: {npcBase.RowId}-{npcName}");
-            //        if (rowRef.Is<SpecialShop>()) DuoLog.Information($"Specialshop: {rowRef.Is<SpecialShop>()} - {rowRef.RowId}");
-            //        if (rowRef.Is<FccShop>()) DuoLog.Information($"FccShop: {rowRef.Is<FccShop>()} - {rowRef.RowId}");
-            //        if (rowRef.Is<GilShop>()) DuoLog.Information($"GilShop: {rowRef.Is<GilShop>()} - {rowRef.RowId}");
-            //        if (rowRef.Is<CustomTalk>()) DuoLog.Information($"CustomTalk: {rowRef.Is<CustomTalk>()} - {rowRef.RowId}");
-            //        if (rowRef.Is<TopicSelect>()) DuoLog.Information($"TopicSelect: {rowRef.Is<TopicSelect>()} - {rowRef.RowId}");
-            //        if (rowRef.Is<PreHandler>()) DuoLog.Information($"PreHandler: {rowRef.Is<PreHandler>()} - {rowRef.RowId}");
-            //        if (rowRef.Is<InclusionShop>()) DuoLog.Information($"InclusionShop: {rowRef.Is<InclusionShop>()} - {rowRef.RowId}");
-            //    }
-            //}
+            // List<string> names = ["Quinnana"];
+            // if (names.Contains(npcName))
+            // {
+            //     if (C.Debug)
+            //     {
+            //         if (rowRef.Is<SpecialShop>() || rowRef.Is<FccShop>() || rowRef.Is<GilShop>() || rowRef.Is<InclusionShop>() ||
+            //             rowRef.Is<CustomTalk>() || rowRef.Is<TopicSelect>() || rowRef.Is<PreHandler>())
+            //             DuoLog.Information($"FOUND: {npcBase.RowId}-{npcName}");
+            //         if (rowRef.Is<SpecialShop>()) DuoLog.Information($"Specialshop: {rowRef.Is<SpecialShop>()} - {rowRef.RowId}");
+            //         if (rowRef.Is<FccShop>()) DuoLog.Information($"FccShop: {rowRef.Is<FccShop>()} - {rowRef.RowId}");
+            //         if (rowRef.Is<GilShop>()) DuoLog.Information($"GilShop: {rowRef.Is<GilShop>()} - {rowRef.RowId}");
+            //         if (rowRef.Is<CustomTalk>()) DuoLog.Information($"CustomTalk: {rowRef.Is<CustomTalk>()} - {rowRef.RowId}");
+            //         if (rowRef.Is<TopicSelect>()) DuoLog.Information($"TopicSelect: {rowRef.Is<TopicSelect>()} - {rowRef.RowId}");
+            //         if (rowRef.Is<PreHandler>()) DuoLog.Information($"PreHandler: {rowRef.Is<PreHandler>()} - {rowRef.RowId}");
+            //         if (rowRef.Is<InclusionShop>()) DuoLog.Information($"InclusionShop: {rowRef.Is<InclusionShop>()} - {rowRef.RowId}");
+            //     }
+            // }
             Location? loc = Location.GetLocation(npcBase.RowId);
             // if(loc != Location.locations[0]) PluginLog.Error($"Found location for {npcBase.RowId}: {loc}");
             // else PluginLog.Information($"Found location: {loc}");
             //var loc = Location.locations.FirstOrDefault(loc => loc.Name.Equals(npcName, StringComparison.OrdinalIgnoreCase));
             //if (loc == default) { loc = Location.locations[0]; }
-            if (npcName.ToLower() == "mark quartermaster")
-            {
-                //PluginLog.Verbose($"FOUND: {npcBase.RowId}-{npcName}");
-                //PluginLog.Verbose($"{rowRef.Is<FccShop>()}-{rowRef.Is<GCShop>()}-{rowRef.Is<GilShop>()}-{rowRef.Is<SpecialShop>()}-{rowRef.Is<CustomTalk>()}");
-                //PluginLog.Verbose($"{rowRef.Is<TopicSelect>()}-{rowRef.Is<PreHandler>()}-{rowRef.RowId}");
-            }
+            // if (npcName.ToLower() == "quinnana")
+            // {
+            //     PluginLog.Verbose($"FOUND: {npcBase.RowId}-{npcName}");
+            //     PluginLog.Verbose($"{rowRef.Is<FccShop>()}-{rowRef.Is<GCShop>()}-{rowRef.Is<GilShop>()}-{rowRef.Is<SpecialShop>()}-{rowRef.Is<CustomTalk>()}");
+            //     PluginLog.Verbose($"{rowRef.Is<TopicSelect>()}-{rowRef.Is<PreHandler>()}-{rowRef.RowId}");
+            // }
             if (rowRef.Is<FccShop>())
             {
                 Generator.shops.Add(new Shop { ShopId = rowRef.RowId, NpcId = npcBase.RowId, Type = ShopType.FccShop, Location = loc });
@@ -252,7 +259,7 @@ namespace CurrencySpender.Data
                 blacklist_npcs.Add(1028254); // Ironworks Vendor
                 blacklist_npcs.AddRange(new List<uint> { 1019797, 1026074, 1028250, 1034489, 1036894, 1042833, 1044880, 1046491 }); // Campaign Attendant
 
-                blacklist_npcs.AddRange(new List<uint> { 1016294, 1016296 }); // Triple Triad Trader
+                blacklist_npcs.AddRange(new List<uint> {1010478 , 1016296 }); // Triple Triad Trader
                 blacklist_npcs.Add(1031691); //Enie
                 blacklist_npcs.AddRange(new List<uint> { 1052588, 1052600, 1052607 }); // Mesouaidonque
                 List<uint> blacklist_shops = [1770595, 1770645, 1770729];

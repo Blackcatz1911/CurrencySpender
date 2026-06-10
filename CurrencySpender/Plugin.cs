@@ -44,11 +44,6 @@ public sealed unsafe class Plugin : IDalamudPlugin
     public bool Problem = false;
     internal TaskManager TaskManager;
     public List<TrackedCurrency> Currencies;
-    
-    CurrencyNodeHooker nodeHooker;
-    
-    
-    //private SpendingWindow SpendingWindow { get; init; }
 
     public Plugin(IDalamudPluginInterface pluginInterface)
     {
@@ -85,6 +80,8 @@ public sealed unsafe class Plugin : IDalamudPlugin
             PluginInterface.UiBuilder.OpenMainUi += delegate { mainTabWindow.IsOpen = true; };
             TaskManager = new() { };
             Currencies = TrackedCurrency.GenerateCurrencyList();
+            Service.HighlightNpc = new();
+            Service.HighlightMenu = new();
             Generator.init();
             //VersionHelper.CheckGameVersion();
             PlayerHelper.init();
@@ -120,7 +117,7 @@ public sealed unsafe class Plugin : IDalamudPlugin
         PluginInterface.UiBuilder.Draw -= ws.Draw;
         ECommonsMain.Dispose();
         FontHelper.DisposeFonts();
-        nodeHooker?.Disable();
+        // nodeHooker?.Disable();
     }
 
     private void OnCommand(string command, string args)

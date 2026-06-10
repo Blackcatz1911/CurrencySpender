@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.2.7
+### Added
+- New Currencies: Oizys Credits & Auxesia Credits.
+- Highlighting for NPCs and items/menus thanks to electr0sheep.
+- Option to automatically add/remove upgrade items to "Items of Interest".
+### Fixed
+- Select Bait Ball was missing.
+
 ## 1.2.6
 ### Added
 - Fashion accessories can now be considered a collectable.

@@ -41,6 +41,7 @@ public unsafe class ShopItem
     [JsonIgnore] public string Name => Service.DataManager.GetExcelSheet<Item>()!.GetRow(Id).Name.ExtractText() ?? "Unable to read name";
     public uint Category { get; set; }
     public uint Price { get; set; }
+    public Boolean Gamba = false;
     public uint Currency { get; set; }
     public uint ShopId { get; set; }
     public required Shop Shop { get; set; }
@@ -53,7 +54,7 @@ public unsafe class ShopItem
     public override string ToString()
     {
         var cur_name = Service.DataManager.GetExcelSheet<Item>().GetRow(Currency).Name.ExtractText();
-        return $"Id: {Id}, Name: {Name}, Category: {Category}, Type: ({FormatFlags(Type)}), Price: {Price}, Currency: {cur_name}, ShopId: {ShopId}";
+        return $"Id: {Id}, Name: {Name}, Category: {Category}, Type: ({FormatFlags(Type)}), Price: {Price}, Currency: {cur_name}, ShopId: {ShopId}, Gamba: {Gamba}, Disabled: {Disabled}";
     }
 
     private string FormatFlags(ItemType type)

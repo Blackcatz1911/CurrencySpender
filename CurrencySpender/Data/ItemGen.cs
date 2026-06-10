@@ -12,7 +12,7 @@ namespace CurrencySpender.Data
         {
             PluginLog.Debug("ItemGen init");
             
-            List<uint> npcIds = [1052612, 1052642];
+            List<uint> npcIds = [1052612, 1052642, 1052652, 1056826];
             foreach (uint npcId in npcIds)
             {
                 Location location = Location.GetLocation(npcId);
@@ -54,22 +54,23 @@ namespace CurrencySpender.Data
             if (PlayerHelper.GCRanksCreated) GCShops();
             PluginLog.Debug("ItemGen init finished");
 
-            // foreach (var item in Generator.items) // TODO
-            // {
-            //     if (item.Id == 36342)
-            //     {
-            //         DuoLog.Information(
-            //             $"{item.Name}-{item.Shop.NpcName}-{item.Shop.NpcId}-{item.Shop.ShopId}-{item.Shop.Location.Zone}");
-            //         DuoLog.Information($"{item}");
-            //     }
-            // }
+            foreach (var item in Generator.items) // TODO
+            {
+                
+                if (item.Id == 38808)
+                {
+                    DuoLog.Information(
+                        $"{item.Name}-{item.Shop.NpcName}-{item.Shop.NpcId}-{item.Shop.ShopId}-{item.Shop.Location.Zone}");
+                    DuoLog.Information($"{item}");
+                }
+            }
         }
 
         internal static void specialShop(Shop shop)
         {
             var shop_ = Service.DataManager.GetExcelSheet<SpecialShop>().GetRow(shop.ShopId);
             shop.ShopName = shop_.Name.ExtractText();
-            // if(shop.ShopId == 1770770) PluginLog.Verbose($"SpecialShop: {shop.ShopId}-{shop.ShopName}-{shop.NpcName}");
+            if(shop.ShopId == 1770638) PluginLog.Verbose($"SpecialShop: {shop.ShopId}-{shop.ShopName}-{shop.NpcName}");
             var itemCol = shop_.Item;
             foreach (var itemCol_ in itemCol)
             {
@@ -92,7 +93,7 @@ namespace CurrencySpender.Data
                     var cur = ConvertCurrencyId(shop_.RowId, costItemId, shop_.UseCurrencyType);
                     var cur_item = Service.DataManager.GetExcelSheet<Item>().GetRow(cur);
 
-                    // if (shop.ShopId == 1770770) PluginLog.Verbose($"SpecialShop Item: {itemCol_.ReceiveItems[i].Item.RowId}-{itemCol_.ReceiveItems[i].Item.Value.Name}-{cur}-{cur_item.Name}-{shop.NpcName}-{shop.ShopId}-CurrencyId:{costItemId}");
+                    if (shop.ShopId == 1770638) PluginLog.Verbose($"SpecialShop Item: {itemCol_.ReceiveItems[i].Item.RowId}-{itemCol_.ReceiveItems[i].Item.Value.Name}-Cur:{cur}-Cur{cur_item.Name}-{shop.NpcName}-{shop.ShopId}-CurrencyId:{costItemId}");
 
                     if (P.Currencies.Where(c => c.Enabled && c.ItemId == cur).ToList().Count() == 0) continue;
 
@@ -102,8 +103,8 @@ namespace CurrencySpender.Data
                     //if (CollectableType == CollectableType.Hairstyle) PluginLog.Debug($"specialShop Hairstyle: {itemCol_.ReceiveItems[i].Item.RowId}, shop: {shop.NpcName}");
                     //PluginLog.Verbose(types.ToString());
                     //if (!enabled_currencies.Contains(cur)) continue;
-                    //if(itemCol_.ReceiveItems[i].Item.RowId == 45988)
-                    //    PluginLog.Verbose($"{cur}-{cur_item.Name}-{shop.NpcName}-{shop.ShopId}-CurrencyId:{costItemId}-{ itemCol_.ReceiveItems[i].Item.Value.Name.ToString()}");
+                    if(itemCol_.ReceiveItems[i].Item.RowId == 38808)
+                        PluginLog.Verbose($"{cur}-{cur_item.Name}-{shop.NpcName}-{shop.ShopId}-CurrencyId:{costItemId}-{ itemCol_.ReceiveItems[i].Item.Value.Name.ToString()}");
                     var existing_item = Generator.items.FirstOrDefault(it => it.Id == itemCol_.ReceiveItems[i].Item.RowId && it.Shop.NpcId == shop.NpcId); //it.Shop.NpcId == shop.NpcId);
                     if(existing_item == default)
                     {
@@ -381,6 +382,16 @@ namespace CurrencySpender.Data
                 cur = 48146;
                 items = [47973, 46795, 46782, 46840, 46155];
 
+            } else if (shop.NpcId == 1052652) // Oizys Credit
+            {
+                cur = 48147;
+                items = [50803, 50455, 50458, 50441, 50323];
+
+            } else if (shop.NpcId == 1056826) // Auxesia Credit
+            {
+                cur = 48148;
+                items = [52359, 52648, 52449, 52267, 52275];
+
             }
             foreach (uint item_id in items)
             {
@@ -401,6 +412,7 @@ namespace CurrencySpender.Data
                         Id = item.RowId,
                         ShopId = shop.ShopId,
                         Price = 1000,
+                        Gamba = true,
                         Currency = cur,
                         Category = item.ItemUICategory.RowId,
                         Type = item_types,
@@ -409,6 +421,7 @@ namespace CurrencySpender.Data
                     };
                     Generator.items.Add(shopItem);
                     shop.Items.Add(shopItem);
+                    PluginLog.Verbose(shopItem.ToString());
                 }
                 //PluginLog.Verbose($"{itemCol_.ToString()}");
             }
@@ -460,6 +473,11 @@ namespace CurrencySpender.Data
                     return currencyValue;
                 }
                 return itemId;
+            }
+            
+            if (specialShopId == 1770638)
+            {
+                return 33914;
             }
 
             if (specialShopId == 1770446 || (specialShopId == 1770699 && itemId < 10))

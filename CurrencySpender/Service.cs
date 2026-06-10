@@ -1,4 +1,4 @@
-using Dalamud.Game;
+using CurrencySpender.Services;
 using Dalamud.IoC;
 using Dalamud.Plugin.Services;
 
@@ -22,4 +22,7 @@ public class Service
     [PluginService] public static ISigScanner SigScanner { get; set; }
     [PluginService] public static IChatGui Chat { get; set; }
     [PluginService] public static IObjectTable ObjectTable { get; set; }
+    
+    internal static HighlightNpc HighlightNpc { get; set; } = null!;
+    internal static HighlightMenu HighlightMenu { get; set; } = null!;
 }

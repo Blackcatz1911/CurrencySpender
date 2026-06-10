@@ -29,6 +29,8 @@ public class Config
     public bool HideInDuties = true;
     public bool HideInCombat = true;
     public bool HideInCutscenes = true;
+    public bool HighlightNpc = true;
+    public bool HighlightMenu = true;
 
     public bool Debug = false;
 }
