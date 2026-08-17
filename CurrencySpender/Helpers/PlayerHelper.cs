@@ -1,11 +1,8 @@
 using CurrencySpender.Data;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
-using FFXIVClientStructs.FFXIV.Client.System.Framework;
 using FFXIVClientStructs.FFXIV.Client.UI;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using FFXIVClientStructs.FFXIV.Component.GUI;
-using System.Text;
-using ECommons.DalamudServices.Legacy;
 
 namespace CurrencySpender.Helpers
 {
@@ -157,6 +154,11 @@ namespace CurrencySpender.Helpers
                 if (!((AtkValue*)(nint)(&addon->AtkValues[54]))->Bool) return true;
             }
             return false;
+        }
+
+        public static String GrandCompany()
+        {
+            return PlayerState.Instance()->GrandCompany.ToString();
         }
     }
 }

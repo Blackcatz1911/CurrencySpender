@@ -4,7 +4,7 @@ namespace CurrencySpender.Windows;
 
 internal class ConfigWindow : Window
 {
-    public ConfigWindow() : base($"ConfigTabWindow")
+    public ConfigWindow() : base($"{P.Name} Settings {P.Version}###{P.Name}{P.Version}ConfigWindow")
     {
         this.SizeConstraints = new()
         {
@@ -21,19 +21,25 @@ internal class ConfigWindow : Window
 
     public override void PreDraw()
     {
-        WindowName = $"{P.Name} Settings {P.Version}###ConfigWindow";
+        WindowName = $"{P.Name} Settings {P.Version}###{P.Name}{P.Version}ConfigWindow";
     }
 
     public override void Draw()
     {
-        ImGuiEx.EzTabBar("tabbar", [
+        if (!C.ThirdParty)
+        {
+            if (Lifestream.Enabled || Vnavmesh.Enabled) C.ThirdParty = true;
+        }
+        ImGuiEx.EzTabBar("ConfigTabs", [
             ("General", GeneralTab.Draw, null, true),
             ("Currencies", CurrenciesTab.Draw, null, true),
+            ("Societies", SocietiesConfigTab.Draw, null, true),
             ("Items", ItemsTab.Draw, null, true),
             ("Display", DisplayTab.Draw, null, true),
+            (C.ThirdParty?"ThirdParty":null, ThirdPartyTab.Draw, null, true),
+            (C.Debug?"Debug":null, DebugTab.Draw, null, true),
             ("Changelog", ChangelogTab.Draw, null, true),
             ("About", AboutTab.Draw, null, true),
-            (C.Debug?"Debug":null, DebugTab.Draw, null, true),
          ]);
     }
 }

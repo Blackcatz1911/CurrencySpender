@@ -1,82 +1,74 @@
 using System.Text;
 using CurrencySpender.Classes;
-using CurrencySpender.Data;
 using FFXIVClientStructs.FFXIV.Client.System.Framework;
 
 namespace CurrencySpender.Helpers
 {
     internal unsafe class VersionHelper
     {
-        public static string GetVersion()
+        public static string? CheckVersion()
         {
-            string? version = P?.GetType()?.Assembly?.GetName()?.Version?.ToString();
-            if (version == null) return "";
-            return ToSemVer(version);
-        }
-        public static void CheckVersion()
-        {
-            if (C.Version == "0.0.0.0") C.Version = "0.0.0";
-            //C.Version = "1.1.1";
-            if (LowerVersionThan("1.1.0"))
+            var oldVersion = NormalizeVersion(C.Version);
+            var newVersion = GetVersion();
+
+            if (CompareVersions(oldVersion, "1.1.0") < 0)
             {
                 PluginLog.Information("Version below 1.1.0 found");
                 foreach (CollectableType type in Enum.GetValues(typeof(CollectableType)))
                 {
                     C.SelectedCollectableTypes.Add(type);
                 }
-                foreach (var cur in P.Currencies.Where(cur => cur.Child == false).ToList())
+            }
+            MigrateCurrencies(oldVersion);
+            MigrateCollectableTypes(oldVersion);
+
+            C.Version = NormalizeVersion(newVersion);
+
+            if (oldVersion == "0.0.0" || CompareVersions(newVersion, oldVersion) <= 0)
+            {
+                return null;
+            }
+            return oldVersion;
+        }
+
+        private static void MigrateCurrencies(string oldVersion)
+        {
+            foreach (var currency in P.Currencies.Where(c => !c.Child && CompareVersions(c.AddedInVersion, oldVersion) > 0))
+            {
+                C.SelectedCurrencies.Add(currency.ItemId);
+            }
+        }
+
+        private static readonly Dictionary<string, CollectableType[]> CollectableTypeMigrations = new()
+        {
+            ["1.1.2"] = [CollectableType.Container, CollectableType.Mahjong],
+            ["1.2.6"] = [CollectableType.FashionAccessory],
+        };
+
+        private static void MigrateCollectableTypes(string oldVersion)
+        {
+            foreach (var (version, types) in CollectableTypeMigrations)
+            {
+                if (CompareVersions(version, oldVersion) <= 0) continue;
+                foreach (var type in types)
                 {
-                    if (!C.SelectedCurrencies.Contains(cur.ItemId))
-                        C.SelectedCurrencies.Add(cur.ItemId);
+                    C.SelectedCollectableTypes.Add(type);
                 }
             }
-            if (LowerVersionThan("1.1.2"))
-            {
-                C.SelectedCollectableTypes.Add(CollectableType.Container);
-                C.SelectedCollectableTypes.Add(CollectableType.Mahjong);
-                C.SelectedCurrencies.Add(37549);
-                C.SelectedCurrencies.Add(37550);
-            }
-            if (LowerVersionThan("1.2.2"))
-            {
-                C.SelectedCurrencies.Add(45690);
-                C.SelectedCurrencies.Add(48146);
-            }
-            if (LowerVersionThan("1.2.4"))
-            {
-                C.SelectedCurrencies.Add(45690);
-                C.SelectedCurrencies.Add(45691);
-                C.SelectedCurrencies.Add(48146);
-            }
-            if (LowerVersionThan("1.2.6"))
-            {
-                C.SelectedCollectableTypes.Add(CollectableType.FashionAccessory);
-                C.SelectedCurrencies.Add(45691);
-                C.SelectedCurrencies.Add(48146);
-            }
-            if (LowerVersionThan("1.2.7"))
-            {
-                C.SelectedCurrencies.Add(48147);
-                C.SelectedCurrencies.Add(48148);
-            }
-            if (C.Version == "0.0.0") return;
-            if (LowerVersionThan(GetVersion()))
-            {
-                P.configWizard.IsOpen = true;
-            }
-            P.configWizard.SetVersion(C.Version);
-            C.Version = GetVersion();
-        }
-        public static void OpenConfigWizard()
-        {
-            P.configWizard.SetVersion(LastVersion());
-            P.configWizard.IsOpen = true;
         }
 
         public static bool IsNewVersion()
         {
-            return LowerVersionThan(GetVersion());
+            return CompareVersions(GetVersion(), C.Version) > 0;
         }
+
+        public static string GetVersion()
+        {
+            string? version = P?.GetType()?.Assembly?.GetName()?.Version?.ToString();
+            if (version == null) return "";
+            return ToSemVer(version);
+        }
+
         public static string ToSemVer(string version)
         {
             // Split the version into parts
@@ -90,62 +82,24 @@ namespace CurrencySpender.Helpers
 
             return "";
         }
-        public static bool LowerVersionThan(String version, string version2)
+
+        public static string NormalizeVersion(string? version)
         {
-            // Split the versions into major, minor, and patch components
-            var v1Parts = version.Split('.');
-            var v2Parts = version2.Split('.');
+            if (string.IsNullOrWhiteSpace(version))
+            {
+                return "0.0.0";
+            }
+            var parts = version.Split('.');
+            return $"{IntPart(0)}.{IntPart(1)}.{IntPart(2)}";
 
-            // Parse components as integers
-            int major1 = int.Parse(v1Parts[0]);
-            int minor1 = int.Parse(v1Parts[1]);
-            int patch1 = int.Parse(v1Parts[2]);
-
-            int major2 = int.Parse(v2Parts[0]);
-            int minor2 = int.Parse(v2Parts[1]);
-            int patch2 = int.Parse(v2Parts[2]);
-
-            // Compare major versions
-            if (major2 < major1) return true;
-            if (major2 > major1) return false;
-
-            // Compare minor versions
-            if (minor2 < minor1) return true;
-            if (minor2 > minor1) return false;
-
-            // Compare patch versions
-            return patch2 < patch1;
+            int IntPart(int index) => index < parts.Length && int.TryParse(parts[index], out var value) ? value : 0;
         }
-        public static string LastVersion()
+
+        public static int CompareVersions(string? a, string? b)
         {
-            // Split the versions into major, minor, and patch components
-            var v1Parts = C.Version.Split('.');
+            return Version.Parse(NormalizeVersion(a)).CompareTo(Version.Parse(NormalizeVersion(b)));
+        }
 
-            // Parse components as integers
-            int major1 = int.Parse(v1Parts[0]);
-            int minor1 = int.Parse(v1Parts[1]);
-            int patch1 = int.Parse(v1Parts[2]);
-            patch1--;
-            if(patch1 < 0)
-            {
-                patch1 = 0;
-                minor1--;
-            }
-            if (minor1 < 0)
-            {
-                minor1 = 0;
-                major1--;
-            }
-            if (major1 < 0)
-            {
-                major1 = 0;
-            }
-            return major1 + "." + minor1 + "." + patch1;
-        }
-        public static bool LowerVersionThan(String version)
-        {
-            return LowerVersionThan(version, C.Version);
-        }
         public static string GameVersion()
         {
             var gameVersionSpan = Framework.Instance()->GameVersion;

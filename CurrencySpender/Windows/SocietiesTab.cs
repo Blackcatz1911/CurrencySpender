@@ -5,8 +5,9 @@ using System.Data;
 
 namespace CurrencySpender.Windows;
 
-internal class MainTab
+internal class SocietiesTab
 {
+    public static bool colored = false;
     internal static bool NotUpdated = true;
     internal static Dictionary<uint, int> MissingCollectables = new Dictionary<uint, int>();
     internal static unsafe void Draw()
@@ -17,46 +18,6 @@ internal class MainTab
             UiHelper.WarningText("Please login before using this Plugin!");
             return;
         }
-        if (P.Problem)
-        {
-            UiHelper.WarningText("The current shared FATE ranks could not be fetched. Please click the button below:");
-            if (ImGui.Button("Open shared FATE window"))
-            {
-                //PlayerHelper.reset();
-                PlayerHelper.openSharedFate();
-            }
-            ImGui.Separator();
-        }
-        //var font = UiBuilder.;
-        //font.Scale = 1.1f; 
-        //ImGuiEx.Text(ImGuiColors.DalamudGrey, font, "Test");
-        //ImGui.PopFont();
-        //foreach (TrackedCurrency currency in P.Currencies)
-        //{
-        //    if (currency.Enabled && !currency.Child && C.SelectedCurrencies.Contains(currency.ItemId) &&
-        //        (!C.HideEmptyCurrencies || currency.CurrentCount > 0))
-        //    {
-        //        if (currency.ItemId == 26807 && P.Problem) continue;
-        //        ImGui.Image(currency.Icon.ImGuiHandle, new Vector2(21, 21));
-        //        ImGui.SameLine();
-        //        var text = $"{StringHelper.FormatString(currency.CurrentCount.ToString())}/{StringHelper.FormatString(currency.MaxCount.ToString())} ~{currency.Percentage}% full";
-        //        if (currency.Percentage > 70) ImGuiEx.Text(EColor.RedBright, text);
-        //        else if(currency.Percentage > 50) ImGuiEx.Text(EColor.YellowBright, text);
-        //        else ImGuiEx.Text(text);
-        //        if (C.ShowMissingCollectables && MissingCollectables.TryGetValue(currency.ItemId, out int value) && value > 0)
-        //        {
-        //            ImGuiEx.Text($"Collectables missing: {value}");
-        //        }
-        //        if (ImGuiEx.IconButtonWithText(Dalamud.Interface.FontAwesomeIcon.MagnifyingGlassChart, " "+currency.Name)) {
-        //            P.ToggleSpendingUI(currency);
-        //        }
-        //        ImGui.Separator();
-        //    }
-        //    else
-        //    {
-        //        //if(C.Debug) ImGui.Text($"DEBUG: {currency.Name}");
-        //    }
-        //}
         if (ImGui.BeginTable("##currencies", C.ShowMissingCollectables?4:3, ImGuiTableFlags.Borders | ImGuiTableFlags.Sortable))
         {
             //ImGui.TableSetupColumn("ID");
@@ -80,7 +41,8 @@ internal class MainTab
             ImGui.TableSetupColumn("Actions", ImGuiTableColumnFlags.NoSort);
             ImGui.TableHeadersRow();
 
-            var sortedCurrencies = P.Currencies.FindAll(cur => !cur.Society);
+            var sortedCurrencies = P.Currencies.FindAll(cur => cur.Society);
+            // var currencies = P.Currencies.FindAll(cur => cur.Society);
             ImGuiTableSortSpecsPtr sortSpecs = ImGui.TableGetSortSpecs();
             //List<ShopItem> SellableItems = ShopHelper.GetSellableItems(Currency);
 
@@ -96,8 +58,8 @@ internal class MainTab
                 {
                     case 0:
                         sortedCurrencies = ascending
-                            ? sortedCurrencies.ToList()
-                            : sortedCurrencies.ToList().AsEnumerable().Reverse().ToList();
+                            ? sortedCurrencies
+                            : sortedCurrencies.AsEnumerable().Reverse().ToList();
                         break;
 
                     case 1:
@@ -114,8 +76,8 @@ internal class MainTab
                                 MissingCollectables.TryGetValue(c.ItemId, out int value) ? value : int.MinValue).ToList();
                         break;
                     default:
-                        sortedCurrencies = P.Currencies; // Use original list order
-                        break; // Do nothing for unhandled columns
+                        sortedCurrencies = P.Currencies.FindAll(cur => cur.Society);
+                        break;
                 }
             }
             foreach (TrackedCurrency currency in sortedCurrencies)
@@ -162,28 +124,26 @@ internal class MainTab
     }
     public static void update(bool Force = false)
     {
-        if (!Generator.AllFinished)
-        {
-            NotUpdated = true;
-            return;
-        }
+        if (!Generator.AllFinished) return;
         if (NotUpdated || Force)
         {
             MissingCollectables.Clear();
-            foreach (TrackedCurrency currency in P.Currencies)
+            foreach (TrackedCurrency currency in P.Currencies.FindAll(cur => cur.Society))
             {
-                if (currency.Enabled && !currency.Child && !currency.Society)
+                if (currency.Enabled)
                 {
                     var itemsMax = Generator.items
                         .Where(item => (item.Currency == currency.ItemId || (currency.Children != null && currency.Children.Contains(item.Currency))) && item.Type.HasFlag(ItemType.Collectable) && !item.Disabled && C.SelectedCollectableTypes.Contains((CollectableType)item.CollectableType))
                         .GroupBy(item => item.Id) // Group by unique item.ItemId
                         .Select(group => group.First()) // Take the first item from each group
                         .ToList().Count();
+                    
                     var itemsUnlocked = Generator.items
                         .Where(item => (item.Currency == currency.ItemId || (currency.Children != null && currency.Children.Contains(item.Currency))) && item.Type.HasFlag(ItemType.Collectable) && !item.Disabled && C.SelectedCollectableTypes.Contains((CollectableType)item.CollectableType) && ItemHelper.IsUnlocked(item.Id))
                         .GroupBy(item => item.Id) // Group by unique item.ItemId
                         .Select(group => group.First()) // Take the first item from each group
                         .ToList().Count();
+                    
                     MissingCollectables.Add(currency.ItemId, (itemsMax - itemsUnlocked));
                 }
             }

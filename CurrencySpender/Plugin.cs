@@ -82,10 +82,16 @@ public sealed unsafe class Plugin : IDalamudPlugin
             Currencies = TrackedCurrency.GenerateCurrencyList();
             Service.HighlightNpc = new();
             Service.HighlightMenu = new();
+            
+            PlayerHelper.init();
             Generator.init();
             //VersionHelper.CheckGameVersion();
-            PlayerHelper.init();
-            VersionHelper.CheckVersion();
+            var previousVersion = VersionHelper.CheckVersion();
+            if (previousVersion != null)
+            {
+                configWizard.SetVersion(previousVersion, VersionHelper.GetVersion());
+                configWizard.IsOpen = true;
+            }
             //PluginLog.Debug($"unlocked: {ItemHelper.IsUnlocked(36636)}");
             //mainTabWindow.IsOpen = true;
         });

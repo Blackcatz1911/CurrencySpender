@@ -28,5 +28,25 @@ public class DisplayTab
         ImGui.TextWrapped("Will highlight the menus where to find the item when marking the flag or teleporting.");
         ImGui.Checkbox("Hightlight Menus", ref C.HighlightMenu);
         ImGui.Separator();
+        ImGui.TextWrapped("Will glue the spending window to the main window.");
+        ImGui.Checkbox("Glue to main window", ref C.GlueToMainWindow);
+        ImGui.Separator();
+        ImGui.TextWrapped("Will glue the spending window to the left or right side of the main window.");
+        string[] glueOptions = { "Left", "Right" };
+        if (ImGui.BeginCombo("Glue spending window to the side", glueOptions[(int)C.GlueSide]))
+        {
+            for (int i = 0; i < glueOptions.Length; i++)
+            {
+                bool isSelected = (int)C.GlueSide == i;
+                if (ImGui.Selectable(glueOptions[i], isSelected))
+                {
+                    C.GlueSide = (GlueSide)i;
+                }
+                if (isSelected)
+                    ImGui.SetItemDefaultFocus();
+            }
+            ImGui.EndCombo();
+        }
+        ImGui.Separator();
     }
 }

@@ -9,7 +9,7 @@ internal class GeneralTab
         ImGui.TextWrapped("Opens the config wizard again for the last version.");
         if (ImGui.Button("Open config wizard"))
         {
-            VersionHelper.OpenConfigWizard();
+            P.configWizard.OpenForCurrentVersion();
         }
         ImGui.Separator();
         ImGui.TextWrapped("Shows you if you can buy ventures with it.");

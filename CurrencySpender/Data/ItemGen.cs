@@ -8,9 +8,11 @@ namespace CurrencySpender.Data
     {
         internal static bool FateShopsDone = false;
         internal static bool GCShopsDone = false;
+        
         public static void init()
         {
             PluginLog.Debug("ItemGen init");
+            ItemHelper.InitTribes();
             
             List<uint> npcIds = [1052612, 1052642, 1052652, 1056826];
             foreach (uint npcId in npcIds)
@@ -52,16 +54,20 @@ namespace CurrencySpender.Data
                 fateShops();
             } else PluginLog.Debug("Not starting fateShops");
             if (PlayerHelper.GCRanksCreated) GCShops();
+            
+            Generator.ItemsFinished = true;
+            if(Generator.ShopsFinished && Generator.ItemsFinished) Generator.AllFinished = true;
+            
             PluginLog.Debug("ItemGen init finished");
 
+            // List<String> names = ["Western Reach Framer's Kit", "Eastern Reach Framer's Kit", "Mahjong Mastery Framer's Kit"];
             // foreach (var item in Generator.items)
             // {
-                
-            //     if (item.Id == 38808)
+            //     if (names.Contains(item.Name))
             //     {
-            //         DuoLog.Information(
-            //             $"{item.Name}-{item.Shop.NpcName}-{item.Shop.NpcId}-{item.Shop.ShopId}-{item.Shop.Location.Zone}");
-            //         DuoLog.Information($"{item}");
+            //         // DuoLog.Information(
+            //         //     $"{item.Name}-{item.Shop.NpcName}-{item.Shop.NpcId}-{item.Shop.ShopId}-{item.Shop.Location.Zone}");
+            //         DuoLog.Information($"{item.Id}");
             //     }
             // }
         }
@@ -103,10 +109,14 @@ namespace CurrencySpender.Data
                     //if (CollectableType == CollectableType.Hairstyle) PluginLog.Debug($"specialShop Hairstyle: {itemCol_.ReceiveItems[i].Item.RowId}, shop: {shop.NpcName}");
                     //PluginLog.Verbose(types.ToString());
                     //if (!enabled_currencies.Contains(cur)) continue;
-                    if(itemCol_.ReceiveItems[i].Item.RowId == 38808)
-                        PluginLog.Verbose($"{cur}-{cur_item.Name}-{shop.NpcName}-{shop.ShopId}-CurrencyId:{costItemId}-{ itemCol_.ReceiveItems[i].Item.Value.Name.ToString()}");
-                    var existing_item = Generator.items.FirstOrDefault(it => it.Id == itemCol_.ReceiveItems[i].Item.RowId && it.Shop.NpcId == shop.NpcId); //it.Shop.NpcId == shop.NpcId);
-                    if(existing_item == default)
+                    if (C.Debug && itemCol_.ReceiveItems[i].Item.RowId == 5089)
+                    {
+                        // PluginLog.Verbose($"{cur}-{cur_item.Name}-{shop.NpcName}-{shop.ShopId}-CurrencyId:{costItemId}-{ itemCol_.ReceiveItems[i].Item.Value.Name.ToString()}");
+                        // PluginLog.Verbose($"{itemCol_.ReceiveItems[i].Item.Value.}");
+                    }
+                        
+                    var existingItem = Generator.items.FirstOrDefault(it => it.Id == itemCol_.ReceiveItems[i].Item.RowId && it.Shop.NpcId == shop.NpcId); //it.Shop.NpcId == shop.NpcId);
+                    if(existingItem == null)
                     {
                         ShopItem shopItem = new ShopItem
                         {
@@ -117,8 +127,13 @@ namespace CurrencySpender.Data
                             Category = itemCol_.ReceiveItems[i].Item.Value.ItemUICategory.RowId,
                             Type = item_types,
                             CollectableType = CollectableType,
-                            Shop = shop
+                            Shop = shop,
+                            PreReq = itemCol_.Quest.RowId != 0 || itemCol_.AchievementUnlock.RowId != 0,
                         };
+                        if (ItemHelper.TribeByCurrency.TryGetValue(cur, out var tribeId))
+                        {
+                            if (!ItemHelper.IsReputationReached(shopItem.Id, tribeId, itemCol_.Quest.RowId)) shopItem.Disabled = true;
+                        }
                         Generator.items.Add(shopItem);
                         shop.Items.Add(shopItem);
                     }
@@ -402,10 +417,10 @@ namespace CurrencySpender.Data
                 var CollectableType = ItemHelper.GetCollectableType(item, item_types);
                 // PluginLog.Debug($"item: {item.RowId}, shop: {shop.NpcName}, CollectableType:{CollectableType}");
                 // PluginLog.Verbose(item_types.ToString());
-                if(item.RowId == 45988)
-                    PluginLog.Verbose($"{cur}-{shop.NpcName}-{shop.ShopId}-CurrencyId:{cur}-{item.Name.ToString()}");
-                var existing_item = Generator.items.FirstOrDefault(it => it.Id == item.RowId && it.Shop.NpcId == shop.NpcId); //it.Shop.NpcId == shop.NpcId);
-                if(existing_item == default)
+                // if(C.Debug && item.RowId == 45988)
+                //     PluginLog.Verbose($"{cur}-{shop.NpcName}-{shop.ShopId}-CurrencyId:{cur}-{item.Name.ToString()}");
+                var existingItem = Generator.items.FirstOrDefault(it => it.Id == item.RowId && it.Shop.NpcId == shop.NpcId); //it.Shop.NpcId == shop.NpcId);
+                if(existingItem == null)
                 {
                     ShopItem shopItem = new ShopItem
                     {
@@ -421,7 +436,7 @@ namespace CurrencySpender.Data
                     };
                     Generator.items.Add(shopItem);
                     shop.Items.Add(shopItem);
-                    PluginLog.Verbose(shopItem.ToString());
+                    // if(C.Debug) PluginLog.Verbose(shopItem.ToString());
                 }
                 //PluginLog.Verbose($"{itemCol_.ToString()}");
             }
@@ -431,12 +446,12 @@ namespace CurrencySpender.Data
         private static Dictionary<uint, uint> Currencies_Dict = new Dictionary<uint, uint>()
         {
             { 1, 10309 },
-            { 2, 33913 }, // Unlimited Crafters{  scrip
+            { 2, 33913 }, // Unlimited Crafters  scrip
             { 3, 10311 },
-            { 4, 33914 }, // Unlimited Gatherers{  scrip
+            { 4, 33914 }, // Unlimited Gatherers  scrip
             { 5, 10307 },
-            { 6, 41784 }, // Limited Crafters{  scrip
-            { 7, 41785 }, // Limited Gatherers{  scrip
+            { 6, 41784 }, // Limited Crafters  scrip
+            { 7, 41785 }, // Limited Gatherers  scrip
             { 8, 21072 },
             { 9, 21073 },
             { 10, 21074 },
@@ -461,8 +476,8 @@ namespace CurrencySpender.Data
         };
         private static Dictionary<uint, uint> TomeStones_Dict = new Dictionary<uint, uint>() {
             { 1, 28 },
-            { 2, Service.DataManager.GetExcelSheet<TomestonesItem>()!.First(item => item.Tomestones.RowId is 2).Item.RowId },
-            { 3, Service.DataManager.GetExcelSheet<TomestonesItem>()!.First(item => item.Tomestones.RowId is 3).Item.RowId },
+            { 2, Service.DataManager.GetExcelSheet<TomestonesItem>().First(item => item.Tomestones.RowId is 2).Item.RowId },
+            { 3, Service.DataManager.GetExcelSheet<TomestonesItem>().First(item => item.Tomestones.RowId is 3).Item.RowId },
         };
         public static uint ConvertCurrencyId(uint specialShopId, uint itemId, ushort useCurrencyType)
         {

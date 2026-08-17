@@ -1,5 +1,20 @@
 # Changelog
 
+## 1.3.0
+### Added
+- Societal currencies are now tracked.
+- New currency: Faux leaves added.
+- New currency: Achievement Cerificates added.
+- Added a tooltip to show when a prerequisite quest is needed.
+- New setting: The possibility to glue the spending windows to the main window.
+### Changed
+- Teleporting now skips the teleport when you are already in the correct zone.
+- The spending window now only opens once shop/item data has finished loading.
+- ConfigWizard reworked to work more resilent and needs less manual config.
+- Refactored some code.
+### Fixed
+- When no sellable items are found, now shows a proper warning.
+
 ## 1.2.7
 ### Added
 - New Currencies: Oizys Credits & Auxesia Credits.

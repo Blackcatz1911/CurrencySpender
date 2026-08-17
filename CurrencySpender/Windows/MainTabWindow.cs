@@ -5,7 +5,9 @@ namespace CurrencySpender.Windows;
 
 internal class MainTabWindow : Window
 {
-    public MainTabWindow() : base($"")
+    internal static Vector2 LastPos;
+    internal static Vector2 LastSize;
+    public MainTabWindow() : base($"{P.Name} {P.Version}###{P.Name}MainTabWindow")
     {
         SizeConstraints = new()
         {
@@ -29,15 +31,23 @@ internal class MainTabWindow : Window
 
     public override void PreDraw()
     {
-        WindowName = $"{P.Name} {P.Version}###MainTabWindow";
+        WindowName = $"{P.Name} {P.Version}###{P.Name}MainTabWindow";
     }
 
     public override void Draw()
     {
-        ImGuiEx.EzTabBar("tabbar", [
-            ("Currencies", MainTab.Draw, null, true),
-            ("Instructions", InstructionsTab.Draw, null, true),
-         ]);
+        LastPos = ImGui.GetWindowPos();
+        LastSize = ImGui.GetWindowSize();
 
+        var tabs = new List<(string, System.Action, Vector4?, bool)>
+        {
+            ("Currencies", MainTab.Draw, null, true),
+        };
+
+        if (C.ShowSocieties)
+            tabs.Add(("Societies", SocietiesTab.Draw, null, true));
+        tabs.Add(("Instructions", InstructionsTab.Draw, null, true));
+
+        ImGuiEx.EzTabBar("MainTabs", tabs.ToArray());
     }
 }

@@ -139,7 +139,11 @@ internal static unsafe class UiHelper
         ImGui.SameLine();
         if (ImGui.Button($"TP##sellable-{item.Id}-{item.ShopId}-{item.Shop.NpcId}"))
         {
-            item.Shop.Location.Teleport();
+            if(AgentMap.Instance()->CurrentTerritoryId != item.Shop.Location.TerritoryId)
+                item.Shop.Location.Teleport();
+            else
+                item.Shop.Location.MoveTo();
+            
             if (item.Shop.Location.NeedsPresence &&
                 AgentMap.Instance()->CurrentTerritoryId != item.Shop.Location.TerritoryId)
             {

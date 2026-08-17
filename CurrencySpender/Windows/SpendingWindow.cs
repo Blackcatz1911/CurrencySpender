@@ -1,5 +1,7 @@
+using System.Drawing;
 using CurrencySpender.Classes;
 using CurrencySpender.Data;
+using CurrencySpender.Tasks;
 using Dalamud.Interface;
 using Dalamud.Interface.Utility.Raii;
 
@@ -11,19 +13,30 @@ internal class SpendingWindow : Window
     internal static List<ShopItem>? Ventures;
     internal static List<ShopItem>? SellableItems;
     internal static List<ShopItem>? ItemsOfInterest;
-    public SpendingWindow() : base("SpendingWindow")
+
+    public SpendingWindow() : base($"{P.Name} {P.Version}###{P.Name}SpendingWindow")
     {
         this.SizeConstraints = new()
         {
             MinimumSize = new(600, 200),
             MaximumSize = new(float.MaxValue, float.MaxValue)
         };
+        UpdateTitleBarButtons();
+
+        P.ws.AddWindow(this);
+    }
+
+    private void UpdateTitleBarButtons()
+    {
+        TitleBarButtons.Clear();
         if (C.Debug)
         {
             TitleBarButtons.Add(new()
             {
                 Click = (m) =>
-                { if (m == ImGuiMouseButton.Left && Currency != null) {
+                {
+                    if (m == ImGuiMouseButton.Left && Currency != null)
+                    {
                         P.TaskManager.Enqueue(() => WebHelper.CheckAll(Currency.ItemId, true));
                     }
                 },
@@ -32,27 +45,88 @@ internal class SpendingWindow : Window
                 ShowTooltip = () => ImGui.SetTooltip("Force refresh Universalis"),
             });
         }
-        P.ws.AddWindow(this);
+
+        TitleBarButtons.Add(new()
+        {
+            Click = (m) =>
+            {
+                if (m == ImGuiMouseButton.Left)
+                {
+                    C.GlueToMainWindow = !C.GlueToMainWindow;
+                    if (!C.GlueToMainWindow)
+                    {
+                        Position = null;
+                        Size = null;
+                        PositionCondition = ImGuiCond.None;
+                        SizeCondition = ImGuiCond.None;
+                    }
+                }
+            },
+            Icon = FontAwesomeIcon.Clone,
+            IconColor = C.GlueToMainWindow ? EColor.YellowBright : null,
+            IconOffset = new(2, 2),
+            ShowTooltip = () => ImGui.SetTooltip(C.GlueToMainWindow ? "Unglue from the main window" : "Glue to the main window"),
+        });
     }
-    
+
     public override bool DrawConditions()
     {
         return UiHelper.DrawConditions();
     }
-    
-    public unsafe override void Draw()
+
+    public override void PreDraw()
+    {
+        WindowName = $"{P.Name} {P.Version}###{P.Name}SpendingWindow";
+        UpdateTitleBarButtons();
+    }
+
+    public override void Draw()
     {
         if(Currency == null) return;
+        if (C.GlueToMainWindow)
+        {
+            var mainPos = MainTabWindow.LastPos;
+            var mainSize = MainTabWindow.LastSize;
+            if (mainPos != Vector2.Zero && mainSize != Vector2.Zero)
+            {
+                float x = C.GlueSide == GlueSide.Left
+                    ? mainPos.X - ImGui.GetWindowSize().X - 5
+                    : mainPos.X + mainSize.X + 5;
+                Position = new Vector2(x, mainPos.Y);
+                PositionCondition = ImGuiCond.Always;
+                Size = new Vector2(ImGui.GetWindowSize().X, mainSize.Y);
+                SizeCondition = ImGuiCond.Always;
+            }
+        }
+        else
+        {
+            Position = null;
+            Size = null;
+            PositionCondition = ImGuiCond.None;
+            SizeCondition = ImGuiCond.None;
+        }
+        
         //WindowName = "SpendingGuide: " + this.CurrencyName;
         ImGui.Image(Currency.Icon.Handle, new Vector2(21, 21));
         ImGui.SameLine();
         UiHelper.LeftAlign($"{Currency.Name}: {Currency.CurrentCount}");
+        UiHelper.LeftAlign($"Status: {MovementTask.Status}");
+        if (MovementTask.Status != "Idle")
+        {
+            ImGui.SameLine();
+            if (ImGui.Button("Cancel"))
+            {
+                P.TaskManager.Abort();
+                MovementTask.Cancel();
+            }
+        }
         if (C.Debug)
         {
             UiHelper.LeftAlign($"DEBUG: CurrencyId: {Currency.ItemId}");
             UiHelper.LeftAlign($"DEBUG: CollectableItems: {CollectableItems?.Count} | SellableItems: {SellableItems?.Count} | " +
                 $"ItemsOfInterest: {ItemsOfInterest?.Count}");
             UiHelper.LeftAlign($"DEBUG: Storm: {PlayerHelper.GCRanks[1]} Serpent: {PlayerHelper.GCRanks[2]} Flame: {PlayerHelper.GCRanks[3]}");
+            UiHelper.LeftAlign($"DEBUG: GlueToMainWindow: {C.GlueToMainWindow}");
         }
         List<uint> ids = [20, 21, 22];
         if (ids.Contains(Currency.ItemId)) {
@@ -66,7 +140,7 @@ internal class SpendingWindow : Window
         {
             UiHelper.WarningText("Some items cannot be purchased yet due to shared FATE rankings... So they will not be displayed here.");
         }
-        if(CollectableItems?.Count == 0 && SellableItems?.Count == 0 && ItemsOfInterest?.Count == 0)
+        if(CollectableItems?.Count == 0 && SellableItems?.Count == 0 && ItemsOfInterest?.Count == 0 && Ventures?.Count == 0)
             UiHelper.WarningText("Nothing can be displayed. Please check your settings. Especially the minimum sales.");
         
         try
@@ -243,6 +317,11 @@ internal class SpendingWindow : Window
                             }
                         } else
                         {
+                            if (item.PreReq)
+                            {
+                                ImGuiEx.IconWithTooltip(FontAwesomeIcon.QuestionCircle, "This item requires a certain achievements or quest to be completed.");
+                                ImGui.SameLine();
+                            }
                             UiHelper.LeftAlign(item.Name);
                         }
                         using (var context = ImRaii.ContextPopupItem($"context##{item.Id}-{item.ShopId}-{item.Shop.NpcId}"))
@@ -462,6 +541,8 @@ internal class SpendingWindow : Window
                 }
             }
 
+            if(C.ShowSellables && (SellableItems == null || SellableItems.Count == 0))
+                UiHelper.WarningText("No sellable items found. Please also check your minimum sales setting.");
             if (C.ShowSellables && SellableItems != null && SellableItems.Count > 0)
             {
                 ImGui.Separator();
@@ -543,7 +624,7 @@ internal class SpendingWindow : Window
                         {
                             // Display a tooltip or additional info
                             ImGui.BeginTooltip();
-                            UiHelper.LeftAlign($"ID: {item.Id}\nName: {item.Name}\nCat: {item.Category}\nNPC:{item.Shop.NpcName}\nShop:{item.Shop.ShopId}\nNpcName: {item.Shop.NpcName}\nNpcId: {item.Shop.NpcId}");
+                            UiHelper.LeftAlign($"ID: {item.Id}\nName: {item.Name}\nCat: {item.Category}\nNPC:{item.Shop.NpcName}\nShop:{item.Shop.ShopId}\nShopType:{item.Shop.Type}\nNpcName: {item.Shop.NpcName}\nNpcId: {item.Shop.NpcId}");
                             ImGui.EndTooltip();
                         }
                         using (var context = ImRaii.ContextPopupItem($"context##{item.Id}-{item.ShopId}-{item.Shop.NpcId}"))

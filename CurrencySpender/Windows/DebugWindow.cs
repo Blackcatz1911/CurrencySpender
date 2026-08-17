@@ -2,7 +2,7 @@ namespace CurrencySpender.Windows;
 
 internal class DebugWindow : Window
 {
-    public DebugWindow() : base("DebugTabWindow")
+    public DebugWindow() : base($"{P.Name} {P.Version} - Debug###{P.Name}DebugWindow")
     {
         this.SizeConstraints = new()
         {
@@ -19,12 +19,12 @@ internal class DebugWindow : Window
 
     public override void PreDraw()
     {
-        WindowName = $"{P.Name} Debug {P.Version}###DebugTabWindow";
+        WindowName = $"{P.Name} {P.Version} - Debug###{P.Name}DebugWindow";
     }
 
     public override void Draw()
     {
-        ImGuiEx.EzTabBar("tabbar", [
+        ImGuiEx.EzTabBar("DebugTabs", [
             ("Main Debug Tab", DebugMainTab.Draw, null, true),
          ]);
     }

@@ -2,6 +2,12 @@ using CurrencySpender.Classes;
 
 namespace CurrencySpender.Configuration;
 
+public enum GlueSide
+{
+    Left,
+    Right,
+}
+
 [Serializable]
 public class Config
 {
@@ -22,6 +28,11 @@ public class Config
     public bool ShowMissingCollectables = true;
     public bool ShowSellables = true;
     public int MinSales = 0;
+    public bool ShowSocieties = true;
+
+    public bool ThirdParty = false;
+    public bool UseLifestream = false;
+    public bool UseVnavmesh = false;
 
     public bool ShowButton = true;
     public bool OpenAutomatically = false;
@@ -31,6 +42,8 @@ public class Config
     public bool HideInCutscenes = true;
     public bool HighlightNpc = true;
     public bool HighlightMenu = true;
+    public bool GlueToMainWindow = false;
+    public GlueSide GlueSide = GlueSide.Right;
 
     public bool Debug = false;
 }

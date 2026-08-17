@@ -48,13 +48,15 @@ public unsafe class ShopItem
 
     public bool Disabled = false;
     public uint? RequiredRank;
+    public uint? RequiredReputation;
+    public bool PreReq = false;
 
     public List<int>? ContainerUnlocks { get; set; }
 
     public override string ToString()
     {
-        var cur_name = Service.DataManager.GetExcelSheet<Item>().GetRow(Currency).Name.ExtractText();
-        return $"Id: {Id}, Name: {Name}, Category: {Category}, Type: ({FormatFlags(Type)}), Price: {Price}, Currency: {cur_name}, ShopId: {ShopId}, Gamba: {Gamba}, Disabled: {Disabled}";
+        var curName = Service.DataManager.GetExcelSheet<Item>().GetRow(Currency).Name.ExtractText();
+        return $"Id: {Id}, Name: {Name}, Category: {Category}, Type: ({FormatFlags(Type)}), Price: {Price}, Currency: {curName}, ShopId: {ShopId}, Gamba: {Gamba}, Disabled: {Disabled}";
     }
 
     private string FormatFlags(ItemType type)

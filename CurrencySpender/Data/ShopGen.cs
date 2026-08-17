@@ -1,4 +1,6 @@
 using CurrencySpender.Classes;
+using ECommons.GameHelpers;
+using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using Lumina.Excel;
 using Lumina.Excel.Sheets;
 
@@ -17,6 +19,13 @@ namespace CurrencySpender.Data
         ];
 
         public static List<uint> OldShops = new List<uint> ();
+
+        public static readonly Dictionary<uint, string> GrandCompanyNpcs = new()
+        {
+            { 1009552, "1" }, // Maelstrom
+            { 1009152, "2" }, // Twin Adder
+            { 1001379, "3" }, // Immortal Flames
+        };
 
         public static void init()
         {
@@ -100,6 +109,8 @@ namespace CurrencySpender.Data
                 { new List<uint> { 1769964 }, 1027766 }, // Goushs Ooan
 
                 { new List<uint> { 1770904 }, 1044839 }, // Dibourdier
+                
+                { new List<uint> { 1770282 }, 1033921 }, // Faux Commander
 
                 { ListRange(1770764, 1770765), 1048387 }, // Ryubool Ja
 
@@ -138,11 +149,11 @@ namespace CurrencySpender.Data
 
                         NpcId = npcMapping.FirstOrDefault(kv => kv.Key.Contains(shop.RowId)).Value;
 
-                        // if (NpcId == 1045069)
+                        // if (NpcId == 1009552 ||  NpcId == 1009152 || NpcId == 1001379)
                         // {
-                        //     if (C.Debug) PluginLog.Information($"Missing NpcId: {shop.RowId}-{shop.Name}-{converted_cur_item.Name}-{converted_cur}");
-                        //     if (C.Debug) PluginLog.Information($"First Item: {shop.Item.First().ReceiveItems.First().Item.RowId}-{shop.Item.First().ReceiveItems.First().Item.Value.Name}");
-                        //     if (C.Debug) PluginLog.Information($"Second Item: {shop.Item[1].ReceiveItems.First().Item.RowId}-{shop.Item[1].ReceiveItems.First().Item.Value.Name}");
+                        //     if (C.Debug) DuoLog.Information($"Missing NpcId: {shop.RowId}-{shop.Name}-{converted_cur_item.Name}-{converted_cur}");
+                        //     if (C.Debug) DuoLog.Information($"First Item: {shop.Item.First().ReceiveItems.First().Item.RowId}-{shop.Item.First().ReceiveItems.First().Item.Value.Name}");
+                        //     if (C.Debug) DuoLog.Information($"Second Item: {shop.Item[1].ReceiveItems.First().Item.RowId}-{shop.Item[1].ReceiveItems.First().Item.Value.Name}");
                         // }
 
                         if (NpcId != 0)
@@ -187,8 +198,9 @@ namespace CurrencySpender.Data
                     }
                 }
             }
-            
-            
+
+            Generator.ShopsFinished = true;
+            if(Generator.ShopsFinished && Generator.ItemsFinished) Generator.AllFinished = true;
             PluginLog.Verbose("ShopGen init finished");
         }
         public static void EvalulateRowRef(ENpcBase npcBase, RowRef rowRef)
@@ -196,7 +208,7 @@ namespace CurrencySpender.Data
             ReadOnlySpan<Type> customTalkTypes = [typeof(FateShop), typeof(FccShop), typeof(SpecialShop), typeof(InclusionShop)];
             var customTalkTypeHash = RowRef.CreateTypeHash(customTalkTypes);
             var npcName = Service.DataManager.GetExcelSheet<ENpcResident>()!.GetRow(npcBase.RowId).Singular.ExtractText();
-            // List<string> names = ["Quinnana"];
+            // List<string> names = ["Jonathas"];
             // if (names.Contains(npcName))
             // {
             //     if (C.Debug)
@@ -218,11 +230,10 @@ namespace CurrencySpender.Data
             // else PluginLog.Information($"Found location: {loc}");
             //var loc = Location.locations.FirstOrDefault(loc => loc.Name.Equals(npcName, StringComparison.OrdinalIgnoreCase));
             //if (loc == default) { loc = Location.locations[0]; }
-            // if (npcName.ToLower() == "quinnana")
-            // {
-            //     PluginLog.Verbose($"FOUND: {npcBase.RowId}-{npcName}");
-            //     PluginLog.Verbose($"{rowRef.Is<FccShop>()}-{rowRef.Is<GCShop>()}-{rowRef.Is<GilShop>()}-{rowRef.Is<SpecialShop>()}-{rowRef.Is<CustomTalk>()}");
-            //     PluginLog.Verbose($"{rowRef.Is<TopicSelect>()}-{rowRef.Is<PreHandler>()}-{rowRef.RowId}");
+            // if (npcName.ToLower() == "faux commander") 
+            //     PluginLog.Debug($"FOUND: {npcBase.RowId}-{npcName}");
+            //     PluginLog.Debug($"{rowRef.Is<FccShop>()}-{rowRef.Is<GCShop>()}-{rowRef.Is<GilShop>()}-{rowRef.Is<SpecialShop>()}-{rowRef.Is<CustomTalk>()}");
+            //     PluginLog.Debug($"{rowRef.Is<TopicSelect>()}-{rowRef.Is<PreHandler>()}-{rowRef.RowId}");
             // }
             if (rowRef.Is<FccShop>())
             {
@@ -265,6 +276,11 @@ namespace CurrencySpender.Data
                 List<uint> blacklist_shops = [1770595, 1770645, 1770729];
                 if (!blacklist_npcs.Contains(npcBase.RowId) && !blacklist_shops.Contains(rowRef.RowId))
                 {
+                    if (GrandCompanyNpcs.TryGetValue(npcBase.RowId, out var requiredCompany) &&
+                        !PlayerHelper.GrandCompany().Equals(requiredCompany))
+                    {
+                        return;
+                    }
                     Generator.shops.Add(new Shop { ShopId = rowRef.RowId, NpcId = npcBase.RowId, Type = ShopType.SpecialShop, Location = loc });
                 }
             }
