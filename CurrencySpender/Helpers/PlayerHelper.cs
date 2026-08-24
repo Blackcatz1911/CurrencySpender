@@ -147,6 +147,14 @@ namespace CurrencySpender.Helpers
                 P.TaskManager.Enqueue(() => ItemGen.fateShops());
             }
         }
+        public static bool IsAchievementWindowUnlocked()
+        {
+            return UIModule.Instance()->IsMainCommandUnlocked(6);
+        }
+        public static void OpenAchievementWindow()
+        {
+            UIModule.Instance()->ExecuteMainCommand(6);
+        }
         public static bool checkRefresh()
         {
             if (GenericHelpers.TryGetAddonByName<AtkUnitBase>("FateProgress", out var addon) && GenericHelpers.IsAddonReady(addon))
@@ -156,9 +164,14 @@ namespace CurrencySpender.Helpers
             return false;
         }
 
-        public static String GrandCompany()
+        public static string GrandCompany()
         {
             return PlayerState.Instance()->GrandCompany.ToString();
+        }
+
+        public static uint GrandCompanyId()
+        {
+            return (uint)PlayerState.Instance()->GrandCompany;
         }
     }
 }

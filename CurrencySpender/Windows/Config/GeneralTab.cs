@@ -39,11 +39,19 @@ internal class GeneralTab
                         C.SelectedCollectableTypes.Remove(type);
                     }
                     P.spendingWindow.UpdateData();
-                    MainTab.update(true);
+                    MainTab.Update(true);
                 }
                 ImGui.SameLine();
                 ImGui.Text(label);
             }
+        }
+        ImGui.Separator();
+        ImGui.TextWrapped("Will hide items that require an achievement or quest you have not completed yet.");
+        if (ImGui.Checkbox("Hide unobtainable items", ref C.HideUnattainableItems))
+        {
+            P.spendingWindow.UpdateData();
+            MainTab.Update(true);
+            SocietiesTab.Update(true);
         }
         ImGui.Separator();
         ImGui.Checkbox("Show items eligible for sale", ref C.ShowSellables);

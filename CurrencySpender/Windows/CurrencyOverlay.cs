@@ -1,10 +1,4 @@
-using Dalamud.Interface.Components;
-using FFXIVClientStructs.FFXIV.Application.Network.WorkDefinitions;
 using FFXIVClientStructs.FFXIV.Component.GUI;
-using System.Net.Http;
-using System.Threading;
-using CurrencySpender;
-using CurrencySpender.Windows;
 using Dalamud.Game.Addon.Lifecycle;
 using Dalamud.Game.Addon.Lifecycle.AddonArgTypes;
 using Dalamud.Interface;
@@ -14,7 +8,7 @@ namespace CurrencySpender.Windows;
 internal unsafe class CurrencyOverlay : Window
 {
     private float height;
-    private bool MainIsOpen = false;
+    private bool mainIsOpen = false;
 
     public CurrencyOverlay() : base("Currency overlay", ImGuiWindowFlags.NoDecoration | ImGuiWindowFlags.AlwaysUseWindowPadding | ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoFocusOnAppearing | ImGuiWindowFlags.NoSavedSettings, true)
     {
@@ -27,17 +21,17 @@ internal unsafe class CurrencyOverlay : Window
     }
     private void OnCurrencyOpen(AddonEvent type, AddonArgs args)
     {
-        if (C.OpenAutomatically && !MainIsOpen)
+        if (C.OpenAutomatically && !mainIsOpen)
         {
             P.mainTabWindow.IsOpen = true;
-            MainIsOpen = true;
+            mainIsOpen = true;
             PluginLog.Debug("Auto-opened main window on Currency addon open.");
         }
     }
 
     private void OnCurrencyClose(AddonEvent type, AddonArgs args)
     {
-        MainIsOpen = false; // 👈 Reset for next time
+        mainIsOpen = false;
         PluginLog.Debug("Currency addon closed — reset auto-open flag.");
     }
 
@@ -61,18 +55,18 @@ internal unsafe class CurrencyOverlay : Window
                 Position = new(addon->X, addon->Y - height);
             }
             if(ImGuiEx.IconButtonWithText(FontAwesomeIcon.MoneyBills, "Open Currency Spender")) P.mainTabWindow.IsOpen = true;
-            if(C.OpenAutomatically && !MainIsOpen) {
+            if(C.OpenAutomatically && !mainIsOpen) {
                 P.mainTabWindow.IsOpen = true;
-                MainIsOpen = true;
+                mainIsOpen = true;
             }
         }
-        else { MainIsOpen = false; }
+        else { mainIsOpen = false; }
         height = ImGui.GetWindowSize().Y;
     }
 
     public override void OnClose()
     {
-        MainIsOpen = false;
+        mainIsOpen = false;
         base.OnClose();
     }
 }

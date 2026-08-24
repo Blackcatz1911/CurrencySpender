@@ -1,16 +1,27 @@
 # Changelog
 
+## 1.3.1
+### Added
+- Option to hide items, that are not obtainable.
+- Currencies that require to be in a specific location will now be hidden, if not in that area.
+### Changed
+- Major refactoring of some code.
+- The icon for the required quest or achievement will now be colored/changed depending on the unlock status.
+### Fixed
+- Faux Leaves now correctly cap at 1000.
+- Fixed bug that will prevent the correct display of the window when sorting.
+
 ## 1.3.0
 ### Added
 - Societal currencies are now tracked.
 - New currency: Faux leaves added.
-- New currency: Achievement Cerificates added.
-- Added a tooltip to show when a prerequisite quest is needed.
+- New currency: Achievement Certificates added.
+- Added an icon with tooltip to show when a prerequisite quest is needed.
 - New setting: The possibility to glue the spending windows to the main window.
 ### Changed
 - Teleporting now skips the teleport when you are already in the correct zone.
 - The spending window now only opens once shop/item data has finished loading.
-- ConfigWizard reworked to work more resilent and needs less manual config.
+- ConfigWizard reworked to work more resilient and needs less manual config.
 - Refactored some code.
 ### Fixed
 - When no sellable items are found, now shows a proper warning.

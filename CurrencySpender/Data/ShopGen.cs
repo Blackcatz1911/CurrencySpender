@@ -8,7 +8,6 @@ namespace CurrencySpender.Data
 {
     public static class ShopGen
     {
-        public static List<uint> fateShops = new List<uint>();
         public static List<uint> EventShops = [
             1770595, 1770645, 1770729, // Event Shops
             1769474, 1769747, 1769875, 1769881, 1769882, 1769952, 1769953, 1769954, 1769955, // Campaign Attendant
@@ -20,12 +19,24 @@ namespace CurrencySpender.Data
 
         public static List<uint> OldShops = new List<uint> ();
 
-        public static readonly Dictionary<uint, string> GrandCompanyNpcs = new()
+        public static readonly Dictionary<uint, uint> GrandCompanyNpcs = new()
         {
-            { 1009552, "1" }, // Maelstrom
-            { 1009152, "2" }, // Twin Adder
-            { 1001379, "3" }, // Immortal Flames
+            { 1009552, 1 }, // Maelstrom
+            { 1009152, 2 }, // Twin Adder
+            { 1001379, 3 }, // Immortal Flames
         };
+
+        private static readonly IReadOnlyList<uint> EventNpcBlacklist =
+        [
+            1006004, 1006005, 1006006, // Calamity Salvager
+            1028254, // Ironworks Vendor
+            1019797, 1026074, 1028250, 1034489, 1036894, 1042833, 1044880, 1046491, // Campaign Attendant
+            1010478, 1016296, // Triple Triad Trader
+            1031691, // Enie
+            1052588, 1052600, 1052607, // Mesouaidonque
+        ];
+
+        private static readonly IReadOnlyList<uint> EventShopBlacklist = [1770595, 1770645, 1770729];
 
         public static void init()
         {
@@ -46,7 +57,7 @@ namespace CurrencySpender.Data
                 {
                     var shop_ = fs.SpecialShop.ToList()[i];
                     if (shop_.RowId == 0) continue;
-                    //PluginLog.Verbose(shop.RowId.ToString());
+                    //PluginLog.Verbose(shop_.RowId.ToString());
                     Location? loc = Location.GetLocation(fs.RowId);
                     if(loc == null || (loc.Position.X == 0 && loc.Position.Y == 0)) { PluginLog.Error($"Missing location: {fs.RowId}"); }
                     // else PluginLog.Debug($"ShopGen: Location not found {loc}");
@@ -62,7 +73,7 @@ namespace CurrencySpender.Data
             {
                 foreach (var variable in npc.ENpcData)
                 {
-                    EvalulateRowRef(npc, variable);
+                    EvaluateRowRef(npc, variable);
                 }
             }
             //foreach (var shop in Service.DataManager.GetExcelSheet<InclusionShop>())
@@ -119,10 +130,12 @@ namespace CurrencySpender.Data
             };
             foreach (var shop in Service.DataManager.GetExcelSheet<SpecialShop>())
             {
-                if (shop.Item[0].ReceiveItems[0].Item.RowId == 4551 && shop.Item[1].ReceiveItems[0].Item.RowId == 0) continue;
+                if (shop.Item.Count == 0 || shop.Item[0].ReceiveItems.Count == 0) continue;
+                if (shop.Item.Count > 1 && shop.Item[0].ReceiveItems[0].Item.RowId == 4551 && shop.Item[1].ReceiveItems[0].Item.RowId == 0) continue;
                 if (OldShops.Contains(shop.RowId)) continue;
                 uint converted_cur = 0;
-                foreach (var currency in shop.Item.First().ItemCosts)
+                var firstEntry = shop.Item.First();
+                foreach (var currency in firstEntry.ItemCosts)
                 {
                     if (currency.ItemCost.RowId == 0) continue;
                     var costItemId = currency.ItemCost.RowId;
@@ -135,13 +148,14 @@ namespace CurrencySpender.Data
                     //var costItem = Service.DataManager.GetExcelSheet<Item>().GetRow(costItemId);
                     //DuoLog.Information($"Currency: {costItem.Name}");
                 }
+                if (firstEntry.ItemCosts.Count == 0 || firstEntry.ReceiveItems.Count == 0) continue;
                 Item converted_cur_item = Service.DataManager.GetExcelSheet<Item>().GetRow(converted_cur);
-                var item_cost = shop.Item.First().ItemCosts.First().ItemCost.RowId;
+                var item_cost = firstEntry.ItemCosts.First().ItemCost.RowId;
                 //var converted_cur = ItemGen.ConvertCurrencyId(shop.RowId, item_cost, shop.UseCurrencyType);
                 //PluginLog.Information($"{converted_cur}");
                 if (P.Currencies.Where(cur => cur.Enabled && (cur.ItemId == item_cost || cur.ItemId == converted_cur)).ToList().Count > 0)
                 {
-                    var cur = ItemGen.ConvertCurrencyId(shop.RowId, shop.Item.First().ReceiveItems.First().Item.RowId, shop.UseCurrencyType);
+                    var cur = ItemGen.ConvertCurrencyId(shop.RowId, firstEntry.ReceiveItems.First().Item.RowId, shop.UseCurrencyType);
                     if (Generator.shops.Where(s => s.ShopId == shop.RowId).ToList().Count == 0)
                     {
                         uint NpcId = 0;
@@ -152,16 +166,15 @@ namespace CurrencySpender.Data
                         // if (NpcId == 1009552 ||  NpcId == 1009152 || NpcId == 1001379)
                         // {
                         //     if (C.Debug) DuoLog.Information($"Missing NpcId: {shop.RowId}-{shop.Name}-{converted_cur_item.Name}-{converted_cur}");
-                        //     if (C.Debug) DuoLog.Information($"First Item: {shop.Item.First().ReceiveItems.First().Item.RowId}-{shop.Item.First().ReceiveItems.First().Item.Value.Name}");
-                        //     if (C.Debug) DuoLog.Information($"Second Item: {shop.Item[1].ReceiveItems.First().Item.RowId}-{shop.Item[1].ReceiveItems.First().Item.Value.Name}");
+                        //     if (C.Debug) DuoLog.Information($"First Item: {firstEntry.ReceiveItems.First().Item.RowId}-{firstEntry.ReceiveItems.First().Item.Value.Name}");
+                        //     if (C.Debug && shop.Item.Count > 1) DuoLog.Information($"Second Item: {shop.Item[1].ReceiveItems.First().Item.RowId}-{shop.Item[1].ReceiveItems.First().Item.Value.Name}");
                         // }
 
                         if (NpcId != 0)
                         {
                             Location? loc = Location.GetLocation(NpcId);
                             if(loc == null || (loc.Position.X == 0 && loc.Position.Y == 0)) { PluginLog.Error($"Missing location: {NpcId}"); }
-                            List<uint> blacklist_shops = [1770595, 1770645, 1770729];
-                            if (!blacklist_shops.Contains(shop.RowId))
+                            if (!EventShopBlacklist.Contains(shop.RowId))
                             {
                                 List<uint> gemstones = [1027385, 1027497, 1027892, 1027665, 1027709, 1027766, 1027998, 1027538];
                                 if (gemstones.Contains(NpcId))
@@ -183,8 +196,9 @@ namespace CurrencySpender.Data
                         if (NpcId == 0)
                         {
                             if (C.Debug) PluginLog.Information($"Missing NpcId: {shop.RowId}-{shop.Name}-{converted_cur_item.Name}-{converted_cur}");
-                            if (C.Debug) PluginLog.Information($"First Item: {shop.Item.First().ReceiveItems.First().Item.RowId}-{shop.Item.First().ReceiveItems.First().Item.Value.Name}");
-                            if (C.Debug) PluginLog.Information($"Second Item: {shop.Item[1].ReceiveItems.First().Item.RowId}-{shop.Item[1].ReceiveItems.First().Item.Value.Name}");
+                            if (C.Debug) PluginLog.Information($"First Item: {firstEntry.ReceiveItems.First().Item.RowId}-{firstEntry.ReceiveItems.First().Item.Value.Name}");
+                            if (C.Debug && shop.Item.Count > 1 && shop.Item[1].ReceiveItems.Count > 0)
+                                PluginLog.Information($"Second Item: {shop.Item[1].ReceiveItems.First().Item.RowId}-{shop.Item[1].ReceiveItems.First().Item.Value.Name}");
                         }
                     }
                 }
@@ -203,7 +217,7 @@ namespace CurrencySpender.Data
             if(Generator.ShopsFinished && Generator.ItemsFinished) Generator.AllFinished = true;
             PluginLog.Verbose("ShopGen init finished");
         }
-        public static void EvalulateRowRef(ENpcBase npcBase, RowRef rowRef)
+        public static void EvaluateRowRef(ENpcBase npcBase, RowRef rowRef)
         {
             ReadOnlySpan<Type> customTalkTypes = [typeof(FateShop), typeof(FccShop), typeof(SpecialShop), typeof(InclusionShop)];
             var customTalkTypeHash = RowRef.CreateTypeHash(customTalkTypes);
@@ -226,15 +240,6 @@ namespace CurrencySpender.Data
             //     }
             // }
             Location? loc = Location.GetLocation(npcBase.RowId);
-            // if(loc != Location.locations[0]) PluginLog.Error($"Found location for {npcBase.RowId}: {loc}");
-            // else PluginLog.Information($"Found location: {loc}");
-            //var loc = Location.locations.FirstOrDefault(loc => loc.Name.Equals(npcName, StringComparison.OrdinalIgnoreCase));
-            //if (loc == default) { loc = Location.locations[0]; }
-            // if (npcName.ToLower() == "faux commander") 
-            //     PluginLog.Debug($"FOUND: {npcBase.RowId}-{npcName}");
-            //     PluginLog.Debug($"{rowRef.Is<FccShop>()}-{rowRef.Is<GCShop>()}-{rowRef.Is<GilShop>()}-{rowRef.Is<SpecialShop>()}-{rowRef.Is<CustomTalk>()}");
-            //     PluginLog.Debug($"{rowRef.Is<TopicSelect>()}-{rowRef.Is<PreHandler>()}-{rowRef.RowId}");
-            // }
             if (rowRef.Is<FccShop>())
             {
                 Generator.shops.Add(new Shop { ShopId = rowRef.RowId, NpcId = npcBase.RowId, Type = ShopType.FccShop, Location = loc });
@@ -243,7 +248,6 @@ namespace CurrencySpender.Data
             {
                 //var shop = Service.DataManager.GetExcelSheet<GCShop>()?.GetRow(rowRef.RowId);
                 //var npc = Service.DataManager.GetExcelSheet<ENpcResident>()?.GetRow(npcBase.RowId);
-                //list.Add((npc.Value.Singular.ExtractText(), rowRef.RowId, npcBase.RowId, ShopType.GCShop));
                 uint gc = 1; if (npcName.Contains("flame")) gc = 2; if (npcName.Contains("serpent")) gc = 3;
                 uint cur = gc + 19;
 
@@ -253,31 +257,14 @@ namespace CurrencySpender.Data
             else if (rowRef.Is<GilShop>())
             {
                 //var npc = Service.DataManager.GetExcelSheet<ENpcResident>()?.GetRow(npcBase.RowId);
-                //list.Add((npc.Value.Singular.ExtractText(), rowRef.RowId, npcBase.RowId, ShopType.GilShop));
                 //var gilShop = Service.DataManager.GetExcelSheet<GilShop>()?.GetRow(rowRef.RowId);
-                //list.Add((gilShop.Value.Name.ExtractText(), rowRef.RowId, npcBase.RowId, ShopType.GilShop));
-                // Generator.shops.Add(new Shop { ShopId = rowRef.RowId, NpcId = npcBase.RowId, Type = ShopType.GilShop });
             }
             else if (rowRef.Is<SpecialShop>())
             {
-                //if(rowRef.RowId == 
-                //if (loc == Location.locations[0] && C.Debug) { DuoLog.Error($"Missing location: {npcBase.RowId}"); }
-                //var npc = Service.DataManager.GetExcelSheet<ENpcResident>()?.GetRow(npcBase.RowId);
-                //list.Add((npc.Value.Singular.ExtractText(), rowRef.RowId, npcBase.RowId, ShopType.SpecialShop));
-                //var gilShop = Service.DataManager.GetExcelSheet<GilShop>()?.GetRow(rowRef.RowId);
-                //list.Add((gilShop.Value.Name.ExtractText(), rowRef.RowId, npcBase.RowId, ShopType.GilShop));
-                List<uint> blacklist_npcs = [1006004, 1006005, 1006006]; //Calamatiy Salvager
-                blacklist_npcs.Add(1028254); // Ironworks Vendor
-                blacklist_npcs.AddRange(new List<uint> { 1019797, 1026074, 1028250, 1034489, 1036894, 1042833, 1044880, 1046491 }); // Campaign Attendant
-
-                blacklist_npcs.AddRange(new List<uint> {1010478 , 1016296 }); // Triple Triad Trader
-                blacklist_npcs.Add(1031691); //Enie
-                blacklist_npcs.AddRange(new List<uint> { 1052588, 1052600, 1052607 }); // Mesouaidonque
-                List<uint> blacklist_shops = [1770595, 1770645, 1770729];
-                if (!blacklist_npcs.Contains(npcBase.RowId) && !blacklist_shops.Contains(rowRef.RowId))
+                if (!EventNpcBlacklist.Contains(npcBase.RowId) && !EventShopBlacklist.Contains(rowRef.RowId))
                 {
                     if (GrandCompanyNpcs.TryGetValue(npcBase.RowId, out var requiredCompany) &&
-                        !PlayerHelper.GrandCompany().Equals(requiredCompany))
+                        PlayerHelper.GrandCompanyId() != requiredCompany)
                     {
                         return;
                     }
@@ -287,7 +274,6 @@ namespace CurrencySpender.Data
             else if (rowRef.Is<InclusionShop>())
             {
                 //Shop newShop = new Shop { ShopId = rowRef.RowId, NpcId = npcBase.RowId, Type = ShopType.SpecialShop, Location = loc };
-                //DuoLog.Information($"newShop");
                 //Generator.shops.Add(new Shop { ShopId = rowRef.RowId, NpcId = npcBase.RowId, Type = ShopType.SpecialShop, Location = loc });
             }
             else if (rowRef.Is<CustomTalk>())
@@ -304,27 +290,25 @@ namespace CurrencySpender.Data
                 //    if (customTalk.Value.SpecialLinks.Is<TopicSelect>()) PluginLog.Information($"TopicSelect");
                 //    if (customTalk.Value.SpecialLinks.Is<PreHandler>()) PluginLog.Information($"PreHandler");
                 //}
-                
-                EvalulateRowRef(npcBase, customTalk.Value.SpecialLinks);
+
+                EvaluateRowRef(npcBase, customTalk.Value.SpecialLinks);
                 foreach (var scriptStruct in customTalk.Value.Script)
                 {
                     if (scriptStruct.ScriptArg == 0)
                     {
                         continue;
                     }
-                    //PluginLog.Information($"scriptStruct.ScriptArg: {scriptStruct.ScriptArg}");
                     var customTalkRef = RowRef.GetFirstValidRowOrUntyped(
                         Service.DataManager.Excel,
                         scriptStruct.ScriptArg,
                         customTalkTypes,
                         customTalkTypeHash,
                         Lumina.Data.Language.English);
-                    //PluginLog.Information($"customTalkRef: {customTalkRef}");
                     //if(customTalkRef.Is<SpecialShop>()) PluginLog.Information($"SpecialShop {customTalkRef.RowId}");
                     //if (customTalkRef.Is<InclusionShop>()) PluginLog.Information($"InclusionShop");
                     //if (customTalkRef.Is<FateShop>()) PluginLog.Information($"FateShop {customTalkRef.RowId}");
                     //if (customTalkRef.Is<FccShop>()) PluginLog.Information($"FccShop {customTalkRef.RowId}");
-                    EvalulateRowRef(npcBase, customTalkRef);
+                    EvaluateRowRef(npcBase, customTalkRef);
                 }
             }
             if (rowRef.Is<TopicSelect>())
@@ -332,13 +316,13 @@ namespace CurrencySpender.Data
                 var topicSelect = Service.DataManager.GetExcelSheet<TopicSelect>()?.GetRow(rowRef.RowId);
                 foreach (var topicShop in topicSelect.Value.Shop)
                 {
-                    EvalulateRowRef(npcBase, topicShop);
+                    EvaluateRowRef(npcBase, topicShop);
                 }
             }
             else if (rowRef.Is<PreHandler>())
             {
                 var preHandler = Service.DataManager.GetExcelSheet<PreHandler>()?.GetRow(rowRef.RowId);
-                EvalulateRowRef(npcBase, preHandler.Value.Target);
+                EvaluateRowRef(npcBase, preHandler.Value.Target);
             }
         }
         public static List<uint> ListRange(int start, int end)

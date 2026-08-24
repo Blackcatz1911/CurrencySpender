@@ -29,8 +29,6 @@ public sealed unsafe class Plugin : IDalamudPlugin
 
     public Config config;
 
-    public readonly WindowSystem WindowSystem = new("CurrencySpender");
-
     internal WindowSystem ws;
     internal MainTabWindow mainTabWindow;
     internal ConfigWindow ConfigWindow;
@@ -44,6 +42,9 @@ public sealed unsafe class Plugin : IDalamudPlugin
     public bool Problem = false;
     internal TaskManager TaskManager;
     public List<TrackedCurrency> Currencies;
+
+    public TrackedCurrency? GetCurrency(uint itemId) =>
+        Currencies?.FirstOrDefault(c => c.ItemId == itemId);
 
     public Plugin(IDalamudPluginInterface pluginInterface)
     {
@@ -97,9 +98,7 @@ public sealed unsafe class Plugin : IDalamudPlugin
         });
         // nodeHooker = new CurrencyNodeHooker();
         // nodeHooker.Enable();
-        
-        //PlayerHelper.init();
-        //Generator.init();
+
         FontHelper.SetupFonts();
         Version = VersionHelper.GetVersion();
         Service.ClientState.Login += OnLogin;

@@ -20,7 +20,7 @@ internal class SocietiesConfigTab
                     C.SelectedCurrencies.Remove(cur.ItemId);
                 }
                 P.spendingWindow.UpdateData();
-                MainTab.update(true);
+                MainTab.Update(true);
             }
             ImGui.SameLine();
             ImGui.Text(cur.Name);

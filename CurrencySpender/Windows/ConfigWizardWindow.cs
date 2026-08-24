@@ -23,9 +23,10 @@ internal class ConfigWizardWindow : Window
         new("1.2.6", 1, DrawVersion1_2_6Steps),
         new("1.2.7", 1, DrawVersion1_2_7Steps),
         new("1.3.0", 1, DrawVersion1_3_0Steps),
+        new("1.3.1", 1, DrawVersion1_3_1Steps),
     ];
 
-    public ConfigWizardWindow() : base($"{P.Name} {P.Version} - Configuration Wizard###{P.Name}ConfigWizardWindow;")
+    public ConfigWizardWindow() : base($"{P.Name} {P.Version} - Configuration Wizard###{P.Name}ConfigWizardWindow")
     {
         this.SizeConstraints = new()
         {
@@ -166,7 +167,7 @@ internal class ConfigWizardWindow : Window
             else
                 C.SelectedCurrencies.Remove(cur.ItemId);
             P.spendingWindow.UpdateData();
-            MainTab.update(true);
+            MainTab.Update(true);
         }
         ImGui.SameLine();
         ImGui.Text(cur.Name);
@@ -188,7 +189,7 @@ internal class ConfigWizardWindow : Window
                 else
                     C.SelectedCollectableTypes.Remove(type);
                 P.spendingWindow.UpdateData();
-                MainTab.update(true);
+                MainTab.Update(true);
             }
             ImGui.SameLine();
             ImGui.Text(label);
@@ -339,6 +340,17 @@ internal class ConfigWizardWindow : Window
                 ImGui.Checkbox("Show Societies tab", ref C.ShowSocieties);
                 ImGui.Separator();
                 DrawCurrencySelection("1.3.0");
+                break;
+        }
+    }
+
+    private static void DrawVersion1_3_1Steps(int step)
+    {
+        switch (step)
+        {
+            case 1:
+                ImGui.TextWrapped("Will hide items that require an achievement or quest you have not completed yet.");
+                ImGui.Checkbox("Hide unobtainable items", ref C.HideUnattainableItems);
                 break;
         }
     }

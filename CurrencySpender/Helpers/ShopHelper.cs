@@ -5,26 +5,18 @@ namespace CurrencySpender.Helpers
 {
     internal static class ShopHelper
     {
-        public static List<ShopItem> GetSellableItems(TrackedCurrency Currency)
+        internal static bool IsAttainable(ShopItem item)
         {
-            List<ShopItem> items;
-            if (Currency.ItemId == 26807)
-            {
-                items = Generator.items
-                                 .Where(item => (item.Currency == Currency.ItemId) && item.Type.HasFlag(ItemType.Tradeable)
-                                                && !item.Disabled && !item.Shop.Disabled && item.HasSoldWeek >= C.MinSales)
-                                 .ToList();
-                //PluginLog.Verbose($"{SellableItems.Count}");
-            }
-            else
-            {
-                items = Generator.items
-                                 .Where(item => (item.Currency == Currency.ItemId) && item.Type.HasFlag(ItemType.Tradeable) && !item.Disabled && !item.Shop.Disabled &&
-                                                item.HasSoldWeek >= C.MinSales)
-                                 .ToList();
-                //PluginLog.Verbose($"{SellableItems.Count}");
-            }
-            return items;
+            return !C.HideUnattainableItems || ItemHelper.IsPrereqMet(item);
+        }
+
+        public static List<ShopItem> GetSellableItems(TrackedCurrency currency)
+        {
+            return Generator.items
+                .Where(item => item.Currency == currency.ItemId && item.Type.HasFlag(ItemType.Tradeable)
+                               && !item.Disabled && !item.Shop.Disabled
+                               && item.HasSoldWeek >= C.MinSales && IsAttainable(item))
+                .ToList();
         }
         public static List<ShopItem> GetCollectableItems(TrackedCurrency currency)
         {
@@ -34,14 +26,14 @@ namespace CurrencySpender.Helpers
             {
                 items = Generator.items
                                  .Where(item => (item.Currency == currency.ItemId || (currency.Children != null && currency.Children.Contains(item.Currency))) && item.Type.HasFlag(ItemType.Collectable) && !item.Disabled &&
-                                                C.SelectedCollectableTypes.Contains((CollectableType)item.CollectableType) && !ItemHelper.IsUnlocked(item.Id))
+                                                C.SelectedCollectableTypes.Contains((CollectableType)item.CollectableType) && !ItemHelper.IsUnlocked(item.Id) && IsAttainable(item))
                                  .ToList();
             }
             else
             {
                 items = Generator.items
                                  .Where(item => (item.Currency == currency.ItemId || (currency.Children != null && currency.Children.Contains(item.Currency))) && item.Type.HasFlag(ItemType.Collectable) && !item.Disabled &&
-                                                C.SelectedCollectableTypes.Contains((CollectableType)item.CollectableType))
+                                                C.SelectedCollectableTypes.Contains((CollectableType)item.CollectableType) && IsAttainable(item))
                                  .ToList();
             }
             return items;
@@ -49,13 +41,13 @@ namespace CurrencySpender.Helpers
         public static List<ShopItem> GetVentures(TrackedCurrency currency)
         {
             return Generator.items
-                .Where(item => item.Currency == currency.ItemId && item.Type.HasFlag(ItemType.Venture))
+                .Where(item => item.Currency == currency.ItemId && item.Type.HasFlag(ItemType.Venture) && IsAttainable(item))
                 .ToList();
         }
         public static List<ShopItem> GetItemsOfInterest(TrackedCurrency currency)
         {
             return Generator.items
-                .Where(item => item.Currency == currency.ItemId && C.ItemsOfInterest.Contains(item.Id) && !item.Shop.Disabled)
+                .Where(item => item.Currency == currency.ItemId && C.ItemsOfInterest.Contains(item.Id) && !item.Shop.Disabled && IsAttainable(item))
                 .ToList();
         }
     }

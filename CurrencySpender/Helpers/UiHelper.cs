@@ -16,14 +16,7 @@ internal static unsafe class UiHelper
     public static void RightAlign(string str, bool formatString = false)
     {
         if (formatString) str = StringHelper.FormatString(str);
-        float rowHeight = ImGui.GetFrameHeight(); // Height of the row
-        float textHeight = ImGui.GetTextLineHeight(); // Height of the text
-        float iconSizef = 20; // Assuming your icon is 20x20
-        float maxHeight = Math.Max(textHeight, iconSizef); // Get the largest height (icon or text)
-        float offset = (rowHeight - maxHeight) / 1.0f; // Calculate offset
-
-        if (offset > 0)
-            ImGui.SetCursorPosY(ImGui.GetCursorPosY() + offset); // Adjust vertical position
+        AlignTextVertical();
         var posX = ImGui.GetCursorPosX() + ImGui.GetColumnWidth() - ImGui.CalcTextSize(str).X
             - ImGui.GetScrollX();
         if (posX > ImGui.GetCursorPosX())
@@ -52,14 +45,7 @@ internal static unsafe class UiHelper
         if (posX > ImGui.GetCursorPosX())
             ImGui.SetCursorPosX(posX);
 
-        float rowHeight = ImGui.GetFrameHeight(); // Height of the row
-        float textHeight = ImGui.GetTextLineHeight(); // Height of the text
-        float iconSizef = 20; // Assuming your icon is 20x20
-        float maxHeight = Math.Max(textHeight, iconSizef); // Get the largest height (icon or text)
-        float offset = (rowHeight - maxHeight) / 1.0f; // Calculate offset
-
-        if(offset > 0)
-            ImGui.SetCursorPosY(ImGui.GetCursorPosY() + offset); // Adjust vertical position
+        AlignTextVertical();
 
         // Render text
         ImGui.Text(text);
@@ -78,14 +64,7 @@ internal static unsafe class UiHelper
     public static void LeftAlign(string str, bool formatString = false)
     {
         if (formatString) str = StringHelper.FormatString(str);
-        float rowHeight = ImGui.GetFrameHeight(); // Height of the row
-        float textHeight = ImGui.GetTextLineHeight(); // Height of the text
-        float iconSizef = 20; // Assuming your icon is 20x20
-        float maxHeight = Math.Max(textHeight, iconSizef); // Get the largest height (icon or text)
-        float offset = (rowHeight - maxHeight) / 1.0f; // Calculate offset
-
-        if (offset > 0)
-            ImGui.SetCursorPosY(ImGui.GetCursorPosY() + offset); // Adjust vertical position
+        AlignTextVertical();
         ImGui.Text(str);
     }
 
@@ -98,6 +77,80 @@ internal static unsafe class UiHelper
         ImGuiEx.TextWrapped(EColor.YellowBright, str);
     }
 
+    public static unsafe void PrereqIcon(ShopItem item)
+    {
+        var prereq = ItemHelper.GetPrereqText(item);
+        string status;
+        Vector4 color;
+        FontAwesomeIcon icon;
+
+        var achievement = FFXIVClientStructs.FFXIV.Client.Game.UI.Achievement.Instance();
+        if (item.AchievementId.HasValue && !achievement->IsLoaded())
+        {
+            // Can't know yet — never show as fulfilled.
+            color = EColor.YellowBright;
+            icon = FontAwesomeIcon.ExclamationTriangle;
+            status = "Achievement data not loaded yet. Open the Achievement window to check status.";
+        }
+        else if (ItemHelper.IsPrereqMet(item))
+        {
+            color = EColor.GreenBright;
+            icon = FontAwesomeIcon.CheckCircle;
+            status = "Requirement already fulfilled:";
+        }
+        else if (item.AchievementId.HasValue)
+        {
+            color = EColor.RedBright;
+            icon = FontAwesomeIcon.ExclamationTriangle;
+            status = "Achievement not yet completed:";
+        }
+        else
+        {
+            color = EColor.RedBright;
+            icon = FontAwesomeIcon.ExclamationTriangle;
+            status = "Quest not yet completed:";
+        }
+
+        ImGui.PushFont(UiBuilder.IconFont);
+        ImGuiEx.Text(color, icon.ToIconString());
+        ImGui.PopFont();
+        if (ImGui.IsItemHovered())
+        {
+            ImGui.BeginTooltip();
+            ImGui.TextColored(color, status);
+            ImGui.TextUnformatted(prereq);
+            ImGui.EndTooltip();
+        }
+        ImGui.SameLine();
+    }
+
+    /// <summary>
+    /// Reads the table's sort specs, but only when they changed since last frame.
+    /// Resets the dirty flag so sorting does not re-run every frame.
+    /// </summary>
+    public static bool TryGetTableSort(ImGuiTableSortSpecsPtr specs, out int column, out bool ascending)
+    {
+        column = -1;
+        ascending = true;
+        if (specs.IsNull || !specs.SpecsDirty || specs.SpecsCount == 0) return false;
+        column = specs.Specs.ColumnIndex;
+        ascending = specs.Specs.SortDirection == ImGuiSortDirection.Ascending;
+        specs.SpecsDirty = false;
+        return true;
+    }
+
+    private static void AlignTextVertical()
+    {
+        float rowHeight = ImGui.GetFrameHeight(); // Height of the row
+        float textHeight = ImGui.GetTextLineHeight(); // Height of the text
+        const float iconSize = 20; // Assuming your icon is 20x20
+        float maxHeight = Math.Max(textHeight, iconSize);
+        float offset = (rowHeight - maxHeight) / 1.0f; // Calculate offset
+
+        if (offset > 0)
+            ImGui.SetCursorPosY(ImGui.GetCursorPosY() + offset); // Adjust vertical position
+    }
+
     internal static void BuildMapButtons(ShopItem item)
     {
         Location backupLocation = new Location();
@@ -108,7 +161,8 @@ internal static unsafe class UiHelper
         }
         if (item.Shop.Location.NeedsPresence && item.Shop.Location.BackupNpc != null)
         {
-            backupLocation = Location.Locations.Where(loc => loc.NpcId == item.Shop.Location.BackupNpc).First();
+            var backup = Location.Locations.FirstOrDefault(loc => loc.NpcId == item.Shop.Location.BackupNpc);
+            if (backup != null) backupLocation = backup;
         }
         if (ImGui.Button($"Flag##sellable-{item.Id}-{item.ShopId}-{item.Shop.NpcId}"))
         {
@@ -143,7 +197,6 @@ internal static unsafe class UiHelper
                 item.Shop.Location.Teleport();
             else
                 item.Shop.Location.MoveTo();
-            
             if (item.Shop.Location.NeedsPresence &&
                 AgentMap.Instance()->CurrentTerritoryId != item.Shop.Location.TerritoryId)
             {

@@ -11,7 +11,6 @@ public class Service
     [PluginService] public static IClientState ClientState { get; set; }
     [PluginService] public static IDataManager DataManager { get; set; }
     [PluginService] public static ITextureProvider TextureProvider { get; set; }
-    [PluginService] public static IChatGui ChatGui { get; set; }
     [PluginService] public static IPluginLog Log { get; set; }
     [PluginService] public static IGameGui GameGui { get; set; }
     [PluginService] public static IFramework Framework { get; set; }

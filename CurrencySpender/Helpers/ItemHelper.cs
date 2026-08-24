@@ -266,7 +266,7 @@ namespace CurrencySpender.Helpers
             if (cat == 81) return CollectableType.Minion;
             if (cat == 86) return CollectableType.TTCard;
             if (cat == 94) return CollectableType.Scroll;
-    
+
             if (Debug) DuoLog.Debug("Collectable Type not found!");
             return CollectableType.None;
         }
@@ -534,6 +534,49 @@ namespace CurrencySpender.Helpers
                 rank++;
             }
             return rank;
+        }
+
+        public static unsafe bool IsPrereqMet(ShopItem item)
+        {
+            if (!item.PreReq) return true;
+            if (item.QuestId is { } questId && !QuestManager.IsQuestComplete(questId))
+            {
+                return false;
+            }
+            if (item.AchievementId is { } achievementId)
+            {
+                var achievement = FFXIVClientStructs.FFXIV.Client.Game.UI.Achievement.Instance();
+                // Achievement data only loads once the player opens the achievement window;
+                // before that treat the item as attainable rather than hiding it wrongly.
+                if (achievement->IsLoaded() && !achievement->IsComplete((int)achievementId))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        public static unsafe bool AchievementsLoaded()
+        {
+            return FFXIVClientStructs.FFXIV.Client.Game.UI.Achievement.Instance()->IsLoaded();
+        }
+
+        public static string GetPrereqText(ShopItem item)
+        {
+            var parts = new List<string>();
+            if (item.QuestId is { } questId)
+            {
+                parts.Add(Service.DataManager.GetExcelSheet<Quest>().TryGetRow(questId, out var quest)
+                    ? $"Quest \"{quest.Name}\""
+                    : $"Quest #{questId}");
+            }
+            if (item.AchievementId is { } achievementId)
+            {
+                parts.Add(Service.DataManager.GetExcelSheet<Lumina.Excel.Sheets.Achievement>().TryGetRow(achievementId, out var ach)
+                    ? $"Achievement \"{ach.Name}\""
+                    : $"Achievement #{achievementId}");
+            }
+            return string.Join(" and ", parts);
         }
     }
 }

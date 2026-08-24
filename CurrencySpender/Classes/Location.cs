@@ -5,7 +5,6 @@ using ECommons.Automation.NeoTaskManager;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using System.Reflection;
 using CurrencySpender.Tasks;
-using Map = Lumina.Excel.Sheets.Map;
 
 namespace CurrencySpender.Classes
 {
@@ -30,15 +29,16 @@ namespace CurrencySpender.Classes
 
         public uint NpcId { get; init; }
 
+        private string? zone;
         public string Zone {
             get
             {
+                if (zone != null) return zone;
                 var data = Service.DataManager.GetExcelSheet<TerritoryType>()!.GetRowOrDefault(TerritoryId);
-                if (data != null)
-                {
-                    return data.Value.PlaceName.ValueNullable?.Name.ToString() ?? "Unknown";
-                }
-                else return "Unknown";
+                zone = data != null
+                    ? data.Value.PlaceName.ValueNullable?.Name.ToString() ?? "Unknown"
+                    : "Unknown";
+                return zone;
             }
         }
 
@@ -60,21 +60,6 @@ namespace CurrencySpender.Classes
     
             PluginLog.Debug($"Creating map marker: X={Position.X}, Y={Position.Y}");
             return new MapLinkPayload(TerritoryId, MapId, Position.X, Position.Y);
-        }
-
-        public Vector3 GetWorldPosition()
-        {
-            if (Position is { X: 0, Y: 0 }) return Vector3.Zero;
-            var map = Service.DataManager.GetExcelSheet<Map>().GetRowOrDefault(MapId);
-            if (map == null || map.Value.SizeFactor == 0)
-            {
-                PluginLog.Error($"Location for NPC {NpcId} has invalid Map row {MapId}!");
-                return Vector3.Zero;
-            }
-            float scale = map.Value.SizeFactor / 100f;
-            float worldX = (Position.X - 1f) * (2048f / 41f) - 1024f / scale - map.Value.OffsetX;
-            float worldZ = (Position.Y - 1f) * (2048f / 41f) - 1024f / scale - map.Value.OffsetY;
-            return new (worldX, 0, worldZ);
         }
 
         public void Teleport()
@@ -211,7 +196,7 @@ namespace CurrencySpender.Classes
                 Lsc="The Forgotten Knight", Target = new(93, 15, 30) }, // Ardolain
             new() { MapId = 257, TerritoryId = 0478, Position = new Pos(5.9f,5.2f), NpcId = 1015578,
                 Target = new(-11, 211, -43) }, //Bertana
-            new() { MapId = 025, TerritoryId = 0156, Position = new Pos(22.1f,4.9f), NpcId = 103691,
+            new() { MapId = 025, TerritoryId = 0156, Position = new Pos(22.1f,4.9f), NpcId = 1036913,
                 Target = new(35, 29, -826) }, // Edelina
             new() { MapId = 574, TerritoryId = 0886, Position = new Pos(12.0f,14.0f), NpcId = 1031680,
                 AetheryteId = 70, NeedsPresence = true, BackupNpc = 1031682 }, // Enie

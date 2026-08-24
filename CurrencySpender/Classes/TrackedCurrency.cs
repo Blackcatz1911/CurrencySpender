@@ -59,7 +59,9 @@ public unsafe class TrackedCurrency
     public bool Society = false;
 
     public bool Invert;
-    
+
+    public bool NeedsPresence;
+
     public string? AddedInVersion;
 
     [JsonIgnore] public string Name => label ??= Service.DataManager.GetExcelSheet<Item>()!.GetRow(ItemId).Name.ExtractText() ?? "Unable to read name";
@@ -82,8 +84,8 @@ public unsafe class TrackedCurrency
         {
             itemId = Type switch
             {
-                CurrencyType.NonLimitedTomestone => Service.DataManager.GetExcelSheet<TomestonesItem>()!.First(item => item.Tomestones.RowId is 2).Item.RowId,
-                CurrencyType.LimitedTomestone => Service.DataManager.GetExcelSheet<TomestonesItem>()!.First(item => item.Tomestones.RowId is 3).Item.RowId,
+                CurrencyType.NonLimitedTomestone => Service.DataManager.GetExcelSheet<TomestonesItem>().First(item => item.Tomestones.RowId is 2).Item.RowId,
+                CurrencyType.LimitedTomestone => Service.DataManager.GetExcelSheet<TomestonesItem>().First(item => item.Tomestones.RowId is 3).Item.RowId,
                 _ => throw new Exception($"ItemId not initialized for type: {Type}"),
             };
         }
@@ -121,7 +123,7 @@ public unsafe class TrackedCurrency
             new() { Type = CurrencyType.Item, ItemId = 21103, Price = 500, Child=true, AddedInVersion = "1.0.0" },                                            // Mythic Clan Mark
 
             new() { Type = CurrencyType.Item, ItemId = 26533, Threshold = 3500, MaxCount = 4000, AddedInVersion = "1.0.0" }, // SackOfNuts
-            new() { Type = CurrencyType.Item, ItemId = 30341, Threshold = 9999, MaxCount = 9999, AddedInVersion = "1.3.0" },  // Faux Leaf
+            new() { Type = CurrencyType.Item, ItemId = 30341, Threshold = 9999, MaxCount = 1000, AddedInVersion = "1.3.0" },  // Faux Leaf
             new() { Type = CurrencyType.Item, ItemId = 21172, Threshold = 999, MaxCount = 999, AddedInVersion = "1.3.0" },  // Achievement Certificate
 
             new() { Type = CurrencyType.Item, ItemId = 26807, Threshold = 800, MaxCount = 1500, Children=[43961, 35833], AddedInVersion = "1.0.0" }, // BicolorGemstones
@@ -136,14 +138,14 @@ public unsafe class TrackedCurrency
             new() { Type = CurrencyType.Item, ItemId = 41807, Price = 1000, Child=true, AddedInVersion = "1.0.0" },                            // Gemstone Voucher
             new() { Type = CurrencyType.Item, ItemId = 28063, Threshold = 7500, MaxCount = 10000, AddedInVersion = "1.0.0" },                  // Skybuilders scripts
 
-            new() { Type = CurrencyType.Item, ItemId = 37549, Threshold = 9999999, MaxCount = 9999999, AddedInVersion = "1.1.2" }, // Seafarer's Cowrie
-            new() { Type = CurrencyType.Item, ItemId = 37550, Threshold = 9999999, MaxCount = 9999999, AddedInVersion = "1.1.2" }, // Islander's Cowrie
+            new() { Type = CurrencyType.Item, ItemId = 37549, Threshold = 9999999, MaxCount = 9999999, AddedInVersion = "1.1.2", NeedsPresence = true }, // Seafarer's Cowrie
+            new() { Type = CurrencyType.Item, ItemId = 37550, Threshold = 9999999, MaxCount = 9999999, AddedInVersion = "1.1.2", NeedsPresence = true }, // Islander's Cowrie
 
-            new() { Type = CurrencyType.Item, ItemId = 45690, Threshold = 25000, MaxCount = 30000, AddedInVersion = "1.2.2" }, // Cosmocredit
-            new() { Type = CurrencyType.Item, ItemId = 45691, Threshold = 8000, MaxCount = 10000, AddedInVersion = "1.2.4" },  // Lunar Credit
-            new() { Type = CurrencyType.Item, ItemId = 48146, Threshold = 8000, MaxCount = 10000, AddedInVersion = "1.2.4" },  // Phaenna Credit
-            new() { Type = CurrencyType.Item, ItemId = 48147, Threshold = 8000, MaxCount = 10000, AddedInVersion = "1.2.7" },  // Oizys Credit
-            new() { Type = CurrencyType.Item, ItemId = 48148, Threshold = 8000, MaxCount = 10000, AddedInVersion = "1.2.7" },  // Auxesia Credit
+            new() { Type = CurrencyType.Item, ItemId = 45690, Threshold = 25000, MaxCount = 30000, AddedInVersion = "1.2.2", NeedsPresence = true }, // Cosmocredit
+            new() { Type = CurrencyType.Item, ItemId = 45691, Threshold = 8000, MaxCount = 10000, AddedInVersion = "1.2.4", NeedsPresence = true },  // Lunar Credit
+            new() { Type = CurrencyType.Item, ItemId = 48146, Threshold = 8000, MaxCount = 10000, AddedInVersion = "1.2.4", NeedsPresence = true },  // Phaenna Credit
+            new() { Type = CurrencyType.Item, ItemId = 48147, Threshold = 8000, MaxCount = 10000, AddedInVersion = "1.2.7", NeedsPresence = true },  // Oizys Credit
+            new() { Type = CurrencyType.Item, ItemId = 48148, Threshold = 8000, MaxCount = 10000, AddedInVersion = "1.2.7", NeedsPresence = true },  // Auxesia Credit
             
             // Societial currencies
             new() { Type = CurrencyType.Item, ItemId = 21076, Threshold = 900, MaxCount = 999, Society = true, AddedInVersion = "1.3.0" }, // Steel Amalj'ok

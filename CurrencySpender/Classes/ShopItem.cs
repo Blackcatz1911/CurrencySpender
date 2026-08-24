@@ -38,7 +38,8 @@ public unsafe class ShopItem
     public ItemType Type { get; set; }
     public CollectableType CollectableType { get; set; }
     public uint Id { get; set; }
-    [JsonIgnore] public string Name => Service.DataManager.GetExcelSheet<Item>()!.GetRow(Id).Name.ExtractText() ?? "Unable to read name";
+    private string? name;
+    [JsonIgnore] public string Name => name ??= Service.DataManager.GetExcelSheet<Item>()!.GetRow(Id).Name.ExtractText() ?? "Unable to read name";
     public uint Category { get; set; }
     public uint Price { get; set; }
     public Boolean Gamba = false;
@@ -50,6 +51,8 @@ public unsafe class ShopItem
     public uint? RequiredRank;
     public uint? RequiredReputation;
     public bool PreReq = false;
+    public uint? QuestId;
+    public uint? AchievementId;
 
     public List<int>? ContainerUnlocks { get; set; }
 
@@ -69,7 +72,16 @@ public unsafe class ShopItem
     }
     public uint CurrentPrice { get; set; }
     public uint LastChecked { get; set; }
-    public uint AmountCanBuy => (uint)Math.Floor((double)P.Currencies.First(cur => cur.ItemId == Currency).CurrentCount / Price);
+    public uint AmountCanBuy
+    {
+        get
+        {
+            if (Price == 0) return 0;
+            var cur = P.GetCurrency(Currency);
+            if (cur == null) return 0;
+            return (uint)Math.Max(0, cur.CurrentCount) / Price;
+        }
+    }
     public uint Profit { get; set; }
     public float GilPerCur { get; set; }
     public uint HasSoldWeek { get; set; }

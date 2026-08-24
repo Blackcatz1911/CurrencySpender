@@ -24,6 +24,8 @@ public class Config
     public HashSet<CollectableType> SelectedCollectableTypes { get; set; } = new HashSet<CollectableType>();
     public HashSet<uint> SelectedCurrencies { get; set; } = new HashSet<uint>();
     public bool HideEmptyCurrencies = true;
+    public bool HideUnattainableItems = true;
+    
     public bool ShowItemsOfInterest = true;
     public bool ShowMissingCollectables = true;
     public bool ShowSellables = true;

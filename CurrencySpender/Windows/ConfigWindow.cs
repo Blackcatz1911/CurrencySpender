@@ -21,7 +21,7 @@ internal class ConfigWindow : Window
 
     public override void PreDraw()
     {
-        WindowName = $"{P.Name} Settings {P.Version}###{P.Name}{P.Version}ConfigWindow";
+        WindowName = $"{P.Name} Settings {P.Version}###{P.Name}ConfigWindow";
     }
 
     public override void Draw()
